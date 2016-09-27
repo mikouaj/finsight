@@ -1,0 +1,24 @@
+<html>
+<body>
+	<h1>File Upload with Jersey</h1>
+ 
+	  <form action="http://127.0.0.1:8090/transactions/import" method="post" enctype="multipart/form-data"> 
+ <!-- <form action="http://10.8.1.3:8080/transactions/import" method="post" enctype="multipart/form-data">-->
+ 
+	   <p>
+		Select a file : <input type="file" name="file" size="45" />
+	   </p>
+	   
+	   	   <p>
+		Select type : 
+		<select name="type">
+			<option value="dbCSVStatement">DB CSV Statement</option>
+			<option value="dbHTMLStatement">DB HTML Statement</option>
+		</select>
+	   </p>
+ 
+	   <input type="submit" value="Upload It" />
+	</form>
+ 
+</body>
+</html>
