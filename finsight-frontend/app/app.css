@@ -1,0 +1,30 @@
+body {
+  font: 400 15px/1.8 Lato, sans-serif;
+  color: #777;
+}
+
+.container-main {
+  padding-top:80px;
+}
+
+.smalltable {
+  font: 400 11px/1.8 Lato, sans-serif;
+}
+
+.smalltable td,th {
+	text-align: center;
+}
+
+.centered {
+	text-align: center;
+	vertical-align: middle;
+}
+
+.ui-scrollpoint {
+	position: fixed;
+	top:50px;
+	right:15px;
+	left: 15px;
+	background-color: white;
+	padding-top: 30px;
+}

@@ -1,0 +1,21 @@
+{
+  "name": "finsight-frontend",
+  "description": "Finance Insight Frontend",
+  "version": "0.0.1-SNAPSHOT",
+  "homepage": "http://nick.surreal.pl",
+  "license": "ASL",
+  "private": true,
+  "dependencies": {
+    "angular": "~1.5.0",
+    "angular-mocks": "~1.5.0",
+    "angular-resource": "1.5.x",
+    "angular-route": "~1.5.0",
+    "angular-sanitize": "~1.5.0",
+    "bootstrap": "3.3.x",
+    "angular-bootstrap" : "2.0.1",
+    "angular-ui-scrollpoint": "2.1.1",
+    "angular-ui-select" : "0.18.1",
+    "angular-animate": "1.5.x",
+    "ng-file-upload": "12.0.x"
+  }
+}

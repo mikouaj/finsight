@@ -1,0 +1,26 @@
+<div class="container" style="padding-top:10px">
+<table class="table table-condensed table-bordered smalltable">
+  <thead>
+    <tr>
+      <th>Date</th>
+      <th>Card</th>
+      <th>Destination</th>
+      <th>Amount</th>
+      <th>Currency</th>
+    </tr>
+  </thead>
+  <tbody>
+  	<tr>
+  	  <td>{{$ctrl.data.date}}</td>
+  	  <td>
+        <div uib-popover-template="$ctrl.cardPopoverTemplateUrl" popover-trigger="'mouseenter'">
+          {{$ctrl.data.card.name}}
+        </div>
+      </td>
+  	  <td>{{$ctrl.data.destination}}</td>
+  	  <td>{{$ctrl.data.amount | number : 2}}</td>
+      <td>{{$ctrl.data.currency}}</td>
+  	</tr>
+  </tbody>
+</table>
+</div>

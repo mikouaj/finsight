@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="moneySaverApp">
+  <head>
+    <meta charset="utf-8">
+    <title>Finance insight</title>
+    
+    <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.css" /> 
+    <link rel="stylesheet" href="app.css" />
+    <link href="http://fonts.googleapis.com/css?family=Lato" rel="stylesheet" type="text/css" />
+    <link href="http://fonts.googleapis.com/css?family=Montserrat" rel="stylesheet" type="text/css" />
+
+    <script src="bower_components/angular/angular.js"></script>
+    <script src="bower_components/angular-resource/angular-resource.js"></script>
+    <script src="bower_components/angular-route/angular-route.js"></script>
+    <script src="bower_components/angular-animate/angular-animate.js"></script>
+    <script src="bower_components/angular-bootstrap/ui-bootstrap-tpls.js"></script>
+    <script src="bower_components/angular-ui-scrollpoint/dist/scrollpoint.js"></script>
+    <script src="bower_components/ng-file-upload/ng-file-upload.js"></script>
+
+    <script src="app.module.js"></script>
+    <script src="app.config.js"></script>
+    <script src="app.controller.js"></script>
+    <script src="core/core.module.js"></script>
+    <script src="core/transaction/transaction.module.js"></script>
+    <script src="core/transaction/transaction.service.js"></script>
+    <script src="core/transaction/transaction-import.service.js"></script>
+    <script src="core/card/card.module.js"></script>
+    <script src="core/card/card.service.js"></script>
+    <script src="core/account/account.module.js"></script>
+    <script src="core/account/account.service.js"></script>
+
+    <script src="transaction-list/transaction-list.module.js"></script>
+    <script src="transaction-list/transaction-list.component.js"></script>
+    <script src="transaction-list/transaction-list.filter.js"></script>
+    <script src="transaction-list/cardoperation/cardoperation-detail.component.js"></script>
+    <script src="transaction-list/transfer/transfer-detail.component.js"></script>
+    <script src="transaction-import/transaction-import.module.js"></script>
+    <script src="transaction-import/transaction-import.component.js"></script>    
+    <script src="settings/settings.module.js"></script>    
+    <script src="settings/settings.component.js"></script> 
+    <script src="settings/account/account.component.js"></script>  
+    <script src="settings/card/card.component.js"></script> 
+
+  </head>
+  <body>
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="#transactions">Finance insight</a>
+        </div>
+        <div id="navbar" class="collapse navbar-collapse" ng-controller="HeaderController">
+          <ul class="nav navbar-nav navbar-right">
+            <li ng-class="{ active: isActive('/transactions')}"><a href="#!transactions">Transactions</a></li>
+            <li ng-class="{ active: isActive('/reports')}"><a href="#!reports">Reports</a></li>
+            <li ng-class="{ active: isActive('/settings')}"><a href="#!settings">Settings</a></li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <div class="container-fluid container-main">
+      <div ng-view ></div>
+    </div>
+  </body>
+</html>

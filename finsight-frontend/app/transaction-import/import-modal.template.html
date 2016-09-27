@@ -1,0 +1,63 @@
+<div class="modal-header">
+  <h3 class="modal-title">Import data</h3>
+</div>
+<div class="modal-body container-fluid">
+	<div class="row">
+	  <div class="col-sm-4">
+
+	    <p class="input-group">
+	    <span class="input-group-addon">Type</i></span>
+	    <select class="form-control" ng-options="importType.id as importType.description for importType in $ctrl.importTypes" ng-model="$ctrl.selectedType" ng-Change="$ctrl.typeChange()"></select>
+	    </p>
+	  </div>
+
+	  <div class="col-sm-4">
+
+	    <p class="input-group">
+	    <span class="input-group-addon">Details</i></span>
+	    <select class="form-control" ng-options="baseResource.details.number as baseResource.details.name for baseResource in $ctrl.baseResources" ng-model="$ctrl.selectedResource"></select>
+	    </p>
+	  </div>
+
+	  <div class="col-sm-4">
+	    <p class="input-group">
+	      <span class="input-group-addon">File</span>
+	      <input type="text" class="form-control" ng-model="$ctrl.selectedFile.name" ng-readonly="true"/>
+	      <span class="input-group-btn">
+	        <button type="button" class="btn btn-default" ngf-select ng-model="$ctrl.selectedFile" ngf-accept="'.csv,.html'"><i class="glyphicon glyphicon-file"></i></button>
+	      </span>
+	    </p>
+	  </div>
+	</div>
+
+	<div class="row" ng-if="$ctrl.uploadResult">
+	  <div class="col-sm-12">
+	  <div uib-alert ng-class="'alert-success'">
+	    <p class="centered" style="font-weight:bold;">Import done!</p>
+	    <table class="table table-condensed smalltable">
+	    	<thead>
+	    	  <tr>
+	    	    <th class="centered">Imported</th>
+	    	    <th class="centered">Violations</th>
+	    	    <th class="centered">Nulls</th>
+	    	    <th class="centered">Total</th>
+	    	  </tr>
+	    	</thead>
+	    	<tbody>
+	    	  <tr>
+	    	    <td class="centered">{{$ctrl.uploadResult.imported}}</td>
+	    	    <td class="centered">{{$ctrl.uploadResult.contraintViolations}}</td>
+	    	    <td class="centered">{{$ctrl.uploadResult.nulls}}</td>
+	    	    <td class="centered">{{$ctrl.uploadResult.processed}}</td>
+	    	  </tr>
+	    	</tbody>
+	    </table>
+	  </div>
+	  </div>
+	</div>
+
+</div>
+<div class="modal-footer">
+  <button class="btn btn-primary" type="button" ng-if="$ctrl.importEnabled()" ng-click="$ctrl.import()" >Import</button>
+  <button class="btn btn-warning" type="button" ng-click="$ctrl.closeModal()">Close</button>
+</div>
