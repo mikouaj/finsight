@@ -33,12 +33,14 @@ import pl.surreal.finance.transaction.core.Account;
 import pl.surreal.finance.transaction.core.Card;
 import pl.surreal.finance.transaction.core.CardOperation;
 import pl.surreal.finance.transaction.core.Commission;
+import pl.surreal.finance.transaction.core.Label;
 import pl.surreal.finance.transaction.core.Transaction;
 import pl.surreal.finance.transaction.core.Transfer;
 import pl.surreal.finance.transaction.db.AccountDAO;
 import pl.surreal.finance.transaction.db.CardDAO;
 import pl.surreal.finance.transaction.db.CardOperationDAO;
 import pl.surreal.finance.transaction.db.CommissionDAO;
+import pl.surreal.finance.transaction.db.LabelDAO;
 import pl.surreal.finance.transaction.db.TransactionDAO;
 import pl.surreal.finance.transaction.db.TransferDAO;
 import pl.surreal.finance.transaction.parser.ParserFactory;
@@ -46,13 +48,14 @@ import pl.surreal.finance.transaction.resources.AccountResource;
 import pl.surreal.finance.transaction.resources.CardOperationResource;
 import pl.surreal.finance.transaction.resources.CardResource;
 import pl.surreal.finance.transaction.resources.CommissionResource;
+import pl.surreal.finance.transaction.resources.LabelResource;
 import pl.surreal.finance.transaction.resources.TransactionResource;
 import pl.surreal.finance.transaction.resources.TransferResource;
 
 public class TransactionApplication extends Application<TransactionConfiguration>
 {
     private final HibernateBundle<TransactionConfiguration> hibernateBundle =
-            new HibernateBundle<TransactionConfiguration>(Transaction.class,Commission.class,CardOperation.class,Transfer.class,Card.class,Account.class) {
+            new HibernateBundle<TransactionConfiguration>(Transaction.class,Commission.class,CardOperation.class,Transfer.class,Card.class,Account.class,Label.class) {
                 @Override
                 public DataSourceFactory getDataSourceFactory(TransactionConfiguration configuration) {
                     return configuration.getDataSourceFactory();
@@ -84,6 +87,7 @@ public class TransactionApplication extends Application<TransactionConfiguration
 		final TransferDAO transferDAO = new TransferDAO(hibernateBundle.getSessionFactory());
 		final CardDAO cardDAO = new CardDAO(hibernateBundle.getSessionFactory());
 		final AccountDAO accountDAO = new AccountDAO(hibernateBundle.getSessionFactory());
+		final LabelDAO labelDAO = new LabelDAO(hibernateBundle.getSessionFactory());
 		
 		final ParserFactory parserFactory = new ParserFactory();
 		parserFactory.addResourceLookup(Account.class,accountDAO);
@@ -95,6 +99,7 @@ public class TransactionApplication extends Application<TransactionConfiguration
 		environment.jersey().register(new TransferResource(transferDAO));
 		environment.jersey().register(new CardResource(cardDAO));
 		environment.jersey().register(new AccountResource(accountDAO));
+		environment.jersey().register(new LabelResource(labelDAO));
 		
 		FilterRegistration.Dynamic corsfilter = environment.servlets().addFilter("CORSFilter", CrossOriginFilter.class);
 		corsfilter.setInitParameter("allowedOrigins", "*");
