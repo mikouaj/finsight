@@ -42,12 +42,10 @@ public class LabelDAO  extends AbstractDAO<Label>
     
     public void delete(Label label) {
     	currentSession().delete(label);
-    	currentSession().flush();
     }
     
     public void deleteById(Long id) {
     	Label label = (Label)currentSession().load(Label.class,id);
     	currentSession().delete(label);
-    	currentSession().flush();
     }
 }

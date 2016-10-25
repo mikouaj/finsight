@@ -26,6 +26,7 @@ import pl.surreal.finance.transaction.db.LabelDAO;
 @Produces(MediaType.APPLICATION_JSON)
 public class LabelResource
 {
+//	private static final Logger LOGGER = LoggerFactory.getLogger(LabelResource.class);
 	private LabelDAO labelDAO;
 	
 	public LabelResource(LabelDAO labelDAO) {
@@ -37,6 +38,12 @@ public class LabelResource
 	@Timed
 	public List<Label> get() {
 		return labelDAO.findAll();
+	}
+	
+	@POST
+	@UnitOfWork
+	public Label create(Label label) {
+		return labelDAO.create(label);
 	}
 	
 	@GET
@@ -55,11 +62,9 @@ public class LabelResource
 		Label label = labelDAO.findById(id.get()).orElseThrow(() -> new NotFoundException("Not found."));
 		if(label.getChildren().size()>0) {
 			if(!forceDelete) throw new NotAcceptableException("Label has children, delete them first or use force");
-			for(Label child : label.getChildren()) {
-				label.removeChild(child);
-			}
+			label.removeAllChildren();
 		}
-		
+
 		if(label.getParent()!=null) {
 			label.getParent().removeChild(label);
 		}

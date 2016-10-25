@@ -16,6 +16,7 @@ package pl.surreal.finance.transaction.core;
 
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 
@@ -142,6 +143,15 @@ public class Label
 	public void removeChild(Label child) {
 		children.remove(child);
 		child.setParent(null);
+	}
+	
+	public void removeAllChildren() {
+		Iterator<Label> childrenI = children.iterator();
+		while(childrenI.hasNext()) {
+			Label child = childrenI.next();
+			child.setParent(null);
+			childrenI.remove();
+		}
 	}
 	
 	public String getPath() {
