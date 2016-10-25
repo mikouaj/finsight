@@ -15,6 +15,7 @@
 package pl.surreal.finance.transaction.db;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.hibernate.SessionFactory;
 
@@ -29,6 +30,10 @@ public class LabelDAO  extends AbstractDAO<Label>
 	
     public List<Label> findAll() {
     	return list(namedQuery("pl.surreal.finance.transaction.core.Label.findAll"));
+    }
+    
+    public Optional<Label> findById(Long id) {
+        return Optional.ofNullable(get(id));
     }
     
     public Label create(Label label) {

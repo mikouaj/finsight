@@ -20,6 +20,7 @@ import javax.servlet.DispatcherType;
 import javax.servlet.FilterRegistration;
 
 import org.eclipse.jetty.servlets.CrossOriginFilter;
+import org.glassfish.jersey.linking.DeclarativeLinkingFeature;
 
 import io.dropwizard.Application;
 import io.dropwizard.configuration.EnvironmentVariableSubstitutor;
@@ -100,6 +101,8 @@ public class TransactionApplication extends Application<TransactionConfiguration
 		environment.jersey().register(new CardResource(cardDAO));
 		environment.jersey().register(new AccountResource(accountDAO));
 		environment.jersey().register(new LabelResource(labelDAO));
+		
+		environment.jersey().getResourceConfig().packages(getClass().getPackage().getName()).register(DeclarativeLinkingFeature.class);
 		
 		FilterRegistration.Dynamic corsfilter = environment.servlets().addFilter("CORSFilter", CrossOriginFilter.class);
 		corsfilter.setInitParameter("allowedOrigins", "*");
