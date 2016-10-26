@@ -35,6 +35,7 @@ import pl.surreal.finance.transaction.core.Card;
 import pl.surreal.finance.transaction.core.CardOperation;
 import pl.surreal.finance.transaction.core.Commission;
 import pl.surreal.finance.transaction.core.Label;
+import pl.surreal.finance.transaction.core.LabelRule;
 import pl.surreal.finance.transaction.core.Transaction;
 import pl.surreal.finance.transaction.core.Transfer;
 import pl.surreal.finance.transaction.db.AccountDAO;
@@ -42,6 +43,7 @@ import pl.surreal.finance.transaction.db.CardDAO;
 import pl.surreal.finance.transaction.db.CardOperationDAO;
 import pl.surreal.finance.transaction.db.CommissionDAO;
 import pl.surreal.finance.transaction.db.LabelDAO;
+import pl.surreal.finance.transaction.db.LabelRuleDAO;
 import pl.surreal.finance.transaction.db.TransactionDAO;
 import pl.surreal.finance.transaction.db.TransferDAO;
 import pl.surreal.finance.transaction.parser.ParserFactory;
@@ -50,13 +52,14 @@ import pl.surreal.finance.transaction.resources.CardOperationResource;
 import pl.surreal.finance.transaction.resources.CardResource;
 import pl.surreal.finance.transaction.resources.CommissionResource;
 import pl.surreal.finance.transaction.resources.LabelResource;
+import pl.surreal.finance.transaction.resources.LabelRuleResource;
 import pl.surreal.finance.transaction.resources.TransactionResource;
 import pl.surreal.finance.transaction.resources.TransferResource;
 
 public class TransactionApplication extends Application<TransactionConfiguration>
 {
     private final HibernateBundle<TransactionConfiguration> hibernateBundle =
-            new HibernateBundle<TransactionConfiguration>(Transaction.class,Commission.class,CardOperation.class,Transfer.class,Card.class,Account.class,Label.class) {
+            new HibernateBundle<TransactionConfiguration>(Transaction.class,Commission.class,CardOperation.class,Transfer.class,Card.class,Account.class,Label.class,LabelRule.class) {
                 @Override
                 public DataSourceFactory getDataSourceFactory(TransactionConfiguration configuration) {
                     return configuration.getDataSourceFactory();
@@ -89,6 +92,7 @@ public class TransactionApplication extends Application<TransactionConfiguration
 		final CardDAO cardDAO = new CardDAO(hibernateBundle.getSessionFactory());
 		final AccountDAO accountDAO = new AccountDAO(hibernateBundle.getSessionFactory());
 		final LabelDAO labelDAO = new LabelDAO(hibernateBundle.getSessionFactory());
+		final LabelRuleDAO labelRuleDAO = new LabelRuleDAO(hibernateBundle.getSessionFactory());
 		
 		final ParserFactory parserFactory = new ParserFactory();
 		parserFactory.addResourceLookup(Account.class,accountDAO);
@@ -101,6 +105,7 @@ public class TransactionApplication extends Application<TransactionConfiguration
 		environment.jersey().register(new CardResource(cardDAO));
 		environment.jersey().register(new AccountResource(accountDAO));
 		environment.jersey().register(new LabelResource(labelDAO));
+		environment.jersey().register(new LabelRuleResource(labelRuleDAO));
 		
 		environment.jersey().getResourceConfig().packages(getClass().getPackage().getName()).register(DeclarativeLinkingFeature.class);
 		

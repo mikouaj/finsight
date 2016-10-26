@@ -27,6 +27,7 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
@@ -80,6 +81,9 @@ public class Label
 	@JsonProperty
 	@InjectLink(resource=LabelResource.class,method="get",style=Style.ABSOLUTE,bindings = {@Binding(name="id",value="${instance.id}")})
 	private URI uri;
+	
+    @ManyToMany(mappedBy = "labels")
+	private List<LabelRule> rules = new ArrayList<>();
 	
 	public Label() { }
 	
@@ -154,6 +158,14 @@ public class Label
 		}
 	}
 	
+	public List<LabelRule> getRules() {
+		return rules;
+	}
+
+	public void setRules(List<LabelRule> rules) {
+		this.rules = rules;
+	}
+
 	public String getPath() {
 		if(parent==null) return text;
 		return parent.getPath() + "/" +text;
