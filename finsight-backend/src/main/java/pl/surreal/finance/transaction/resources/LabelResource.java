@@ -36,7 +36,7 @@ import io.dropwizard.jersey.params.LongParam;
 import pl.surreal.finance.transaction.core.Label;
 import pl.surreal.finance.transaction.db.LabelDAO;
 
-@Path("/label")
+@Path("/labels")
 @Produces(MediaType.APPLICATION_JSON)
 public class LabelResource
 {
@@ -54,20 +54,20 @@ public class LabelResource
 		return labelDAO.findAll();
 	}
 	
+	@GET
+	@Path("/{id}")
+	@UnitOfWork
+	public Label getById(@PathParam("id") LongParam id) {
+		Label label = labelDAO.findById(id.get()).orElseThrow(() -> new NotFoundException("Not found."));
+		return label;
+	}
+	
 	@POST
 	@UnitOfWork
 	public Label create(Label label) {
 		return labelDAO.create(label);
 	}
-	
-	@GET
-	@Path("/{id}")
-	@UnitOfWork
-	public Label get(@PathParam("id") LongParam id) {
-		Label label = labelDAO.findById(id.get()).orElseThrow(() -> new NotFoundException("Not found."));
-		return label;
-	}
-	
+
 	@DELETE
 	@Path("/{id}")
 	@UnitOfWork
@@ -92,25 +92,5 @@ public class LabelResource
 	public List<Label> getChildren(@PathParam("id") LongParam id) {
 		Label label = labelDAO.findById(id.get()).orElseThrow(() -> new NotFoundException("Parent not found."));
 		return label.getChildren();
-	}
-	
-	@POST
-	@Path("/{id}/children")
-	@UnitOfWork
-	public Label addChild(@PathParam("id") LongParam id,Label child) {
-		Label label = labelDAO.findById(id.get()).orElseThrow(() -> new NotFoundException("Parent not found."));
-		label.addChild(child);
-		labelDAO.create(label);
-		return child;
-	}
-	
-	@GET
-	@UnitOfWork
-	@Path("/testCreate")
-	public Label testCreate() {
-		Label l1 = new Label("MasterLabel");
-		l1.addChild("ChildLabel1");
-		l1.addChild("ChildLabel2");
-		return labelDAO.create(l1);
 	}
 }

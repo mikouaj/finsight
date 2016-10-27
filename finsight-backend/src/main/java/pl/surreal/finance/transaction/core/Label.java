@@ -39,6 +39,7 @@ import org.glassfish.jersey.linking.Binding;
 import org.glassfish.jersey.linking.InjectLink;
 import org.glassfish.jersey.linking.InjectLink.Style;
 import org.hibernate.annotations.NaturalId;
+import org.hibernate.validator.constraints.NotEmpty;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -61,6 +62,7 @@ public class Label
 	
 	@NaturalId
 	@Column(name = "text", nullable = false)
+	@NotEmpty
 	private String text;
 	
 	@ManyToOne
@@ -77,14 +79,15 @@ public class Label
 //	@InjectLink(value="label/{id}",style=Style.ABSOLUTE)
 //	private URI uri;
 	
-	@Transient
-	@JsonProperty
-	@InjectLink(resource=LabelResource.class,method="get",style=Style.ABSOLUTE,bindings = {@Binding(name="id",value="${instance.id}")})
-	private URI uri;
-	
-    @ManyToMany(mappedBy = "labels")
+    @ManyToMany(fetch = FetchType.EAGER, mappedBy = "labels")
+    @JsonIgnore
 	private List<LabelRule> rules = new ArrayList<>();
 	
+	@Transient
+	@JsonProperty
+	@InjectLink(resource=LabelResource.class,method="getById",style=Style.ABSOLUTE,bindings = {@Binding(name="id",value="${instance.id}")})
+	private URI uri;
+    
 	public Label() { }
 	
 	public Label(String text) {
@@ -201,5 +204,14 @@ public class Label
     		childrenURIs.add(child.uri);
     	}
     	return childrenURIs;
+    }
+    
+    @JsonProperty("rules")
+    public List<URI> getRulesURI() {
+    	List<URI> rulesURIs = new ArrayList<>();
+    	for(LabelRule rule : rules) {
+    		rulesURIs.add(rule.getUri());
+    	}
+    	return rulesURIs;
     }
 }

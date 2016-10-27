@@ -14,7 +14,9 @@
 
 package pl.surreal.finance.transaction.core;
 
+import java.net.URI;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 
@@ -29,8 +31,18 @@ import javax.persistence.ManyToMany;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
+import org.glassfish.jersey.linking.Binding;
+import org.glassfish.jersey.linking.InjectLink;
+import org.glassfish.jersey.linking.InjectLink.Style;
 import org.hibernate.annotations.NaturalId;
+import org.hibernate.validator.constraints.NotEmpty;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import pl.surreal.finance.transaction.resources.LabelRuleResource;
 
 @Entity
 @Table(name="labelRule")
@@ -47,16 +59,23 @@ public class LabelRule
 	private long id;
 	
 	@NaturalId
-	@Column(name = "regExp", nullable = false)
-	private String regExp;
+	@Column(name = "regexp", nullable = false)
+	@NotEmpty
+	private String regexp;
 	
 	@ManyToMany(fetch = FetchType.EAGER,cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+	@JsonIgnore
 	private List<Label> labels = new ArrayList<>();
+	
+	@Transient
+	@JsonProperty
+	@InjectLink(resource=LabelRuleResource.class,method="getById",style=Style.ABSOLUTE,bindings = {@Binding(name="id",value="${instance.id}")})
+	private URI uri;
 	
 	public LabelRule() { }
 	
 	public LabelRule(String regExp) {
-		this.regExp = regExp;
+		this.regexp = regExp;
 	}
 
 	public long getId() {
@@ -67,12 +86,12 @@ public class LabelRule
 		this.id = id;
 	}
 
-	public String getRegExp() {
-		return regExp;
+	public String getRegexp() {
+		return regexp;
 	}
 
-	public void setRegExp(String regExp) {
-		this.regExp = regExp;
+	public void setRegexp(String regexp) {
+		this.regexp = regexp;
 	}
 
 	public List<Label> getLabels() {
@@ -84,13 +103,34 @@ public class LabelRule
 	}
 	
 	public void addLabel(Label label) {
-		this.labels.add(label);
-		label.getRules().add(this);
+		if(!labels.contains(label)) {
+			this.labels.add(label);
+			label.getRules().add(this);
+		}
 	}
 	
 	public void removeLabel(Label label) {
-		this.labels.remove(label);
-		label.getRules().remove(this);
+		if(labels.contains(label)) {
+			this.labels.remove(label);
+			label.getRules().remove(this);
+		}
+	}
+	
+	public void removeAllLabels() {
+		Iterator<Label> labelI = labels.iterator();
+		while(labelI.hasNext()) {
+			Label label = labelI.next();
+			label.getRules().remove(this);
+			labelI.remove();
+		}
+	}
+	
+	public URI getUri() {
+		return uri;
+	}
+
+	public void setUri(URI uri) {
+		this.uri = uri;
 	}
 	
     @Override
@@ -102,11 +142,20 @@ public class LabelRule
             return false;
         }
         LabelRule rule = (LabelRule) o;
-        return Objects.equals( regExp, rule.regExp );
+        return Objects.equals( regexp, rule.regexp );
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash( regExp );
+        return Objects.hash( regexp );
+    }
+    
+    @JsonProperty("labels")
+    public List<URI> getLabelsURI() {
+    	List<URI> labelsURIs = new ArrayList<>();
+    	for(Label label : labels) {
+    		labelsURIs.add(label.getUri());
+    	}
+    	return labelsURIs;
     }
 }

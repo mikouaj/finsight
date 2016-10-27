@@ -105,7 +105,7 @@ public class TransactionApplication extends Application<TransactionConfiguration
 		environment.jersey().register(new CardResource(cardDAO));
 		environment.jersey().register(new AccountResource(accountDAO));
 		environment.jersey().register(new LabelResource(labelDAO));
-		environment.jersey().register(new LabelRuleResource(labelRuleDAO));
+		environment.jersey().register(new LabelRuleResource(labelRuleDAO,labelDAO));
 		
 		environment.jersey().getResourceConfig().packages(getClass().getPackage().getName()).register(DeclarativeLinkingFeature.class);
 		
