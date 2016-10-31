@@ -14,15 +14,10 @@
 
 package pl.surreal.finance.transaction.parser;
 
-import java.io.InputStream;
-import java.util.Optional;
+import java.util.List;
 
-import pl.surreal.finance.transaction.db.IResourceLookup;
+import pl.surreal.finance.transaction.core.Label;
 
-public interface IParserFactory {
-	public ParserSupportedType[] getSupportedTypes();
-	public Optional<ITransactionParser> getParser(InputStream inputStream,String type,String baseResourceId);
-	public void addResourceLookup(Class<?> resourceClass, IResourceLookup<?> lookup);
-	public void removeResourceLookup(Class<?> resourceClass);
-	public void setLabelProvider(ILabelProvider labelProvider);
+public interface ILabelProvider {
+	public List<Label> getLabels(String description);
 }

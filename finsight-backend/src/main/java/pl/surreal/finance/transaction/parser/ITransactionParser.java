@@ -24,4 +24,5 @@ public interface ITransactionParser {
 	public void close();
 //	public void addResourceLookup(Class<?> resourceClass, IResourceLookup<?> lookup);
 //	public void removeResourceLookup(Class<?> resourceClass);
+	public void setLabelProvider(ILabelProvider labelProvider);
 }

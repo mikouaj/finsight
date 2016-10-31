@@ -28,6 +28,7 @@ import pl.surreal.finance.transaction.core.Card;
 import pl.surreal.finance.transaction.core.Transaction;
 import pl.surreal.finance.transaction.core.Transfer.TransferDirection;
 import pl.surreal.finance.transaction.db.IResourceLookup;
+import pl.surreal.finance.transaction.parser.ILabelProvider;
 import pl.surreal.finance.transaction.parser.ITransactionBuilder;
 import pl.surreal.finance.transaction.parser.ITransactionParser;
 
@@ -38,6 +39,7 @@ public class CSVParser implements ITransactionParser
 	private final Iterator<String[] >csvIterator;
 	private Account baseAccount;
 	private IResourceLookup<Card> cardLookup;
+	private ILabelProvider labelProvider;
 	
 	public CSVParser(CSVReader csvReader) {
 		 this.csvReader = csvReader;
@@ -136,5 +138,10 @@ public class CSVParser implements ITransactionParser
 
 	public void setCardLookup(IResourceLookup<Card> cardLookup) {
 		this.cardLookup = cardLookup;
+	}
+
+	@Override
+	public void setLabelProvider(ILabelProvider labelProvider) {
+		this.labelProvider = labelProvider;
 	}
 }
