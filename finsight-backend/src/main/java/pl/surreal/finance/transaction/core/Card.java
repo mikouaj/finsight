@@ -14,7 +14,6 @@
 
 package pl.surreal.finance.transaction.core;
 
-import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -23,6 +22,8 @@ import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
+
+import org.hibernate.validator.constraints.NotEmpty;
 
 @Entity
 @Table(name="card")
@@ -33,7 +34,7 @@ import javax.validation.constraints.NotNull;
     ),
     @NamedQuery(
             name = "pl.surreal.finance.transaction.core.Card.findByNo",
-            query = "SELECT c FROM Card c WHERE c.details.number = :number"
+            query = "SELECT c FROM Card c WHERE c.number = :number"
     )
 })
 public class Card
@@ -42,9 +43,13 @@ public class Card
     @GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long id;
     
-	@Embedded
 	@NotNull
-	private CardDetails details;
+	@NotEmpty
+	private String number;
+	
+	@NotNull
+	@NotEmpty
+	private String name;
 
 	public Card() {
 	}
@@ -57,11 +62,19 @@ public class Card
 		this.id = id;
 	}
 
-	public CardDetails getDetails() {
-		return details;
+	public String getNumber() {
+		return number;
 	}
 
-	public void setDetails(CardDetails details) {
-		this.details = details;
+	public void setNumber(String number) {
+		this.number = number;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
 	}
 }

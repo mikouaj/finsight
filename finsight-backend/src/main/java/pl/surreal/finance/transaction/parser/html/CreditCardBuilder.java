@@ -24,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import pl.surreal.finance.transaction.core.Card;
+import pl.surreal.finance.transaction.core.CardDetails;
 import pl.surreal.finance.transaction.core.CardOperation;
 import pl.surreal.finance.transaction.core.Transaction;
 import pl.surreal.finance.transaction.parser.ITransactionBuilder;
@@ -98,7 +99,7 @@ public class CreditCardBuilder implements ITransactionBuilder
         	cardOperation.setTitle(detailsMatcher.group(1).trim());
         	cardOperation.setDestination(detailsMatcher.group(2).trim());
         	if(baseCard!=null) {
-        		cardOperation.setCard(baseCard.getDetails());
+        		cardOperation.setCard(new CardDetails(baseCard.getNumber(),baseCard.getName()));
         	}
         } else {
         	LOGGER.warn("getTransaction : no match on main pattern, transaction will be missing details");

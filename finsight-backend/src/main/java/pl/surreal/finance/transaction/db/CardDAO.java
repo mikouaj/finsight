@@ -22,6 +22,7 @@ import org.hibernate.SessionFactory;
 
 import io.dropwizard.hibernate.AbstractDAO;
 import pl.surreal.finance.transaction.core.Card;
+import pl.surreal.finance.transaction.core.Label;
 
 public class CardDAO extends AbstractDAO<Card> implements IResourceLookup<Card>
 {
@@ -39,6 +40,15 @@ public class CardDAO extends AbstractDAO<Card> implements IResourceLookup<Card>
     
     public Card create(Card card) {
         return persist(card);
+    }
+    
+    public void delete(Card card) {
+    	currentSession().delete(card);
+    }
+    
+    public void deleteById(Long id) {
+    	Card card = (Card)currentSession().load(Card.class,id);
+    	currentSession().delete(card);
     }
 
 	@Override

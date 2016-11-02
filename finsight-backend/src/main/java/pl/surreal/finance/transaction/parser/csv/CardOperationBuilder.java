@@ -25,6 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import pl.surreal.finance.transaction.core.Card;
+import pl.surreal.finance.transaction.core.CardDetails;
 import pl.surreal.finance.transaction.core.CardOperation;
 import pl.surreal.finance.transaction.core.Transaction;
 import pl.surreal.finance.transaction.db.IResourceLookup;
@@ -110,7 +111,7 @@ public class CardOperationBuilder implements ITransactionBuilder
     		cardOperation.setCurrency(detailsMatcher.group(4).replaceAll("\\s",""));
     		Card card = getCard(detailsMatcher.group(5));
     		if(card!=null) {
-    			cardOperation.setCard(card.getDetails());
+    			cardOperation.setCard(new CardDetails(card.getNumber(),card.getName()));
     		}
     	} else {
     		LOGGER.warn("getTransaction : no match on main pattern, transaction will be missing details");

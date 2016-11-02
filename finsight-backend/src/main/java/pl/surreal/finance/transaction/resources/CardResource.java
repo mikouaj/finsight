@@ -16,6 +16,7 @@ package pl.surreal.finance.transaction.resources;
 
 import java.util.List;
 
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.POST;
@@ -23,6 +24,9 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+
+import org.hibernate.ObjectNotFoundException;
 
 import com.codahale.metrics.annotation.Timed;
 
@@ -60,5 +64,17 @@ public class CardResource
     @UnitOfWork
     public Card createCard(Card card) {
         return cardDAO.create(card);
-    }	
+    }
+    
+    @DELETE
+    @Path("/{cardId}")
+    @UnitOfWork
+    public Response delete(@PathParam("cardId") LongParam cardId) {
+    	try {
+    		cardDAO.deleteById(cardId.get());
+    	} catch(ObjectNotFoundException ex) {
+    		throw new NotFoundException("Not found.");
+    	}
+    	return Response.ok().build();
+    }
 }
