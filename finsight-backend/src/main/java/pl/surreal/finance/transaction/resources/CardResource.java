@@ -16,10 +16,12 @@ package pl.surreal.finance.transaction.resources;
 
 import java.util.List;
 
+import javax.ws.rs.BadRequestException;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -27,11 +29,13 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.hibernate.ObjectNotFoundException;
+import org.hibernate.exception.ConstraintViolationException;
 
 import com.codahale.metrics.annotation.Timed;
 
 import io.dropwizard.hibernate.UnitOfWork;
 import io.dropwizard.jersey.params.LongParam;
+import pl.surreal.finance.transaction.core.Account;
 import pl.surreal.finance.transaction.core.Card;
 import pl.surreal.finance.transaction.db.CardDAO;
 
@@ -63,7 +67,23 @@ public class CardResource
     @POST
     @UnitOfWork
     public Card createCard(Card card) {
-        return cardDAO.create(card);
+    	Card dbcard;
+    	try {
+    		dbcard = cardDAO.create(card);
+    	} catch(ConstraintViolationException ex) {
+    		throw new BadRequestException("Constraint violation on "+ex.getConstraintName());
+    	}
+        return dbcard;
+    }
+    
+    @PUT
+    @Path("/{cardId}")
+    @UnitOfWork
+    public Card replace(@PathParam("cardId") LongParam cardId, Card card) {
+    	Card dbCard = cardDAO.findById(cardId.get()).orElseThrow(() -> new NotFoundException("Not found."));
+    	dbCard.setName(card.getName());
+    	dbCard.setNumber(card.getNumber());
+    	return cardDAO.create(dbCard);
     }
     
     @DELETE

@@ -23,6 +23,7 @@ import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 
+import org.hibernate.annotations.NaturalId;
 import org.hibernate.validator.constraints.NotEmpty;
 
 @Entity
@@ -45,6 +46,7 @@ public class Card
     
 	@NotNull
 	@NotEmpty
+	@NaturalId(mutable=true)
 	private String number;
 	
 	@NotNull
