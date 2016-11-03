@@ -22,6 +22,7 @@ import org.hibernate.SessionFactory;
 
 import io.dropwizard.hibernate.AbstractDAO;
 import pl.surreal.finance.transaction.core.Account;
+import pl.surreal.finance.transaction.core.Card;
 
 public class AccountDAO extends AbstractDAO<Account> implements IResourceLookup<Account>
 {
@@ -39,6 +40,15 @@ public class AccountDAO extends AbstractDAO<Account> implements IResourceLookup<
     
     public Account create(Account account) {
         return persist(account);
+    }
+    
+    public void delete(Account account) {
+    	currentSession().delete(account);
+    }
+    
+    public void deleteById(Long id) {
+    	Account account = (Account)currentSession().load(Account.class,id);
+    	currentSession().delete(account);
     }
 
 	@Override

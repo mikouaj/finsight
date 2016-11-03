@@ -35,7 +35,6 @@ public class TransferBuilder implements ITransactionBuilder
 	private static final Logger LOGGER = LoggerFactory.getLogger(TransferBuilder.class);
 	private Transfer transfer;
 	private Account baseAccount;
-	private AccountDetails baseAccountDetails;
 	
 	public TransferBuilder() {
 		transfer = new Transfer();
@@ -100,9 +99,6 @@ public class TransferBuilder implements ITransactionBuilder
 
 	public void setBaseAccount(Account baseAccount) {
 		this.baseAccount = baseAccount;
-		if(baseAccount!=null) {
-			this.baseAccountDetails = baseAccount.getDetails();
-		}
 	}
 
 	private Transfer parseIncomingDetails(String details) {
@@ -113,7 +109,7 @@ public class TransferBuilder implements ITransactionBuilder
 			String destAccountNo = detailMatcher.group(1).trim().replaceAll("\\s","");
 			String destAccountName = detailMatcher.group(2).trim();
 			transfer.setSrcAccount(new AccountDetails(destAccountNo,destAccountName));
-			transfer.setDstAccount(baseAccountDetails);
+			transfer.setDstAccount(new AccountDetails(baseAccount.getNumber(),baseAccount.getName()));
 			transfer.setDescription(detailMatcher.group(3).trim());
 		}
 		transfer.setTitle(detailTokens[0].trim());	
@@ -127,7 +123,7 @@ public class TransferBuilder implements ITransactionBuilder
 		if(detailMatcher.matches()) {
 			String destAccountNo = detailMatcher.group(1).trim().replaceAll("\\s","");
 			String destAccountName = detailMatcher.group(2).trim();
-			transfer.setSrcAccount(baseAccountDetails);
+			transfer.setSrcAccount(new AccountDetails(baseAccount.getNumber(),baseAccount.getName()));
 			transfer.setDstAccount(new AccountDetails(destAccountNo,destAccountName));
 			transfer.setDescription(detailMatcher.group(3).trim());
 		}
@@ -144,12 +140,12 @@ public class TransferBuilder implements ITransactionBuilder
 			String destAccountName = detailMatcher.group(5).trim();
 			if(detailMatcher.group(1).compareTo("Adresat")==0) {
 				transfer.setDirection(TransferDirection.OUTGOING);
-				transfer.setSrcAccount(baseAccountDetails);
+				transfer.setSrcAccount(new AccountDetails(baseAccount.getNumber(),baseAccount.getName()));
 				transfer.setDstAccount(new AccountDetails(destAccountNo,destAccountName));
 			} else {
 				transfer.setDirection(TransferDirection.INCOMING);
 				transfer.setSrcAccount(new AccountDetails(destAccountNo,destAccountName));
-				transfer.setDstAccount(baseAccountDetails);
+				transfer.setDstAccount(new AccountDetails(baseAccount.getNumber(),baseAccount.getName()));
 			}
 			transfer.setDescription(detailMatcher.group(6).trim());
 		} else {

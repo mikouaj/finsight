@@ -16,13 +16,20 @@ package pl.surreal.finance.transaction.resources;
 
 import java.util.List;
 
+import javax.ws.rs.BadRequestException;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+
+import org.hibernate.ObjectNotFoundException;
+import org.hibernate.exception.ConstraintViolationException;
 
 import com.codahale.metrics.annotation.Timed;
 
@@ -59,6 +66,34 @@ public class AccountResource
     @POST
     @UnitOfWork
     public Account createAccount(Account account) {
-        return accountDAO.create(account);
+    	Account dbAccount;
+    	try {
+    		dbAccount = accountDAO.create(account);
+    	} catch(ConstraintViolationException ex) {
+    		throw new BadRequestException("Constraint violation on "+ex.getConstraintName());
+    	}
+        return dbAccount;
+    }
+    
+    @PUT
+    @Path("/{accountId}")
+    @UnitOfWork
+    public Account replace(@PathParam("accountId") LongParam accountId, Account account) {
+    	Account dbAccount = accountDAO.findById(accountId.get()).orElseThrow(() -> new NotFoundException("Not found."));
+    	dbAccount.setName(account.getName());
+    	dbAccount.setNumber(account.getNumber());
+    	return accountDAO.create(dbAccount);
+    }
+    
+    @DELETE
+    @Path("/{accountId}")
+    @UnitOfWork
+    public Response delete(@PathParam("accountId") LongParam accountId) {
+    	try {
+    		accountDAO.deleteById(accountId.get());
+    	} catch(ObjectNotFoundException ex) {
+    		throw new NotFoundException("Not found.");
+    	}
+    	return Response.ok().build();
     }
 }

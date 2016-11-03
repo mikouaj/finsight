@@ -14,7 +14,6 @@
 
 package pl.surreal.finance.transaction.core;
 
-import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -23,6 +22,9 @@ import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
+
+import org.hibernate.annotations.NaturalId;
+import org.hibernate.validator.constraints.NotEmpty;
 
 @Entity
 @Table(name="account")
@@ -33,7 +35,7 @@ import javax.validation.constraints.NotNull;
     ),
     @NamedQuery(
             name = "pl.surreal.finance.transaction.core.Account.findByNo",
-            query = "SELECT a FROM Account a WHERE a.details.number = :number"
+            query = "SELECT a FROM Account a WHERE a.number = :number"
     )
 })
 public class Account
@@ -42,9 +44,14 @@ public class Account
     @GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long id;
     
-	@Embedded
 	@NotNull
-	private AccountDetails details;
+	@NotEmpty
+	@NaturalId(mutable=true)
+	private String number;
+	
+	@NotNull
+	@NotEmpty
+	private String name;
 
 	public Account() {
 	}
@@ -57,11 +64,19 @@ public class Account
 		this.id = id;
 	}
 
-	public AccountDetails getDetails() {
-		return details;
+	public String getNumber() {
+		return number;
 	}
 
-	public void setDetails(AccountDetails details) {
-		this.details = details;
+	public void setNumber(String number) {
+		this.number = number;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
 	}
 }
