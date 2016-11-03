@@ -28,6 +28,10 @@ public class TransferDAO extends AbstractDAO<Transfer>
 		super(sessionFactory);
 	}
 	
+	public Transfer create(Transfer transfer) {
+		return persist(transfer);
+	}
+	
     public Optional<Transfer> findById(Long id) {
         return Optional.ofNullable(get(id));
     }

@@ -14,8 +14,11 @@
 
 package pl.surreal.finance.transaction.generator;
 
+import java.math.BigDecimal;
 import java.util.Date;
+import java.util.concurrent.ThreadLocalRandom;
 
+import pl.surreal.finance.transaction.core.Transaction;
 import pl.surreal.finance.transaction.core.Transfer;
 import pl.surreal.finance.transaction.db.AccountDAO;
 import pl.surreal.finance.transaction.db.CardDAO;
@@ -36,6 +39,7 @@ public class TransactionGenerator
 	private int commissionLimit = 10;
 	private Date startDate = new Date(new Date().getTime() - 2629743);
 	private Date endDate = new Date();
+	private String currency = "PLN";
 	
 	public TransactionGenerator(AccountDAO accountDAO,CardDAO cardDAO,TransferDAO transferDAO,CardOperationDAO cardOperationDAO,CommissionDAO commissionDAO) {
 		this.accountDAO = accountDAO;
@@ -48,8 +52,24 @@ public class TransactionGenerator
 	public void generate() {
 		for(int i=0;i<transferLimit;i++) {
 			Transfer transfer = new Transfer();
-			
+			setBasicTransactionData(transfer);
+			transfer.setTitle(TransactionData.testTransferTitle);
+			transfer.setInternal(false);
+			transfer.setDirection(TransactionData.getTransferDirection());
+			transfer.setDescription(TransactionData.getTransferDescription());
+			transferDAO.create(transfer);
 		}
+	}
+	
+	private Transaction setBasicTransactionData(Transaction t) {
+		t.setDate(TransactionData.getRandomDate(startDate, endDate));
+		t.setAccountingDate(t.getDate());
+		t.setCurrency(currency);
+		t.setAccountingCurrency(currency);
+		t.setAmount(new BigDecimal(ThreadLocalRandom.current().nextInt(5,3000)));
+		t.setAccountingAmount(t.getAmount());
+		t.setBalanceAfter((new BigDecimal(ThreadLocalRandom.current().nextInt(3000,10000))));
+		return t;
 	}
 
 	public int getTransferLimit() {

@@ -14,6 +14,8 @@
 
 package pl.surreal.finance.transaction.generator;
 
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.concurrent.ThreadLocalRandom;
 
 import pl.surreal.finance.transaction.core.Account;
@@ -64,6 +66,17 @@ public class TransactionData
 	public static TransferDirection getTransferDirection() {
 		TransferDirection[] directions = TransferDirection.values();
 		return directions[ThreadLocalRandom.current().nextInt(0,directions.length)];
+	}
+	
+	public static Date getRandomDate(Date minDate,Date maxDate) {
+		GregorianCalendar gc = new GregorianCalendar();
+		gc.setTime(minDate);
+		int minDay = gc.get(GregorianCalendar.DAY_OF_YEAR);
+		gc.setTime(maxDate);
+		int maxDay = gc.get(GregorianCalendar.DAY_OF_YEAR);
+		int rndDay = ThreadLocalRandom.current().nextInt(minDay,maxDay);
+		gc.set(GregorianCalendar.DAY_OF_YEAR, rndDay);
+		return gc.getTime();
 	}
 }
 	
