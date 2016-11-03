@@ -22,7 +22,6 @@ import org.hibernate.SessionFactory;
 
 import io.dropwizard.hibernate.AbstractDAO;
 import pl.surreal.finance.transaction.core.Account;
-import pl.surreal.finance.transaction.core.Card;
 
 public class AccountDAO extends AbstractDAO<Account> implements IResourceLookup<Account>
 {
