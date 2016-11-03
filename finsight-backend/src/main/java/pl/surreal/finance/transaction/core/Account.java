@@ -55,6 +55,11 @@ public class Account
 
 	public Account() {
 	}
+	
+	public Account(String number,String name) {
+		this.number = number;
+		this.name = name;
+	}
 
 	public long getId() {
 		return id;
