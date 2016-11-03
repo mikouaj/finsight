@@ -15,7 +15,7 @@
 
 	    <p class="input-group">
 	    <span class="input-group-addon">Details</i></span>
-	    <select class="form-control" ng-options="baseResource.details.number as baseResource.details.name for baseResource in $ctrl.baseResources" ng-model="$ctrl.selectedResource"></select>
+	    <select class="form-control" ng-options="baseResource.number as baseResource.name for baseResource in $ctrl.baseResources" ng-model="$ctrl.selectedResource"></select>
 	    </p>
 	  </div>
 
