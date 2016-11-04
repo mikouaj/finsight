@@ -16,49 +16,38 @@ package pl.surreal.finance.transaction.generator;
 
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.concurrent.ThreadLocalRandom;
 
+import pl.surreal.finance.transaction.core.CardDetails;
+import pl.surreal.finance.transaction.core.CardOperation;
+import pl.surreal.finance.transaction.core.Commission;
 import pl.surreal.finance.transaction.core.Transaction;
 import pl.surreal.finance.transaction.core.Transfer;
-import pl.surreal.finance.transaction.db.AccountDAO;
-import pl.surreal.finance.transaction.db.CardDAO;
-import pl.surreal.finance.transaction.db.CardOperationDAO;
-import pl.surreal.finance.transaction.db.CommissionDAO;
-import pl.surreal.finance.transaction.db.TransferDAO;
 
-public class TransactionGenerator
-{
-	private final AccountDAO accountDAO;
-	private final CardDAO cardDAO;
-	private final TransferDAO transferDAO;
-	private final CardOperationDAO cardOperationDAO;
-	private final CommissionDAO commissionDAO;
+public class TransactionGenerator implements Iterator<Transaction>
+{	
+	private int transferIndex = 0;
+	private int cardOperationIndex = 0;
+	private int commissionIndex = 0;
 	
-	private int transferLimit = 50;
-	private int cardOperatonLimit = 50;
-	private int commissionLimit = 10;
+	private final int transferLimit;
+	private final int cardOperatonLimit;
+	private final  int commissionLimit;
 	private Date startDate = new Date(new Date().getTime() - 2629743);
 	private Date endDate = new Date();
 	private String currency = "PLN";
 	
-	public TransactionGenerator(AccountDAO accountDAO,CardDAO cardDAO,TransferDAO transferDAO,CardOperationDAO cardOperationDAO,CommissionDAO commissionDAO) {
-		this.accountDAO = accountDAO;
-		this.cardDAO = cardDAO;
-		this.transferDAO = transferDAO;
-		this.cardOperationDAO = cardOperationDAO;
-		this.commissionDAO = commissionDAO;
+	public TransactionGenerator() {
+		this.transferLimit = 50;
+		this.cardOperatonLimit = 50;
+		this.commissionLimit = 10;
 	}
 	
-	public void generate() {
-		for(int i=0;i<transferLimit;i++) {
-			Transfer transfer = new Transfer();
-			setBasicTransactionData(transfer);
-			transfer.setTitle(TransactionData.testTransferTitle);
-			transfer.setInternal(false);
-			transfer.setDirection(TransactionData.getTransferDirection());
-			transfer.setDescription(TransactionData.getTransferDescription());
-			transferDAO.create(transfer);
-		}
+	public TransactionGenerator(int transferLimit,int cardOperatonLimit,int commissionLimit) {
+		this.transferLimit = transferLimit;
+		this.cardOperatonLimit = cardOperatonLimit;
+		this.commissionLimit = commissionLimit;
 	}
 	
 	private Transaction setBasicTransactionData(Transaction t) {
@@ -71,29 +60,71 @@ public class TransactionGenerator
 		t.setBalanceAfter((new BigDecimal(ThreadLocalRandom.current().nextInt(3000,10000))));
 		return t;
 	}
+	
+	@Override
+	public boolean hasNext() {
+		return transferIndex + cardOperationIndex + commissionIndex < transferLimit + cardOperatonLimit + commissionLimit;
+	}
+	
+	@Override
+	public Transaction next() {
+		if(transferIndex<transferLimit) {
+			transferIndex++;
+			return generateTransfer();
+		}
+		if(cardOperationIndex<cardOperatonLimit) {
+			cardOperationIndex++;
+			return generateCardOperation();
+			
+		}
+		if(commissionIndex<commissionLimit) {
+			commissionIndex++;
+			return generateComission();
+		}
+		return null;
+	}
+
+	
+	public Transfer generateTransfer() {
+		Transfer transfer = new Transfer();
+		setBasicTransactionData(transfer);
+		transfer.setTitle(TransactionData.testTransferTitle);
+		transfer.setInternal(false);
+		transfer.setDirection(TransactionData.getTransferDirection());
+		transfer.setDescription(TransactionData.getTransferDescription());
+		return transfer;
+	}
+	
+	public CardOperation generateCardOperation() {
+		CardOperation cardOperation = new CardOperation();
+		setBasicTransactionData(cardOperation);
+		if(ThreadLocalRandom.current().nextInt(0,1)>0) {
+			cardOperation.setTitle(TransactionData.testCardOpTitle);
+		} else {
+			cardOperation.setTitle(TransactionData.testWithdrawalTitle);
+		}
+		cardOperation.setCard(new CardDetails(TransactionData.ownTestCard.getNumber(),TransactionData.ownTestCard.getName()));
+		cardOperation.setDestination(TransactionData.getCardOpDestination());
+		return cardOperation;
+	}
+
+	public Commission generateComission() {
+		Commission commission = new Commission();
+		setBasicTransactionData(commission);
+		commission.setTitle(TransactionData.testCommissionTitle);
+		return commission;
+	}
 
 	public int getTransferLimit() {
 		return transferLimit;
 	}
-
-	public void setTransferLimit(int transferLimit) {
-		this.transferLimit = transferLimit;
-	}
-
+	
 	public int getCardOperatonLimit() {
 		return cardOperatonLimit;
 	}
 
-	public void setCardOperatonLimit(int cardOperatonLimit) {
-		this.cardOperatonLimit = cardOperatonLimit;
-	}
-
 	public int getCommissionLimit() {
 		return commissionLimit;
-	}
-
-	public void setCommissionLimit(int commissionLimit) {
-		this.commissionLimit = commissionLimit;
 	}
 
 	public Date getStartDate() {

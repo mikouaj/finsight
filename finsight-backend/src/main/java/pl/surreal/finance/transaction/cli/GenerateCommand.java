@@ -25,6 +25,8 @@ import io.dropwizard.setup.Environment;
 import net.sourceforge.argparse4j.inf.Namespace;
 import pl.surreal.finance.transaction.TransactionConfiguration;
 import pl.surreal.finance.transaction.core.Card;
+import pl.surreal.finance.transaction.core.Transfer;
+import pl.surreal.finance.transaction.generator.TransactionGenerator;
 
 public class GenerateCommand extends ConfiguredCommand<TransactionConfiguration> {
 
@@ -55,10 +57,13 @@ public class GenerateCommand extends ConfiguredCommand<TransactionConfiguration>
 			throws Exception {
 		Session session = configureHibernateSession(bootstrap,configuration);
 		
-		
 		Transaction t = session.beginTransaction();
-		session.persist(new Card("1234","Dupa"));
-		session.persist(new Card("1235","Dupa"));
+		TransactionGenerator generator = new TransactionGenerator();
+		pl.surreal.finance.transaction.core.Transaction trans = generator.next();
+		if(trans instanceof Transfer) {
+			Transfer transfer = (Transfer)trans;
+			session.persist(transfer);
+		}
 		
 		t.commit();
 		session.close();
