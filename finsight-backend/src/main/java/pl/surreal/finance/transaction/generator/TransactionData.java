@@ -24,6 +24,7 @@ import pl.surreal.finance.transaction.core.Transfer.TransferDirection;
 
 public class TransactionData
 {
+//	private final static Logger LOGGER = LoggerFactory.getLogger(TransactionData.class);
 	public final static Account ownTestAccount = new Account("69696969696969696969696969","MyAccount");
 	public final static Card ownTestCard = new Card("1234-69696","MyCard");
 	public final static String testTransferTitle = "System db easyNET Nr. dok.: TEST/69";
@@ -31,11 +32,13 @@ public class TransactionData
 	public final static String testWithdrawalTitle = "Treść: Wypłata gotówki TESTOWY";
 	public final static String testCommissionTitle = "Dotyczy dok.: TEST/69";
 	
+	public final static String testWithdrawalDestination = "Bankomat TEST";
+	
 	public final static String[] cardopDestinations = {
      "RESTAURACJA MANDARY WARSZAWA", "ADRIAN Adam Goral 4 WARSZAWA POL", "AIOLI-CANTINE Warszawa POL", "WINIARNIA KOTLOWNIA WARSZAWA POL",
      "JMP S.A. BIEDRONKA WARSZAWA", "MARKS & SPENCER BLU WARSZAWA POL", "SPP WARSZAWA WARSZAWA POL", "PETERS ZABRODZIE POL", 
      "Apteka za Grosze J1 Warszawa POL", "DELIKATESY MIESNE NIEGOW POL", "Automatspec Warsaw POL", "Ziko Apteka Warszawa POL",
-     "GREEN COFFEE SP Z O WARSZAWA POL", "CARREFOUR HIPERMARK WARSZAWA POL", "ZABKA Z3313 K.1 WARSZAWA POL", "SPP WARSZAWA 2 WARSZAWA POL"
+     "GREEN COFFEE SP Z O WARSZAWA POL", "CARREFOUR HIPERMARK WARSZAWA POL", "ZABKA Z6090 K.1 WARSZAWA POL", "SPP WARSZAWA 2 WARSZAWA POL"
 	};
 
 	public final static Account[] transferAccounts = {
@@ -64,8 +67,7 @@ public class TransactionData
 	}
 	
 	public static TransferDirection getTransferDirection() {
-		TransferDirection[] directions = TransferDirection.values();
-		return directions[ThreadLocalRandom.current().nextInt(0,directions.length)];
+		return ThreadLocalRandom.current().nextInt(0,2) == 0 ? TransferDirection.INCOMING : TransferDirection.OUTGOING;
 	}
 	
 	public static Date getRandomDate(Date minDate,Date maxDate) {

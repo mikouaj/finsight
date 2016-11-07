@@ -34,7 +34,7 @@ public class TransactionGenerator implements Iterator<Transaction>
 	private final int transferLimit;
 	private final int cardOperatonLimit;
 	private final  int commissionLimit;
-	private Date startDate = new Date(new Date().getTime() - 2629743);
+	private Date startDate = new Date(new Date().getTime() - 2678400000L);
 	private Date endDate = new Date();
 	private String currency = "PLN";
 	
@@ -91,6 +91,13 @@ public class TransactionGenerator implements Iterator<Transaction>
 		transfer.setTitle(TransactionData.testTransferTitle);
 		transfer.setInternal(false);
 		transfer.setDirection(TransactionData.getTransferDirection());
+		if(transfer.getDirection()==Transfer.TransferDirection.INCOMING) {
+			transfer.setDstAccount(TransactionData.ownTestAccount.getAccountDetails());
+			transfer.setSrcAccount(TransactionData.getTransferAccount().getAccountDetails());
+		} else {
+			transfer.setSrcAccount(TransactionData.ownTestAccount.getAccountDetails());
+			transfer.setDstAccount(TransactionData.getTransferAccount().getAccountDetails());
+		}
 		transfer.setDescription(TransactionData.getTransferDescription());
 		return transfer;
 	}
@@ -98,13 +105,15 @@ public class TransactionGenerator implements Iterator<Transaction>
 	public CardOperation generateCardOperation() {
 		CardOperation cardOperation = new CardOperation();
 		setBasicTransactionData(cardOperation);
-		if(ThreadLocalRandom.current().nextInt(0,1)>0) {
+		if(ThreadLocalRandom.current().nextInt(0,2)>0) {
 			cardOperation.setTitle(TransactionData.testCardOpTitle);
+			cardOperation.setDestination(TransactionData.getCardOpDestination());
 		} else {
 			cardOperation.setTitle(TransactionData.testWithdrawalTitle);
+			cardOperation.setDestination(TransactionData.testWithdrawalDestination);
 		}
 		cardOperation.setCard(new CardDetails(TransactionData.ownTestCard.getNumber(),TransactionData.ownTestCard.getName()));
-		cardOperation.setDestination(TransactionData.getCardOpDestination());
+		
 		return cardOperation;
 	}
 

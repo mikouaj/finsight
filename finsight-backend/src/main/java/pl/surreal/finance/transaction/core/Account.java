@@ -26,6 +26,8 @@ import javax.validation.constraints.NotNull;
 import org.hibernate.annotations.NaturalId;
 import org.hibernate.validator.constraints.NotEmpty;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Entity
 @Table(name="account")
 @NamedQueries({
@@ -83,5 +85,10 @@ public class Account
 
 	public void setName(String name) {
 		this.name = name;
+	}
+	
+	@JsonIgnore
+	public AccountDetails getAccountDetails() {
+		return new AccountDetails(number,name);
 	}
 }

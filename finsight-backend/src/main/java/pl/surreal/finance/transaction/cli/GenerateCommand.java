@@ -16,6 +16,8 @@ package pl.surreal.finance.transaction.cli;
 
 import org.hibernate.Session;
 import org.hibernate.Transaction;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import io.dropwizard.cli.ConfiguredCommand;
 import io.dropwizard.db.DataSourceFactory;
@@ -24,18 +26,26 @@ import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import net.sourceforge.argparse4j.inf.Namespace;
 import pl.surreal.finance.transaction.TransactionConfiguration;
+import pl.surreal.finance.transaction.core.Account;
 import pl.surreal.finance.transaction.core.Card;
+import pl.surreal.finance.transaction.core.CardOperation;
+import pl.surreal.finance.transaction.core.Commission;
+import pl.surreal.finance.transaction.core.Label;
+import pl.surreal.finance.transaction.core.LabelRule;
 import pl.surreal.finance.transaction.core.Transfer;
+import pl.surreal.finance.transaction.generator.TransactionData;
 import pl.surreal.finance.transaction.generator.TransactionGenerator;
 
 public class GenerateCommand extends ConfiguredCommand<TransactionConfiguration> {
 
+	private final static Logger LOGGER = LoggerFactory.getLogger(GenerateCommand.class);
+	
 	public GenerateCommand() {
 		super("generate", "Generates test transaction data");
 	}
 	
 	private Session configureHibernateSession(Bootstrap<TransactionConfiguration> bootstrap, TransactionConfiguration configuration) throws Exception {
-		HibernateBundle<TransactionConfiguration> hibernate = new HibernateBundle<TransactionConfiguration>(Card.class) {
+		HibernateBundle<TransactionConfiguration> hibernate = new HibernateBundle<TransactionConfiguration>(Transaction.class,Commission.class,CardOperation.class,Transfer.class,Card.class,Account.class,Label.class,LabelRule.class) {
 		    @Override
 		    public DataSourceFactory getDataSourceFactory(TransactionConfiguration configuration) {
 		        return configuration.getDataSourceFactory();
@@ -57,17 +67,18 @@ public class GenerateCommand extends ConfiguredCommand<TransactionConfiguration>
 			throws Exception {
 		Session session = configureHibernateSession(bootstrap,configuration);
 		
-		Transaction t = session.beginTransaction();
+		
+		Transaction transaction = session.beginTransaction();
 		TransactionGenerator generator = new TransactionGenerator();
-		pl.surreal.finance.transaction.core.Transaction trans = generator.next();
-		if(trans instanceof Transfer) {
-			Transfer transfer = (Transfer)trans;
-			session.persist(transfer);
+		LOGGER.info("Transactions generation started");
+		session.persist(TransactionData.ownTestAccount);
+		session.persist(TransactionData.ownTestCard);
+		while(generator.hasNext()) {
+			session.persist(generator.next());
 		}
-		
-		t.commit();
+
+		transaction.commit();
 		session.close();
-		
-		System.out.println("DUPA");
+		LOGGER.info("Transactions generation finished");
 	}
 }
