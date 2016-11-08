@@ -35,7 +35,6 @@ import com.codahale.metrics.annotation.Timed;
 
 import io.dropwizard.hibernate.UnitOfWork;
 import io.dropwizard.jersey.params.LongParam;
-import pl.surreal.finance.transaction.core.Account;
 import pl.surreal.finance.transaction.core.Card;
 import pl.surreal.finance.transaction.db.CardDAO;
 

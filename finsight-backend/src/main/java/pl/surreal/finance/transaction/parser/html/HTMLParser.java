@@ -31,7 +31,6 @@ import org.slf4j.LoggerFactory;
 
 import pl.surreal.finance.transaction.core.Card;
 import pl.surreal.finance.transaction.core.Transaction;
-import pl.surreal.finance.transaction.parser.ILabelProvider;
 import pl.surreal.finance.transaction.parser.ITransactionParser;
 
 public class HTMLParser implements ITransactionParser
@@ -40,7 +39,6 @@ public class HTMLParser implements ITransactionParser
 	private InputStream inputStream;
 	private final Iterator<Element> rowsIterator;
 	private Card baseCard;
-	private ILabelProvider labelProvider;
 	
 	public HTMLParser(InputStream inputStream) {
 		this.inputStream = inputStream;
@@ -141,10 +139,5 @@ public class HTMLParser implements ITransactionParser
 		} catch (IOException e) {
 			LOGGER.warn("close: exception occured '{}'",e.getMessage());
 		}
-	}
-
-	@Override
-	public void setLabelProvider(ILabelProvider labelProvider) {
-		this.labelProvider = labelProvider;
 	}
 }

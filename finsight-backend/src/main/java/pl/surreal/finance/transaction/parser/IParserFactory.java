@@ -24,5 +24,4 @@ public interface IParserFactory {
 	public Optional<ITransactionParser> getParser(InputStream inputStream,String type,String baseResourceId);
 	public void addResourceLookup(Class<?> resourceClass, IResourceLookup<?> lookup);
 	public void removeResourceLookup(Class<?> resourceClass);
-	public void setLabelProvider(ILabelProvider labelProvider);
 }

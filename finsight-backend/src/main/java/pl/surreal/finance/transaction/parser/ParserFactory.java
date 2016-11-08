@@ -36,7 +36,6 @@ public class ParserFactory implements IParserFactory
 	private final static Logger LOGGER = LoggerFactory.getLogger(ParserFactory.class);
 	private final String dbStatementEncoding = "Windows-1250";
 	private final HashMap<Class<?>,IResourceLookup<?>> resourceLookups = new HashMap<>();
-	private ILabelProvider labelProvider;
 	
 	private ITransactionParser getDBStatementParser(InputStream inputStream,String baseAccountId) {
 		InputStreamReader reader=null;
@@ -99,9 +98,6 @@ public class ParserFactory implements IParserFactory
 				parser = getDBHTMLStatementParser(inputStream,baseResourceId);
 				break;
 		}
-		if(parser!=null && labelProvider!=null) {
-			parser.setLabelProvider(labelProvider);
-		}
 		return Optional.ofNullable(parser);
 	}
 
@@ -113,14 +109,5 @@ public class ParserFactory implements IParserFactory
 	@Override
 	public void removeResourceLookup(Class<?> resourceClass) {
 		resourceLookups.remove(resourceClass);
-	}
-
-	@Override
-	public void setLabelProvider(ILabelProvider labelProvider) {
-		this.labelProvider = labelProvider;
-	}
-	
-	public ILabelProvider getLabelProvider() {
-		return labelProvider;
 	}
 }
