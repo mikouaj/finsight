@@ -47,6 +47,7 @@ import pl.surreal.finance.transaction.db.LabelDAO;
 import pl.surreal.finance.transaction.db.LabelRuleDAO;
 import pl.surreal.finance.transaction.db.TransactionDAO;
 import pl.surreal.finance.transaction.db.TransferDAO;
+import pl.surreal.finance.transaction.labeler.TransactionLabeler;
 import pl.surreal.finance.transaction.parser.ParserFactory;
 import pl.surreal.finance.transaction.resources.AccountResource;
 import pl.surreal.finance.transaction.resources.CardOperationResource;
@@ -100,7 +101,9 @@ public class TransactionApplication extends Application<TransactionConfiguration
 		parserFactory.addResourceLookup(Account.class,accountDAO);
 		parserFactory.addResourceLookup(Card.class,cardDAO);
 		
-		environment.jersey().register(new TransactionResource(dao,parserFactory));
+		final TransactionLabeler transactionLabeler = new TransactionLabeler(labelRuleDAO,dao);
+		
+		environment.jersey().register(new TransactionResource(dao,parserFactory,transactionLabeler));
 		environment.jersey().register(new CommissionResource(commissionDAO));
 		environment.jersey().register(new CardOperationResource(cardOperationDAO));
 		environment.jersey().register(new TransferResource(transferDAO));

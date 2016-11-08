@@ -63,6 +63,9 @@ public class LabelRule
 	@NotEmpty
 	private String regexp;
 	
+	@Column(name = "active")
+	private boolean active = false;
+	
 	@ManyToMany(fetch = FetchType.EAGER,cascade = {CascadeType.PERSIST, CascadeType.MERGE})
 	@JsonIgnore
 	private List<Label> labels = new ArrayList<>();
@@ -133,7 +136,15 @@ public class LabelRule
 		this.uri = uri;
 	}
 	
-    @Override
+    public boolean isActive() {
+		return active;
+	}
+
+	public void setActive(boolean active) {
+		this.active = active;
+	}
+
+	@Override
     public boolean equals(Object o) {
         if ( this == o ) {
             return true;

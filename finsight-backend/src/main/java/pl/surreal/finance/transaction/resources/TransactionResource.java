@@ -51,6 +51,7 @@ import pl.surreal.finance.transaction.core.CardOperation;
 import pl.surreal.finance.transaction.core.Commission;
 import pl.surreal.finance.transaction.core.Transfer;
 import pl.surreal.finance.transaction.db.TransactionDAO;
+import pl.surreal.finance.transaction.labeler.ITransactionLabeler;
 import pl.surreal.finance.transaction.parser.IParserFactory;
 import pl.surreal.finance.transaction.parser.ITransactionParser;
 import pl.surreal.finance.transaction.parser.ParserSupportedType;
@@ -62,12 +63,14 @@ public class TransactionResource
 	private static final Logger LOGGER = LoggerFactory.getLogger(TransactionResource.class);
 	private TransactionDAO transactionDAO;
 	private IParserFactory parserFactory;
+	private ITransactionLabeler transactionLabeler;
 	@Context
 	private UriInfo uriInfo;
 	
-	public TransactionResource(TransactionDAO transactionDAO,IParserFactory parserFactory) {
+	public TransactionResource(TransactionDAO transactionDAO,IParserFactory parserFactory,ITransactionLabeler transactionLabeler) {
 		this.transactionDAO = transactionDAO;
 		this.parserFactory = parserFactory;
+		this.transactionLabeler = transactionLabeler;
 	}
 	
 	@GET
@@ -133,6 +136,16 @@ public class TransactionResource
 			}
 		}
 		return importTypes;
+	}
+	
+	@POST
+	@Path("/doLabel")
+	@UnitOfWork
+	public Response label() {
+		for(pl.surreal.finance.transaction.core.Transaction t: transactionDAO.findAll()) {
+			transactionLabeler.label(t);
+		}
+		return Response.status(200).build();
 	}
 	
 	private ImportResult importTransactions(ITransactionParser parser) {
