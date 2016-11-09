@@ -14,13 +14,12 @@
 
 package pl.surreal.finance.transaction.labeler;
 
-import java.util.List;
+import java.util.NoSuchElementException;
 
-import pl.surreal.finance.transaction.core.Label;
 import pl.surreal.finance.transaction.core.Transaction;
 
 public interface ITransactionLabeler
 {
-	public List<Label> getLabels(Transaction t);
 	public Transaction label(Transaction t);
+	public Transaction label(Transaction t,Long ruleId) throws NoSuchElementException;
 }

@@ -101,7 +101,7 @@ public class TransactionApplication extends Application<TransactionConfiguration
 		parserFactory.addResourceLookup(Account.class,accountDAO);
 		parserFactory.addResourceLookup(Card.class,cardDAO);
 		
-		final TransactionLabeler transactionLabeler = new TransactionLabeler(labelRuleDAO,dao);
+		final TransactionLabeler transactionLabeler = new TransactionLabeler(labelRuleDAO);
 		
 		environment.jersey().register(new TransactionResource(dao,parserFactory,transactionLabeler));
 		environment.jersey().register(new CommissionResource(commissionDAO));

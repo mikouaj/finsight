@@ -16,6 +16,7 @@ package pl.surreal.finance.transaction.labeler;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
@@ -29,17 +30,14 @@ import pl.surreal.finance.transaction.core.LabelRule;
 import pl.surreal.finance.transaction.core.Transaction;
 import pl.surreal.finance.transaction.core.Transfer;
 import pl.surreal.finance.transaction.db.LabelRuleDAO;
-import pl.surreal.finance.transaction.db.TransactionDAO;
 
 public class TransactionLabeler implements ITransactionLabeler
 {
 	private static final Logger LOGGER = LoggerFactory.getLogger(TransactionLabeler.class);
 	private final LabelRuleDAO labelRuleDAO;
-	private final TransactionDAO transactionDAO;
 	
-	public TransactionLabeler(LabelRuleDAO labelRuleDAO,TransactionDAO transactionDAO) {
+	public TransactionLabeler(LabelRuleDAO labelRuleDAO) {
 		this.labelRuleDAO = labelRuleDAO;
-		this.transactionDAO = transactionDAO;
 	}
 
 	private List<Matcher> getTransferMatcher(Transfer transfer,Pattern p) {
@@ -61,29 +59,33 @@ public class TransactionLabeler implements ITransactionLabeler
 		return false;
 	}
 	
-	@Override
+	public List<Label> getLabels(Transaction t,LabelRule labelRule) {
+		List<Label> labels = new ArrayList<Label>();
+		if(labelRule.isActive()) {
+			try {
+				Pattern pattern = Pattern.compile(labelRule.getRegexp());
+				List<Matcher> matchers;
+				if(t instanceof CardOperation) {
+					matchers = getCardOperationMatcher((CardOperation)t,pattern);
+				} else if(t instanceof Transfer) {
+					matchers = getTransferMatcher((Transfer)t,pattern);
+				} else {
+					matchers = null;
+				}
+				if(matchers!=null && anyMatch(matchers)) {
+					labels.addAll(labelRule.getLabels());
+				}
+			} catch(PatternSyntaxException ex) {
+				LOGGER.warn("getLabel : labelRule '{}' pattern compilation error '{}'",labelRule.getId(),ex.getMessage());
+			}
+		}
+		return labels;
+	}
+	
 	public List<Label> getLabels(Transaction t) {
 		List<Label> labels = new ArrayList<Label>();
 		for(LabelRule labelRule : labelRuleDAO.findAll()) {
-			if(labelRule.isActive()) {
-				try {
-					Pattern pattern = Pattern.compile(labelRule.getRegexp());
-					List<Matcher> matchers;
-					if(t instanceof CardOperation) {
-						matchers = getCardOperationMatcher((CardOperation)t,pattern);
-					} else if(t instanceof Transfer) {
-						matchers = getTransferMatcher((Transfer)t,pattern);
-					} else {
-						continue;
-					}
-					if(anyMatch(matchers)) {
-						labels.addAll(labelRule.getLabels());
-					}
-				} catch(PatternSyntaxException ex) {
-					LOGGER.warn("getLabels : labelRule '{}' pattern compilation error '{}'",labelRule.getId(),ex.getMessage());
-					continue;
-				}
-			}
+			labels.addAll(getLabels(t,labelRule));
 		}
 		return labels;
 	}
@@ -91,7 +93,18 @@ public class TransactionLabeler implements ITransactionLabeler
 	@Override
 	public Transaction label(Transaction t) {
 		t.setLabels(this.getLabels(t));
-		transactionDAO.create(t);
+		return t;
+	}
+
+	@Override
+	public Transaction label(Transaction t, Long ruleId) throws NoSuchElementException {
+		LabelRule labelRule = labelRuleDAO.findById(ruleId).orElseThrow(() -> new NoSuchElementException("LabelRule not found."));
+		List<Label> labels = getLabels(t,labelRule);
+	    for(Label label : labels) {
+	    	if(!t.getLabels().contains(label)) {
+	    		t.getLabels().add(label);
+	    	}
+	    }
 		return t;
 	}
 }

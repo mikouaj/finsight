@@ -18,6 +18,7 @@ import java.io.InputStream;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 import javax.validation.constraints.Min;
@@ -25,8 +26,10 @@ import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.InternalServerErrorException;
+import javax.ws.rs.NotFoundException;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
@@ -44,6 +47,7 @@ import org.slf4j.LoggerFactory;
 import com.codahale.metrics.annotation.Timed;
 
 import io.dropwizard.hibernate.UnitOfWork;
+import io.dropwizard.jersey.params.LongParam;
 import pl.surreal.finance.transaction.api.ImportResult;
 import pl.surreal.finance.transaction.api.ImportType;
 import pl.surreal.finance.transaction.api.Transaction;
@@ -90,6 +94,7 @@ public class TransactionResource
 			transaction.setAmount(coreTransaction.getAccountingAmount());
 			transaction.setTitle(coreTransaction.getTitle());
 			transaction.setType(coreTransaction.getClass().getSimpleName());
+			transaction.setLabels(coreTransaction.getLabels());
 			UriBuilder uriBuilder=uriInfo.getAbsolutePathBuilder();
 			if(coreTransaction instanceof Commission) {
 				uriBuilder = uriInfo.getBaseUriBuilder().path(CommissionResource.class);
@@ -139,11 +144,27 @@ public class TransactionResource
 	}
 	
 	@POST
-	@Path("/doLabel")
+	@Path("/doLabelAll")
 	@UnitOfWork
-	public Response label() {
+	public Response labelAll() {
 		for(pl.surreal.finance.transaction.core.Transaction t: transactionDAO.findAll()) {
 			transactionLabeler.label(t);
+			transactionDAO.create(t);
+		}
+		return Response.status(200).build();
+	}
+	
+	@POST
+	@Path("/doLabelAll/{ruleId}")
+	@UnitOfWork
+	public Response labelAll(@PathParam("ruleId") LongParam ruleId) {
+		for(pl.surreal.finance.transaction.core.Transaction t: transactionDAO.findAll()) {
+			try {
+				transactionLabeler.label(t,ruleId.get());
+				transactionDAO.create(t);
+			} catch(NoSuchElementException ex) {
+				throw new NotFoundException(ex.getMessage());
+			}
 		}
 		return Response.status(200).build();
 	}
