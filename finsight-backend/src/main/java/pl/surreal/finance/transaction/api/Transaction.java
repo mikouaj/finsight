@@ -16,10 +16,15 @@ package pl.surreal.finance.transaction.api;
 
 import java.math.BigDecimal;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+
+import pl.surreal.finance.transaction.core.Label;
 
 public class Transaction
 {
@@ -29,6 +34,7 @@ public class Transaction
 	private BigDecimal amount;
 	private String title;
 	private URI url;
+	private List<Label> labels;
 	
 	public Transaction() {
 	}
@@ -76,5 +82,23 @@ public class Transaction
 	
 	public void setUrl(URI url) {
 		this.url = url;
+	}
+	
+    @JsonProperty("labels")
+    public List<URI> getLabelURIs() {
+    	List<URI> labelURIs = new ArrayList<>();
+    	for(Label label : labels) {
+    		labelURIs.add(label.getUri());
+    	}
+    	return labelURIs;
+    }
+
+	@JsonIgnore
+	public List<Label> getLabels() {
+		return labels;
+	}
+
+	public void setLabels(List<Label> labels) {
+		this.labels = labels;
 	}
 }
