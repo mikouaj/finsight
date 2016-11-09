@@ -1,3 +1,3 @@
 'use strict';
 
-angular.module('transactionList',['core.transaction','transactionImport']);
+angular.module('transactionList',['core.transaction','core.label','transactionImport']);

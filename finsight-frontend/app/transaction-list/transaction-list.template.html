@@ -49,6 +49,7 @@
    	    <th>Amount</th>
         <th>Currency</th>
    	    <th>Title</th>
+        <th>Labels</th>
    	  </tr>
    </thead>
    <tbody>
@@ -58,6 +59,9 @@
        <td class="centered">{{transaction.amount | number : 2}}</td>
        <td class="centered">{{$ctrl.displayCurrency}}</td>
        <td>{{transaction.title}}</td>
+       <td class="centered">
+         <span class="label label-default" style="margin-right: 5px" ng-repeat="label in transaction.labelData">{{label.path}}</span>
+       </td>
      </tr>
      <tr ng-repeat-end="">
        <td colspan="5" style="padding:0">

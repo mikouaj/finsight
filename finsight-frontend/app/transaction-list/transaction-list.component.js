@@ -4,10 +4,23 @@ angular.
   module('transactionList').
   component('transactionList', {
     templateUrl: 'transaction-list/transaction-list.template.html',
-    controller: ['Transaction','$http',
-    function TransactionListController(Transaction,$http) {
+    controller: ['Transaction','Label','$http',
+    function TransactionListController(Transaction,Label,$http) {
         var self = this;
-        self.transactions=Transaction.query();
+
+        self.labelCache = [];
+        self.transactions=Transaction.query(function(transactions) {
+          angular.forEach(transactions, function(transaction) {
+            transaction.labelData=[];
+            angular.forEach(transaction.labels, function(labelURI) {
+              var labelId = labelURI.split('/').pop();
+              if(!(labelId in self.labelCache)) {
+                self.labelCache[labelId] = Label.get({id:labelId});
+              }
+              transaction.labelData.push(self.labelCache[labelId]);
+            });
+          });
+        });
 
         self.displayCurrency = 'PLN';
         self.dateFormat = 'yyyy-MM-dd';
