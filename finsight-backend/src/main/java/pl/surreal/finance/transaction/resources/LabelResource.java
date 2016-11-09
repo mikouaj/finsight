@@ -22,6 +22,7 @@ import javax.ws.rs.GET;
 import javax.ws.rs.NotAcceptableException;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -93,4 +94,38 @@ public class LabelResource
 		Label label = labelDAO.findById(id.get()).orElseThrow(() -> new NotFoundException("Parent not found."));
 		return label.getChildren();
 	}
+	
+	@POST
+	@Path("/{id}/children")
+	@UnitOfWork
+	public Label createChild(@PathParam("id") LongParam id,Label childLabel) {
+		Label label = labelDAO.findById(id.get()).orElseThrow(() -> new NotFoundException("Parent not found."));
+		label.addChild(childLabel);
+		labelDAO.create(label);
+		return childLabel;
+		//return labelDAO.create(label);
+	}
+	
+	@PUT
+	@Path("/{id}/children/{childId}")
+	@UnitOfWork
+	public Response addChild(@PathParam("id") LongParam id,@PathParam("childId") LongParam childId) {
+		Label label = labelDAO.findById(id.get()).orElseThrow(() -> new NotFoundException("Label not found."));
+		Label childLabel = labelDAO.findById(childId.get()).orElseThrow(() -> new NotFoundException("Child label not found."));
+		label.addChild(childLabel);
+		labelDAO.create(label);
+		return Response.ok().build();
+	}
+	
+	@DELETE
+	@Path("/{id}/children/{childId}")
+	@UnitOfWork
+	public Response removeChild(@PathParam("id") LongParam id,@PathParam("childId") LongParam childId) {
+		Label label = labelDAO.findById(id.get()).orElseThrow(() -> new NotFoundException("Label not found."));
+		Label childLabel = labelDAO.findById(childId.get()).orElseThrow(() -> new NotFoundException("Child label not found."));
+		label.removeChild(childLabel);
+		labelDAO.create(label);
+		return Response.ok().build();
+	}
+	
 }
