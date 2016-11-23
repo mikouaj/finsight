@@ -32,6 +32,9 @@ public class TransactionConfiguration extends Configuration
     @Valid
     private GraphiteReporterFactory graphiteReporterFactory = new GraphiteReporterFactory();
 
+    @Valid
+    private SwaggerConfiguration swaggerConfiguration = new SwaggerConfiguration();
+    
     @JsonProperty("database")
     public DataSourceFactory getDataSourceFactory() {
         return database;
@@ -50,5 +53,15 @@ public class TransactionConfiguration extends Configuration
     @JsonProperty("metrics")
     public void setGraphiteReporterFactory(GraphiteReporterFactory graphiteReporterFactory) {
         this.graphiteReporterFactory = graphiteReporterFactory;
+    }
+    
+    @JsonProperty("swagger")
+    public SwaggerConfiguration getSwaggerConfiguration() {
+    	return this.swaggerConfiguration;
+    }
+    
+    @JsonProperty("swagger")
+    public void setSwaggerConfiguration(SwaggerConfiguration swaggerConfiguration) {
+    	this.swaggerConfiguration = swaggerConfiguration;
     }
 }

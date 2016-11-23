@@ -29,6 +29,15 @@ logging:
       timeZone: UTC
       maxFileSize: 10MB      
 
+swagger:
+  title: transaction backend
+  description: Finance Insight application backend
+  host: localhost:8090
+  license: ASL 2.0
+  licenseUrl: https://www.apache.org/licenses/LICENSE-2.0
+  resourcePackage: pl.surreal.finance.transaction.resources
+  scan: true
+
 metrics:
   type: graphite
   frequency: 10s      
