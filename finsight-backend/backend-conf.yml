@@ -29,6 +29,10 @@ logging:
       timeZone: UTC
       maxFileSize: 10MB      
 
+swagger:
+  resourcePackage: pl.surreal.finance.transaction.resources
+  scan: true
+
 metrics:
   type: graphite
   frequency: 10s      

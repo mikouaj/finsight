@@ -112,6 +112,10 @@ public class TransactionApplication extends Application<TransactionConfiguration
 		environment.jersey().register(new LabelResource(labelDAO));
 		environment.jersey().register(new LabelRuleResource(labelRuleDAO,labelDAO));
 		
+		environment.jersey().register(io.swagger.jaxrs.listing.ApiListingResource.class);
+		environment.jersey().register(io.swagger.jaxrs.listing.SwaggerSerializers.class);
+		configuration.getSwaggerConfiguration().createBeanConfig();
+		
 		environment.jersey().getResourceConfig().packages(getClass().getPackage().getName()).register(DeclarativeLinkingFeature.class);
 		
 		FilterRegistration.Dynamic corsfilter = environment.servlets().addFilter("CORSFilter", CrossOriginFilter.class);
