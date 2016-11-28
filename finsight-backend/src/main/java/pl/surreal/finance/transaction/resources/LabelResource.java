@@ -34,10 +34,16 @@ import com.codahale.metrics.annotation.Timed;
 
 import io.dropwizard.hibernate.UnitOfWork;
 import io.dropwizard.jersey.params.LongParam;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import pl.surreal.finance.transaction.core.Label;
 import pl.surreal.finance.transaction.db.LabelDAO;
 
 @Path("/labels")
+@Api(value = "labels")
 @Produces(MediaType.APPLICATION_JSON)
 public class LabelResource
 {
@@ -51,6 +57,7 @@ public class LabelResource
 	@GET
 	@UnitOfWork
 	@Timed
+	@ApiOperation(value = "Get all labels")
 	public List<Label> get() {
 		return labelDAO.findAll();
 	}
@@ -58,22 +65,27 @@ public class LabelResource
 	@GET
 	@Path("/{id}")
 	@UnitOfWork
-	public Label getById(@PathParam("id") LongParam id) {
-		Label label = labelDAO.findById(id.get()).orElseThrow(() -> new NotFoundException("Not found."));
+	@ApiOperation(value = "Get label by id")
+	@ApiResponses(value = { @ApiResponse(code = 404, message = "Label not found.") })
+	public Label getById(@ApiParam(value = "id of the label", required = true) @PathParam("id") LongParam id) {
+		Label label = labelDAO.findById(id.get()).orElseThrow(() -> new NotFoundException("Label not found."));
 		return label;
 	}
 	
 	@POST
 	@UnitOfWork
-	public Label create(Label label) {
+	@ApiOperation(value = "Create new label")
+	public Label create(@ApiParam(value = "new label object", required = true) Label label) {
 		return labelDAO.create(label);
 	}
 
 	@DELETE
 	@Path("/{id}")
 	@UnitOfWork
-	public Response delete(@PathParam("id") LongParam id,
-			@DefaultValue("false") @QueryParam("force") boolean forceDelete) {
+	@ApiOperation(value = "Remove label by id")
+	@ApiResponses(value = { @ApiResponse(code = 404, message = "Label not found."), @ApiResponse(code = 406, message = "Label has children, delete them first or use force.")  } )
+	public Response delete(@ApiParam(value = "id of the label", required = true) @PathParam("id") LongParam id,
+			@ApiParam(value = "boolean flag indicating if force removal should take place", required = false) @DefaultValue("false") @QueryParam("force") boolean forceDelete) {
 		Label label = labelDAO.findById(id.get()).orElseThrow(() -> new NotFoundException("Not found."));
 		if(label.getChildren().size()>0) {
 			if(!forceDelete) throw new NotAcceptableException("Label has children, delete them first or use force");
@@ -90,7 +102,9 @@ public class LabelResource
 	@GET
 	@Path("/{id}/children")
 	@UnitOfWork
-	public List<Label> getChildren(@PathParam("id") LongParam id) {
+	@ApiOperation(value = "Get list of children for a given parent label")
+	@ApiResponses(value = { @ApiResponse(code = 404, message = "Parent label not found.") })
+	public List<Label> getChildren(@ApiParam(value = "id of the parent label", required = true) @PathParam("id") LongParam id) {
 		Label label = labelDAO.findById(id.get()).orElseThrow(() -> new NotFoundException("Parent not found."));
 		return label.getChildren();
 	}
@@ -98,18 +112,24 @@ public class LabelResource
 	@POST
 	@Path("/{id}/children")
 	@UnitOfWork
-	public Label createChild(@PathParam("id") LongParam id,Label childLabel) {
+	@ApiOperation(value = "Create new child label for a given parent label")
+	@ApiResponses(value = { @ApiResponse(code = 404, message = "Parent label not found.") } )
+	public Label createChild(@ApiParam(value = "id of the parent label", required = true) @PathParam("id") LongParam id,
+			@ApiParam(value = "new label object", required = true) Label childLabel) {
 		Label label = labelDAO.findById(id.get()).orElseThrow(() -> new NotFoundException("Parent not found."));
 		label.addChild(childLabel);
 		labelDAO.create(label);
 		return childLabel;
-		//return labelDAO.create(label);
 	}
 	
 	@PUT
 	@Path("/{id}/children/{childId}")
 	@UnitOfWork
-	public Response addChild(@PathParam("id") LongParam id,@PathParam("childId") LongParam childId) {
+	@ApiOperation(value = "Assign specified label as a child for a specified parent label")
+	@ApiResponses(value = { @ApiResponse(code = 200, message = "Child label was assigned successfully"),
+			@ApiResponse(code = 404, message = "Parent / child label not found.") } )
+	public Response addChild(@ApiParam(value = "id of the parent label") @PathParam("id") LongParam id,
+			@ApiParam(value = "id of the child label") @PathParam("childId") LongParam childId) {
 		Label label = labelDAO.findById(id.get()).orElseThrow(() -> new NotFoundException("Label not found."));
 		Label childLabel = labelDAO.findById(childId.get()).orElseThrow(() -> new NotFoundException("Child label not found."));
 		label.addChild(childLabel);
@@ -120,12 +140,15 @@ public class LabelResource
 	@DELETE
 	@Path("/{id}/children/{childId}")
 	@UnitOfWork
-	public Response removeChild(@PathParam("id") LongParam id,@PathParam("childId") LongParam childId) {
+	@ApiOperation(value = "Unassign specified label from a child for a specified parent label")
+	@ApiResponses(value = { @ApiResponse(code = 200, message = "Child label was unassigned successfully"),
+			@ApiResponse(code = 404, message = "Parent / child label not found.") } )
+	public Response removeChild(@ApiParam(value = "id of the parent label")  @PathParam("id") LongParam id,
+			@ApiParam(value = "id of the child label") @PathParam("childId") LongParam childId) {
 		Label label = labelDAO.findById(id.get()).orElseThrow(() -> new NotFoundException("Label not found."));
 		Label childLabel = labelDAO.findById(childId.get()).orElseThrow(() -> new NotFoundException("Child label not found."));
 		label.removeChild(childLabel);
 		labelDAO.create(label);
 		return Response.ok().build();
 	}
-	
 }

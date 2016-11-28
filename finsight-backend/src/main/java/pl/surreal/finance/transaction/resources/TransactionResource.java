@@ -48,6 +48,7 @@ import com.codahale.metrics.annotation.Timed;
 
 import io.dropwizard.hibernate.UnitOfWork;
 import io.dropwizard.jersey.params.LongParam;
+import io.swagger.annotations.Api;
 import pl.surreal.finance.transaction.api.ImportResult;
 import pl.surreal.finance.transaction.api.ImportType;
 import pl.surreal.finance.transaction.api.Transaction;
@@ -61,6 +62,7 @@ import pl.surreal.finance.transaction.parser.ITransactionParser;
 import pl.surreal.finance.transaction.parser.ParserSupportedType;
 
 @Path("/transactions")
+@Api(value = "transactions")
 @Produces(MediaType.APPLICATION_JSON)
 public class TransactionResource
 {

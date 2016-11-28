@@ -35,10 +35,16 @@ import com.codahale.metrics.annotation.Timed;
 
 import io.dropwizard.hibernate.UnitOfWork;
 import io.dropwizard.jersey.params.LongParam;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import pl.surreal.finance.transaction.core.Account;
 import pl.surreal.finance.transaction.db.AccountDAO;
 
-@Path("/account")
+@Path("/accounts")
+@Api(value = "accounts")
 @Produces(MediaType.APPLICATION_JSON)
 public class AccountResource
 {
@@ -51,6 +57,7 @@ public class AccountResource
 	@GET
 	@UnitOfWork
 	@Timed
+	@ApiOperation(value = "Get all accounts")
 	public List<Account> getAccounts() {
 		return accountDAO.findAll();
 	}
@@ -58,14 +65,18 @@ public class AccountResource
 	@GET
 	@Path("/{accountId}")
 	@UnitOfWork
-	public Account getAccount(@PathParam("accountId") LongParam accountId) {
-		Account account = accountDAO.findById(accountId.get()).orElseThrow(() -> new NotFoundException("Not found."));
+	@ApiOperation(value = "Get account by id")
+	@ApiResponses(value = { @ApiResponse(code = 404, message = "Account not found.") })
+	public Account getAccount(@ApiParam(value = "id of the account", required = true) @PathParam("accountId") LongParam accountId) {
+		Account account = accountDAO.findById(accountId.get()).orElseThrow(() -> new NotFoundException("Account not found."));
 		return account;
 	}
 	
     @POST
     @UnitOfWork
-    public Account createAccount(Account account) {
+    @ApiOperation(value = "Create new account")
+    @ApiResponses(value = { @ApiResponse(code = 400, message = "Contraint violation") })
+    public Account createAccount(@ApiParam(value = "new account object", required = true) Account account) {
     	Account dbAccount;
     	try {
     		dbAccount = accountDAO.create(account);
@@ -78,8 +89,11 @@ public class AccountResource
     @PUT
     @Path("/{accountId}")
     @UnitOfWork
-    public Account replace(@PathParam("accountId") LongParam accountId, Account account) {
-    	Account dbAccount = accountDAO.findById(accountId.get()).orElseThrow(() -> new NotFoundException("Not found."));
+    @ApiOperation(value = "Update account by id")
+	@ApiResponses(value = { @ApiResponse(code = 404, message = "Account not found.") })
+    public Account replace(@ApiParam(value = "id of the account", required = true) @PathParam("accountId") LongParam accountId,
+    					   @ApiParam(value = "updated account object", required = true) Account account) {
+    	Account dbAccount = accountDAO.findById(accountId.get()).orElseThrow(() -> new NotFoundException("Account not found."));
     	dbAccount.setName(account.getName());
     	dbAccount.setNumber(account.getNumber());
     	return accountDAO.create(dbAccount);
@@ -88,11 +102,14 @@ public class AccountResource
     @DELETE
     @Path("/{accountId}")
     @UnitOfWork
-    public Response delete(@PathParam("accountId") LongParam accountId) {
+	@ApiOperation(value = "Remove account by id")
+	@ApiResponses(value = { @ApiResponse(code = 200, message = "Account removed successfully."),
+							@ApiResponse(code = 404, message = "Account not found.")} )
+    public Response delete(@ApiParam(value = "id of the account", required = true) @PathParam("accountId") LongParam accountId) {
     	try {
     		accountDAO.deleteById(accountId.get());
     	} catch(ObjectNotFoundException ex) {
-    		throw new NotFoundException("Not found.");
+    		throw new NotFoundException("Account not found.");
     	}
     	return Response.ok().build();
     }

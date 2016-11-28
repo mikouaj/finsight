@@ -34,12 +34,14 @@ import com.codahale.metrics.annotation.Timed;
 
 import io.dropwizard.hibernate.UnitOfWork;
 import io.dropwizard.jersey.params.LongParam;
+import io.swagger.annotations.Api;
 import pl.surreal.finance.transaction.core.Label;
 import pl.surreal.finance.transaction.core.LabelRule;
 import pl.surreal.finance.transaction.db.LabelDAO;
 import pl.surreal.finance.transaction.db.LabelRuleDAO;
 
 @Path("/labelRules")
+@Api(value = "labelRules")
 @Produces(MediaType.APPLICATION_JSON)
 public class LabelRuleResource
 {
