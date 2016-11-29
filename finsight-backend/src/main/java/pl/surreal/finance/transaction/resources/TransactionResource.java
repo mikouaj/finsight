@@ -82,7 +82,7 @@ public class TransactionResource
 	@GET
 	@UnitOfWork
 	@Timed
-	public List<Transaction> getTransactions(
+	public List<Transaction> get(
 			@QueryParam("first") @Min(0) Integer first,
 			@QueryParam("max") @Min(0) Integer max)
 	{

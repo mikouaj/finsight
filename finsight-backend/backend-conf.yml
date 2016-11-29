@@ -1,4 +1,5 @@
 server:
+  rootPath: /api
   applicationConnectors:
     - type: http
       port: 8090
@@ -36,7 +37,10 @@ swagger:
   license: ASL 2.0
   licenseUrl: https://www.apache.org/licenses/LICENSE-2.0
   resourcePackage: pl.surreal.finance.transaction.resources
+  schemes:
+    - http
   scan: true
+  basePath: /api
 
 metrics:
   type: graphite
