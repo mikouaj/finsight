@@ -4,20 +4,38 @@ angular.
   module('transactionList').
   component('transactionList', {
     templateUrl: 'transaction-list/transaction-list.template.html',
-    controller: ['Transaction','Label','$http',
-    function TransactionListController(Transaction,Label,$http) {
+    controller: ['Backend','$http','$q',
+    function TransactionListController(Backend,$http,$q) {
         var self = this;
 
         self.labelCache = [];
-        self.transactions=Transaction.query(function(transactions) {
-          angular.forEach(transactions, function(transaction) {
-            transaction.labelData=[];
-            angular.forEach(transaction.labels, function(labelURI) {
-              var labelId = labelURI.split('/').pop();
-              if(!(labelId in self.labelCache)) {
-                self.labelCache[labelId] = Label.get({id:labelId});
+        self.labelPromises = [];
+        Backend.getApi().then(function(api) {
+          api.transactions.get().then(function(transactions) {
+            self.transactions=transactions.data;
+            angular.forEach(self.transactions, function(transaction) {
+              transaction.labelData=[];
+              angular.forEach(transaction.labels, function(labelURI) {
+                var labelId = labelURI.split('/').pop();
+                if(!(labelId in self.labelCache)) {
+                  self.labelCache[labelId] = {};
+                  self.labelPromises.push(api.labels.getById({"id":labelId}).then(function (label) {
+                    return label.data;
+                  }));
+                }
+              });
+            });
+          }).then(function() {
+            $q.all(self.labelPromises).then(function(objects) {
+              for(var id in objects) {
+                self.labelCache[objects[id].id] = objects[id];
               }
-              transaction.labelData.push(self.labelCache[labelId]);
+              for(var id in self.transactions) {
+                for(var labelURIId in self.transactions[id].labels) {
+                  var labelId = self.transactions[id].labels[labelURIId].split('/').pop();
+                  self.transactions[id].labelData.push(self.labelCache[labelId]);
+                }
+              }
             });
           });
         });
