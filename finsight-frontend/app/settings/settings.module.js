@@ -1,3 +1,3 @@
 'use strict';
 
-angular.module('settings',['core.account','core.card']);
+angular.module('settings',['core.backend','xeditable']);

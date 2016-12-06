@@ -4,8 +4,12 @@ angular.
   module('settings').
   component('card', {
     templateUrl: 'settings/card/card.template.html',
-    controller: ['Card',function CardController(Card) {
+    controller: ['Backend',function CardController(Backend) {
       var self = this;
-      self.cards = Card.query();
+      Backend.getApi().then(function(api) {
+      	api.cards.getCards().then(function(response) {
+      		self.cards = response.data;
+      	});
+      });
     }]
   });
