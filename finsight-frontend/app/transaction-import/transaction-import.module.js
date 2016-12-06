@@ -1,3 +1,3 @@
 'use strict';
 
-angular.module('transactionImport',['core.transaction','ngFileUpload']);
+angular.module('transactionImport',['core.transaction','core.backend','ngFileUpload']);

@@ -9,8 +9,12 @@ angular.
           return new AngularSwaggerific(response.data);
         });
     	}
+      var getTransactionImportURL = function() {
+        return 'http://127.0.0.1:8090/api/transactions/import';
+      }
     	return {
-    		getApi: getApi
+    		getApi: getApi,
+        getTransactionImportURL : getTransactionImportURL
     	}
     }
   ]);

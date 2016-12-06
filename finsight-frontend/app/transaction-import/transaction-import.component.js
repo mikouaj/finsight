@@ -4,12 +4,11 @@ angular.
   module('transactionImport').
   component('transactionImport', {
     templateUrl: 'transaction-import/transaction-import.template.html',
-    controller: ['TransactionImportTypes','$scope','$resource','$uibModal','Upload',
-    function TransactionImportController(TransactionImportTypes,$scope,$resource,$uibModal,Upload) {
+    controller: ['Backend','Upload','$scope','$uibModal',
+    function TransactionImportController(Backend,Upload,$scope,$uibModal) {
       var self = this;
 
       self.openModal = function openModal() {
-
        
         self.importTypesResources={};
         self.baseResources=[];
@@ -18,14 +17,25 @@ angular.
         self.selectedResource="";
         self.selectedFile="";
 
-        self.importTypes=TransactionImportTypes.query({},function success() {
-          angular.forEach(self.importTypes, function(importType) {
-            var BaseResource = $resource(importType.baseResourceURI);
-            self.importTypesResources[importType.id] = BaseResource.query();
+       Backend.getApi().then(function(api) {
+          api.transactions.getImportTypes().then(function(importTypes) {
+            self.importTypes = importTypes.data;
+            angular.forEach(self.importTypes, function(importType) {
+              var $resourcePromise;
+              if(importType.baseResourceLink.type=='Account') {
+                $resourcePromise = api.accounts.getAccounts();
+              } else {
+                $resourcePromise = api.cards.getCards();
+              }
+              $resourcePromise.then(function(resources) {
+                self.importTypesResources[importType.id] = resources.data;
+              });
+            });
           });
         });
-        
 
+        self.importURL = Backend.getTransactionImportURL();
+        
         self.modalInstance = $uibModal.open({
           animation: 'true',
           templateUrl: 'transaction-import/import-modal.template.html',
@@ -50,7 +60,7 @@ angular.
         if(self.selectedFile) {
           self.uploadResult="";
           Upload.upload({
-              url: 'http://127.0.0.1:8090/transactions/import',
+              url: self.importURL,
               data: {file: self.selectedFile, 'type': self.selectedType, 'baseResourceId': self.selectedResource}
           }).then(function (resp) {
               self.uploadResult = resp.data;

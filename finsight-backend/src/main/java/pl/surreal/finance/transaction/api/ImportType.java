@@ -14,8 +14,9 @@
 
 package pl.surreal.finance.transaction.api;
 
-import java.net.URI;
+import javax.ws.rs.core.Link;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class ImportType 
@@ -25,15 +26,16 @@ public class ImportType
 	@JsonProperty
 	private String description; 
 	@JsonProperty
-	private URI baseResourceURI;
+	@JsonIgnoreProperties({ "params","uriBuilder" })
+	private Link baseResourceLink;
 
 	public ImportType() {
 	}
 	
-	public ImportType(String id,String description,URI baseResourceURI) {
+	public ImportType(String id,String description,Link baseResourceLink) {
 		this.id = id;
 		this.description = description;
-		this.baseResourceURI = baseResourceURI;
+		this.baseResourceLink = baseResourceLink;
 	}
 
 	public String getId() {
@@ -52,11 +54,11 @@ public class ImportType
 		this.description = description;
 	}
 
-	public URI getBaseResourceURI() {
-		return baseResourceURI;
+	public Link getBaseResourceLink() {
+		return baseResourceLink;
 	}
 
-	public void setBaseResourceURI(URI baseResourceURI) {
-		this.baseResourceURI = baseResourceURI;
+	public void setBaseResourceLink(Link baseResourceLink) {
+		this.baseResourceLink = baseResourceLink;
 	}
 }

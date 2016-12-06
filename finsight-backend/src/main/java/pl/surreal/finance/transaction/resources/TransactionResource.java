@@ -33,6 +33,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.Link;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
@@ -136,7 +137,8 @@ public class TransactionResource
 			try {
 				Class<?> resourceClass = Class.forName("pl.surreal.finance.transaction.resources."+type.getBaseResourceClass().getSimpleName()+"Resource");
 				URI uri = uriInfo.getBaseUriBuilder().path(resourceClass).build();
-				importTypes.add(new ImportType(type.getId(),type.getDescription(),uri));
+				ImportType importType = new ImportType(type.getId(),type.getDescription(),Link.fromUri(uri).rel("describedby").type(type.getBaseResourceClass().getSimpleName()).build());
+				importTypes.add(importType);
 			} catch(Exception e) {
 				LOGGER.warn("getImportCapabilities : can't add supported type due to '{}'",e.toString());
 				e.printStackTrace();
