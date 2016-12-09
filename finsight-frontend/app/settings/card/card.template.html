@@ -9,16 +9,33 @@
   </thead>
   <tbody>
     <tr ng-repeat="card in $ctrl.cards">
-      <td class="centered" style="vertical-align: middle;">{{card.number}}</td>
-      <td class="centered" style="vertical-align: middle;">{{card.name}}</td>
+      <td class="centered" style="vertical-align: middle;">
+        <span editable-text="card.number" e-name="number" e-form="rowform">
+          {{ card.number || 'empty' }}
+        </span>
+      </td>
+      <td class="centered" style="vertical-align: middle;">
+        <span editable-text="card.name" e-name="name" e-form="rowform">
+          {{ card.name || 'empty' }}
+        </span>
+      </td>
       <td style="text-align:right; vertical-align: middle;">
-
-          <button type="button" class="btn btn-default" ng-click="$ctrl.dateFromPopupOpen()"><i class="glyphicon glyphicon-pencil"></i></button>
-          <button type="button" class="btn btn-default" ng-click="$ctrl.dateFromPopupOpen()"><i class="glyphicon glyphicon-remove"></i></button>
-
-          <button type="button" class="btn btn-default" ng-click="$ctrl.dateFromPopupOpen()"><i class="glyphicon glyphicon-ok-sign"></i></button>	
-          <button type="button" class="btn btn-default" ng-click="$ctrl.dateFromPopupOpen()"><i class="glyphicon glyphicon-remove-sign"></i></button>
-    
+        <form editable-form name="rowform" ng-show="rowform.$visible" class="form-buttons form-inline" shown="inserted == card">
+          <button type="submit" ng-disabled="rowform.$waiting" class="btn btn-default">
+            <i class="glyphicon glyphicon-ok-sign"></i>
+          </button>
+          <button type="button" ng-disabled="rowform.$waiting" ng-click="rowform.$cancel()" class="btn btn-default">
+            <i class="glyphicon glyphicon-remove-sign"></i>
+          </button>
+        </form>
+        <div class="buttons">
+          <button type="button" class="btn btn-default" ng-click="rowform.$show()" ng-show="!rowform.$visible">
+            <i class="glyphicon glyphicon-pencil"></i>
+          </button>
+          <button type="button" class="btn btn-default" ng-click="$ctrl.removeCard($index,card)" ng-show="!rowform.$visible">
+            <i class="glyphicon glyphicon-remove"></i>
+          </button>
+        </div>
       </td>
     </tr>
   </tbody>
