@@ -58,9 +58,9 @@ public class CardResource
 	}
 	
 	@GET
-	@Path("/{cardId}")
+	@Path("/{id}")
 	@UnitOfWork
-	public Card getCardOperation(@PathParam("cardId") LongParam cardId) {
+	public Card getCardOperation(@PathParam("id") LongParam cardId) {
 		Card card = cardDAO.findById(cardId.get()).orElseThrow(() -> new NotFoundException("Not found."));
 		return card;
 	}
@@ -78,9 +78,9 @@ public class CardResource
     }
     
     @PUT
-    @Path("/{cardId}")
+    @Path("/{id}")
     @UnitOfWork
-    public Card replace(@PathParam("cardId") LongParam cardId, Card card) {
+    public Card replace(@PathParam("id") LongParam cardId, Card card) {
     	Card dbCard = cardDAO.findById(cardId.get()).orElseThrow(() -> new NotFoundException("Not found."));
     	dbCard.setName(card.getName());
     	dbCard.setNumber(card.getNumber());
@@ -88,9 +88,9 @@ public class CardResource
     }
     
     @DELETE
-    @Path("/{cardId}")
+    @Path("/{id}")
     @UnitOfWork
-    public Response delete(@PathParam("cardId") LongParam cardId) {
+    public Response delete(@PathParam("id") LongParam cardId) {
     	try {
     		cardDAO.deleteById(cardId.get());
     	} catch(ObjectNotFoundException ex) {
