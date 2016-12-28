@@ -63,11 +63,11 @@ public class AccountResource
 	}
 	
 	@GET
-	@Path("/{accountId}")
+	@Path("/{id}")
 	@UnitOfWork
 	@ApiOperation(value = "Get account by id")
 	@ApiResponses(value = { @ApiResponse(code = 404, message = "Account not found.") })
-	public Account getAccount(@ApiParam(value = "id of the account", required = true) @PathParam("accountId") LongParam accountId) {
+	public Account getAccount(@ApiParam(value = "id of the account", required = true) @PathParam("id") LongParam accountId) {
 		Account account = accountDAO.findById(accountId.get()).orElseThrow(() -> new NotFoundException("Account not found."));
 		return account;
 	}
@@ -87,11 +87,11 @@ public class AccountResource
     }
     
     @PUT
-    @Path("/{accountId}")
+    @Path("/{id}")
     @UnitOfWork
     @ApiOperation(value = "Update account by id")
 	@ApiResponses(value = { @ApiResponse(code = 404, message = "Account not found.") })
-    public Account replace(@ApiParam(value = "id of the account", required = true) @PathParam("accountId") LongParam accountId,
+    public Account replace(@ApiParam(value = "id of the account", required = true) @PathParam("id") LongParam accountId,
     					   @ApiParam(value = "updated account object", required = true) Account account) {
     	Account dbAccount = accountDAO.findById(accountId.get()).orElseThrow(() -> new NotFoundException("Account not found."));
     	dbAccount.setName(account.getName());
@@ -100,12 +100,12 @@ public class AccountResource
     }
     
     @DELETE
-    @Path("/{accountId}")
+    @Path("/{id}")
     @UnitOfWork
 	@ApiOperation(value = "Remove account by id")
 	@ApiResponses(value = { @ApiResponse(code = 200, message = "Account removed successfully."),
 							@ApiResponse(code = 404, message = "Account not found.")} )
-    public Response delete(@ApiParam(value = "id of the account", required = true) @PathParam("accountId") LongParam accountId) {
+    public Response delete(@ApiParam(value = "id of the account", required = true) @PathParam("id") LongParam accountId) {
     	try {
     		accountDAO.deleteById(accountId.get());
     	} catch(ObjectNotFoundException ex) {

@@ -2,25 +2,43 @@
 <table class="table table-striped table-hover">
   <thead>
     <tr>
-      <th>Number</th>
-      <th>Name</th>
+      <th class="centered">Number</th>
+      <th class="centered">Name</th>
       <th></th>
     </tr>
   </thead>
   <tbody>
     <tr ng-repeat="account in $ctrl.accounts">
-      <td class="centered" style="vertical-align: middle;">{{account.number}}</td>
-      <td class="centered" style="vertical-align: middle;">{{account.name}}</td>
+      <td class="centered" style="vertical-align: middle;">
+        <span editable-text="account.number" e-name="number" e-form="rowform" onbeforesave="$ctrl.checkEmpty($data)">
+          {{ account.number || 'empty' }}
+        </span>
+      </td>
+      <td class="centered" style="vertical-align: middle;">
+        <span editable-text="account.name" e-name="name" e-form="rowform" onbeforesave="$ctrl.checkEmpty($data)">
+          {{ account.name || 'empty' }}
+        </span>
+      </td>
       <td style="text-align:right; vertical-align: middle;">
-
-          <button type="button" class="btn btn-default" ng-click="$ctrl.dateFromPopupOpen()"><i class="glyphicon glyphicon-pencil"></i></button>
-          <button type="button" class="btn btn-default" ng-click="$ctrl.dateFromPopupOpen()"><i class="glyphicon glyphicon-remove"></i></button>
-
-          <button type="button" class="btn btn-default" ng-click="$ctrl.dateFromPopupOpen()"><i class="glyphicon glyphicon-ok-sign"></i></button>	
-          <button type="button" class="btn btn-default" ng-click="$ctrl.dateFromPopupOpen()"><i class="glyphicon glyphicon-remove-sign"></i></button>
-    
+        <form editable-form name="rowform" onbeforesave="$ctrl.updateAccount(account)" oncancel="$ctrl.cancelUpdate($index)" ng-show="rowform.$visible" class="form-buttons form-inline" shown="$ctrl.inserted == account">
+          <button type="submit" ng-disabled="rowform.$waiting" class="btn btn-default">
+            <i class="glyphicon glyphicon-ok-sign"></i>
+          </button>
+          <button type="button" ng-disabled="rowform.$waiting" ng-click="rowform.$cancel()" class="btn btn-default">
+            <i class="glyphicon glyphicon-remove-sign"></i>
+          </button>
+        </form>
+        <div class="buttons">
+          <button type="button" class="btn btn-default" ng-click="rowform.$show()" ng-show="!rowform.$visible">
+            <i class="glyphicon glyphicon-pencil"></i>
+          </button>
+          <button type="button" class="btn btn-default" ng-click="$ctrl.openConfirmModal($index)" ng-show="!rowform.$visible">
+            <i class="glyphicon glyphicon-remove"></i>
+          </button>
+        </div>
       </td>
     </tr>
   </tbody>
 </table>
+<button type="button" class="btn btn-default" ng-click="$ctrl.addAccount()">Add</button>
 </div>
