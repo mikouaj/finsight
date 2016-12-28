@@ -10,17 +10,17 @@
   <tbody>
     <tr ng-repeat="card in $ctrl.cards">
       <td class="centered" style="vertical-align: middle;">
-        <span editable-text="card.number" e-name="number" e-form="rowform">
+        <span editable-text="card.number" e-name="number" e-form="rowform" onbeforesave="$ctrl.checkEmpty($data)">
           {{ card.number || 'empty' }}
         </span>
       </td>
       <td class="centered" style="vertical-align: middle;">
-        <span editable-text="card.name" e-name="name" e-form="rowform">
+        <span editable-text="card.name" e-name="name" e-form="rowform" onbeforesave="$ctrl.checkEmpty($data)">
           {{ card.name || 'empty' }}
         </span>
       </td>
       <td style="text-align:right; vertical-align: middle;">
-        <form editable-form name="rowform" onbeforesave="$ctrl.updateCard(card)" ng-show="rowform.$visible" class="form-buttons form-inline" shown="$ctrl.inserted == card">
+        <form editable-form name="rowform" onbeforesave="$ctrl.updateCard(card)" oncancel="$ctrl.cancelUpdate($index)" ng-show="rowform.$visible" class="form-buttons form-inline" shown="$ctrl.inserted == card">
           <button type="submit" ng-disabled="rowform.$waiting" class="btn btn-default">
             <i class="glyphicon glyphicon-ok-sign"></i>
           </button>
@@ -32,7 +32,7 @@
           <button type="button" class="btn btn-default" ng-click="rowform.$show()" ng-show="!rowform.$visible">
             <i class="glyphicon glyphicon-pencil"></i>
           </button>
-          <button type="button" class="btn btn-default" ng-click="$ctrl.openConfirmModal($index,card)" ng-show="!rowform.$visible">
+          <button type="button" class="btn btn-default" ng-click="$ctrl.openConfirmModal($index)" ng-show="!rowform.$visible">
             <i class="glyphicon glyphicon-remove"></i>
           </button>
         </div>

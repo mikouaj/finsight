@@ -13,10 +13,10 @@ angular.
       	});
       });
 
-      self.removeCard = function(idx,card) {
+      self.removeCard = function(index) {
         Backend.getApi().then(function(api) {
-          api.cards.delete(card).then(function() {
-            self.cards.splice(idx,1);
+          api.cards.delete(self.cards[index]).then(function() {
+            self.cards.splice(index,1);
           });
         });
         self.closeConfirmModal();
@@ -24,14 +24,21 @@ angular.
 
       self.updateCard = function(card) {
         Backend.getApi().then(function(api) {
-        //angular.extend(card, {cardId:card.id});
-          return api.cards.replace(card);
+          //angular.extend(card, {cardId:card.id});
+          if(typeof card.id === 'undefined') {
+            api.cards.createCard(card).then(function(response) {
+              card.id = response.data.id;
+              return response;
+            });
+            //return api.cards.createCard(card);
+          } else {
+            return api.cards.replace(card);
+          }
         });
       }
 
-      self.openConfirmModal = function(idx,card) {
-        $scope.idx = idx;
-        $scope.card = card;
+      self.openConfirmModal = function(index) {
+        $scope.index = index;
         self.modalInstance = $uibModal.open({
           animation: 'true',
           templateUrl: 'settings/card/confirmation-modal.template.html',
@@ -52,6 +59,18 @@ angular.
           name: ''
         }
         self.cards.push(self.inserted);
+      }
+
+      self.cancelUpdate = function(index) {
+        if(self.inserted == self.cards[index]) {
+          self.cards.splice(index,1);
+        }
+      }
+
+      self.checkEmpty = function(data) {
+        if(!data) {
+          return "can't be empty!";
+        }
       }
     }]
   });
