@@ -2,7 +2,7 @@
 <table class="table table-striped table-hover">
   <thead>
     <tr>
-      <th class="centered">Regexp</th>
+      <th class="centered">Expression</th>
       <th class="centered">Active</th>
       <th class="centered">Labels</th>
       <th></th>
@@ -21,10 +21,20 @@
         </span>
       </td>
       <td class="centered" style="vertical-align: middle;">
-        <span class="label label-default" style="margin-right: 5px" ng-repeat="labelURI in rule.labels">{{$ctrl.labels[labelURI].path}}</span>
+        <span editable-ui-select="rule.labels" data-e-form="rowform" data-e-name="labels" name="labels" theme="bootstrap" e-multiple data-e-ng-model="rule.labels" data-e-style="min-width:400px;">
+          <span class="label label-default" style="margin-right: 5px" ng-repeat="labelURI in rule.labels">
+            {{$ctrl.labelsX[labelURI].path}}
+          </span>
+          <editable-ui-select-match placeholder="No labels">
+            {{$item.path}}
+          </editable-ui-select-match>
+          <editable-ui-select-choices repeat="label.uri as label in $ctrl.labels | filter: $select.search track by $index">
+            {{label.path}}
+          </editable-ui-select-choices>
+        </span>
       </td>
       <td class="centered" style="vertical-align: middle;">
-        <form editable-form name="rowform" onbeforesave="$ctrl.update(rule)" oncancel="$ctrl.cancelUpdate($index)" ng-show="rowform.$visible" class="form-buttons form-inline" shown="$ctrl.inserted == rule">
+        <form editable-form name="rowform" onbeforesave="$ctrl.update($index,$data)" oncancel="$ctrl.cancelUpdate($index)" ng-show="rowform.$visible" class="form-buttons form-inline" shown="$ctrl.inserted == rule">
           <button type="submit" ng-disabled="rowform.$waiting" class="btn btn-default">
             <i class="glyphicon glyphicon-ok-sign"></i>
           </button>

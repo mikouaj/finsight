@@ -66,7 +66,7 @@ angular.
 
       self.checkEmpty = function(data) {
         if(!data) {
-          return "can't be empty!";
+          return "can't be empty !";
         }
       }
     }]
