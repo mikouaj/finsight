@@ -31,10 +31,34 @@ angular.
         self.closeConfirmModal();
       }
 
-      self.update = function(index,data) {
-        var selfA = self.rules[index];
-        console.log(data);
+      self.update = function(data,rule) {
+        return Backend.getApi().then(function(api) {
+          var promise;
+          var labelsToRemove=[];
+          var labelsToAdd=[];
+          for(var id in rule.labels) {
+            var labelId = rule.labels[id].split('/').pop();
+            labelsToRemove[labelId]=1;
+          }
+          for(var id in data.labels) {
+            var labelId = data.labels[id].split('/').pop();
+            if(labelId in labelsToRemove) {
+              labelsToRemove.splice(labelId,1);
+            } else {
+              labelsToAdd[labelId] = 1;
+            }
+          }
 
+          if(typeof rule.id === 'undefined') {
+            api.cards.createCard(data).then(function(response) {
+              rule.id = response.data.id;
+            });
+          } else {
+            angular.extend(data,{id:rule.id});
+            api.cards.replace(data);
+          }
+          return true;
+        });
       }
 
       self.openConfirmModal = function(index) {
@@ -63,6 +87,15 @@ angular.
         if(!data) {
           return "can't be empty !";
         }
+      }
+
+      self.add = function() {
+        self.inserted = {
+          regexp: '',
+          active: false,
+          labels: []
+        }
+        self.rules.push(self.inserted);
       }
     }]
   });
