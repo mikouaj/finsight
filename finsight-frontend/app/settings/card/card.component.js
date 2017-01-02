@@ -22,17 +22,15 @@ angular.
         self.closeConfirmModal();
       }
 
-      self.updateCard = function(card) {
+      self.updateCard = function(data,card) {
         Backend.getApi().then(function(api) {
-          //angular.extend(card, {cardId:card.id});
           if(typeof card.id === 'undefined') {
-            api.cards.createCard(card).then(function(response) {
+            api.cards.createCard(data).then(function(response) {
               card.id = response.data.id;
-              return response;
             });
-            //return api.cards.createCard(card);
           } else {
-            return api.cards.replace(card);
+            angular.extend(data,{id:card.id});
+            return api.cards.replace(data);
           }
         });
       }
