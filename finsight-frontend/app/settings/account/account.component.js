@@ -21,15 +21,15 @@ angular.
         self.closeConfirmModal();
       }
 
-      self.updateAccount = function(account) {
+      self.updateAccount = function(data,account) {
         Backend.getApi().then(function(api) {
           if(typeof account.id === 'undefined') {
-            api.accounts.createAccount(account).then(function(response) {
+            api.accounts.createAccount(data).then(function(response) {
               account.id = response.data.id;
-              return response;
             });
           } else {
-            return api.accounts.replace(account);
+            angular.extend(data,{id:account.id});
+            return api.accounts.replace(data);
           }
         });
       }

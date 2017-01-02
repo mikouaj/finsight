@@ -20,7 +20,7 @@
         </span>
       </td>
       <td style="text-align:right; vertical-align: middle;">
-        <form editable-form name="rowform" onbeforesave="$ctrl.updateAccount(account)" oncancel="$ctrl.cancelUpdate($index)" ng-show="rowform.$visible" class="form-buttons form-inline" shown="$ctrl.inserted == account">
+        <form editable-form name="rowform" onbeforesave="$ctrl.updateAccount($data,account)" oncancel="$ctrl.cancelUpdate($index)" ng-show="rowform.$visible" class="form-buttons form-inline" shown="$ctrl.inserted == account">
           <button type="submit" ng-disabled="rowform.$waiting" class="btn btn-default">
             <i class="glyphicon glyphicon-ok-sign"></i>
           </button>
