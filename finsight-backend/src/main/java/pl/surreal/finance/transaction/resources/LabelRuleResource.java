@@ -74,6 +74,16 @@ public class LabelRuleResource
 		return labelRuleDAO.create(labelRule);
 	}
 	
+    @PUT
+    @Path("/{id}")
+    @UnitOfWork
+    public LabelRule replace(@PathParam("id") LongParam id, LabelRule labelRule) {
+    	LabelRule dbLabelRule = labelRuleDAO.findById(id.get()).orElseThrow(() -> new NotFoundException("Not found."));
+    	dbLabelRule.setRegexp(labelRule.getRegexp());
+    	dbLabelRule.setActive(labelRule.isActive());
+    	return labelRuleDAO.create(dbLabelRule);
+    }
+	
 	@DELETE
 	@Path("/{id}")
 	@UnitOfWork

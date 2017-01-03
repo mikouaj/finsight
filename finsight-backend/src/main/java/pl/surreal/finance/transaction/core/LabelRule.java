@@ -58,7 +58,7 @@ public class LabelRule
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long id;
 	
-	@NaturalId
+	@NaturalId(mutable=true)
 	@Column(name = "regexp", nullable = false)
 	@NotEmpty
 	private String regexp;

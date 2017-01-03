@@ -49,15 +49,36 @@ angular.
             }
           }
 
+          var updateLabels = function() {
+            var promises=[];
+            for(var key in labelsToRemove) {
+              promises.push(api.labelRules.removeLabel({id:rule.id,labelId:key}));
+            }
+            for(var key in labelsToAdd) {
+              promises.push(api.labelRules.addLabel({id:rule.id,labelId:key}));
+            }
+            return promises;
+          }
+
+          data.labels=undefined;
           if(typeof rule.id === 'undefined') {
-            api.cards.createCard(data).then(function(response) {
+            promise = api.labelRules.create(data).then(function(response) {
               rule.id = response.data.id;
+              updateLabels();
+              return true;
+            },function(response) {
+              return response.statusText;
             });
           } else {
             angular.extend(data,{id:rule.id});
-            api.cards.replace(data);
+            promise = api.labelRules.replace(data).then(function(response) {
+              updateLabels();
+              return true;
+            },function(response) {
+              return response.statusText;
+            });
           }
-          return true;
+          return promise;
         });
       }
 
