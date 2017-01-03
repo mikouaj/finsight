@@ -5,7 +5,10 @@
   <uib-tab index="1" heading="Accounts" ng-click="$ctrl.selectedTab='Accounts'">
     <account ng-if="$ctrl.selectedTab=='Accounts'"></account>
   </uib-tab>
-  <uib-tab index="2" heading="Rules" ng-click="$ctrl.selectedTab='Rules'">
+  <uib-tab index="2" heading="Labels" ng-click="$ctrl.selectedTab='Labels'">
+  	<labeltag ng-if="$ctrl.selectedTab=='Labels'"></labeltag>
+  </uib-tab>
+  <uib-tab index="3" heading="Rules" ng-click="$ctrl.selectedTab='Rules'">
   	<rule ng-if="$ctrl.selectedTab=='Rules'"></rule>
   </uib-tab>
 </uib-tabset>
