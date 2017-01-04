@@ -34,28 +34,30 @@ angular.
       self.update = function(data,rule) {
         return Backend.getApi().then(function(api) {
           var promise;
-          var labelsToRemove=[];
-          var labelsToAdd=[];
+          var labelsToRemove={};
+          var labelsToAdd={};
           for(var id in rule.labels) {
-            var labelId = rule.labels[id].split('/').pop();
-            labelsToRemove[labelId]=1;
+            //var labelId = rule.labels[id].split('/').pop();
+            labelsToRemove[rule.labels[id]]=1;
           }
           for(var id in data.labels) {
-            var labelId = data.labels[id].split('/').pop();
-            if(labelId in labelsToRemove) {
-              labelsToRemove.splice(labelId,1);
+            //var labelId = data.labels[id].split('/').pop();
+            if(data.labels[id] in labelsToRemove) {
+              delete labelsToRemove[data.labels[id]];
             } else {
-              labelsToAdd[labelId] = 1;
+              labelsToAdd[data.labels[id]] = 1;
             }
           }
 
           var updateLabels = function() {
             var promises=[];
             for(var key in labelsToRemove) {
-              promises.push(api.labelRules.removeLabel({id:rule.id,labelId:key}));
+              var keyLabelId = key.split('/').pop();
+              promises.push(api.labelRules.removeLabel({id:rule.id,labelId:keyLabelId}));
             }
-            for(var key in labelsToAdd) {
-              promises.push(api.labelRules.addLabel({id:rule.id,labelId:key}));
+            for(var keytwo in labelsToAdd) {
+              var keyLabelId = keytwo.split('/').pop();
+              promises.push(api.labelRules.addLabel({id:rule.id,labelId:keyLabelId}));
             }
             return promises;
           }
