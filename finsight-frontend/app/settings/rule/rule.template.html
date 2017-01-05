@@ -22,13 +22,13 @@
       </td>
       <td class="centered" style="vertical-align: middle;">
         <span editable-ui-select="rule.labels" data-e-form="rowform" data-e-name="labels" name="labels" theme="bootstrap" e-multiple data-e-ng-model="rule.labels" data-e-style="min-width:400px;">
-          <span class="label label-default" style="margin-right: 5px" ng-repeat="labelURI in rule.labels">
-            {{$ctrl.labelsX[labelURI].path || "Nooo"}}
+          <span class="label label-default" style="margin-right: 5px" ng-repeat="labelId in rule.labels">
+            {{$ctrl.labelsHash[labelId].path || "???"}}
           </span>
           <editable-ui-select-match placeholder="No labels">
             {{$item.path}}
           </editable-ui-select-match>
-          <editable-ui-select-choices repeat="label.uri as label in $ctrl.labels | filter: $select.search track by $index">
+          <editable-ui-select-choices repeat="label.id as label in $ctrl.labels | filter: $select.search track by $index">
             {{label.path}}
           </editable-ui-select-choices>
         </span>

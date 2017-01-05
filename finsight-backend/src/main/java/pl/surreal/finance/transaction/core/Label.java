@@ -14,7 +14,6 @@
 
 package pl.surreal.finance.transaction.core;
 
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -33,18 +32,9 @@ import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import javax.persistence.Transient;
 
-import org.glassfish.jersey.linking.Binding;
-import org.glassfish.jersey.linking.InjectLink;
-import org.glassfish.jersey.linking.InjectLink.Style;
 import org.hibernate.annotations.NaturalId;
 import org.hibernate.validator.constraints.NotEmpty;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-
-import pl.surreal.finance.transaction.resources.LabelResource;
 
 @Entity
 @Table(name="label")
@@ -60,33 +50,20 @@ public class Label
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long id;
 	
-	@NaturalId
+	@NaturalId(mutable=true)
 	@Column(name = "text", nullable = false)
 	@NotEmpty
 	private String text;
 	
 	@ManyToOne
-	@JsonIgnore
 	private Label parent;
 	
 	@OneToMany(fetch = FetchType.EAGER, mappedBy = "parent", cascade = CascadeType.ALL, orphanRemoval = false)
 //	@OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, orphanRemoval = false)
-	@JsonIgnore
 	private List<Label> children = new ArrayList<>();
 	
-//	@Transient
-//	@JsonProperty
-//	@InjectLink(value="label/{id}",style=Style.ABSOLUTE)
-//	private URI uri;
-	
     @ManyToMany(fetch = FetchType.EAGER, mappedBy = "labels")
-    @JsonIgnore
 	private List<LabelRule> rules = new ArrayList<>();
-	
-	@Transient
-	@JsonProperty
-	@InjectLink(resource=LabelResource.class,method="getById",style=Style.ABSOLUTE,bindings = {@Binding(name="id",value="${instance.id}")})
-	private URI uri;
     
 	public Label() { }
 	
@@ -118,19 +95,12 @@ public class Label
 		this.parent = parent;
 	}
 	
-	public URI getUri() {
-		return uri;
-	}
-
-	public void setUri(URI uri) {
-		this.uri = uri;
-	}
-
 	public List<Label> getChildren() {
 		return children;
 	}
 
 	public void setChildren(List<Label> children) {
+		removeAllChildren();
 		this.children = children;
 	}
 
@@ -189,29 +159,5 @@ public class Label
     @Override
     public int hashCode() {
         return Objects.hash(text);
-    }
-
-    @JsonProperty("parent")
-	public URI getParentURI() {
-		if(parent!=null) return parent.uri;
-		return null;
-	}
-    
-    @JsonProperty("children")
-    public List<URI> getChildrenURI() {
-    	List<URI> childrenURIs = new ArrayList<>();
-    	for(Label child : children) {
-    		childrenURIs.add(child.uri);
-    	}
-    	return childrenURIs;
-    }
-    
-    @JsonProperty("rules")
-    public List<URI> getRulesURI() {
-    	List<URI> rulesURIs = new ArrayList<>();
-    	for(LabelRule rule : rules) {
-    		rulesURIs.add(rule.getUri());
-    	}
-    	return rulesURIs;
     }
 }

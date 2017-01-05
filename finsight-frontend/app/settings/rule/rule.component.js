@@ -7,7 +7,7 @@ angular.
     controller: ['Backend','$scope','$uibModal',function RuleController(Backend,$scope,$uibModal) {
       var self = this;
       self.labels=[];
-      self.labelsX=[];
+      self.labelsHash={};
       
       Backend.getApi().then(function(api) {
       	api.labelRules.get().then(function(response) {
@@ -15,7 +15,7 @@ angular.
           api.labels.get().then(function(response) {
             self.labels=response.data;
             for(var id in response.data) {
-              self.labelsX[response.data[id].uri] = response.data[id];
+              self.labelsHash[response.data[id].id] = response.data[id];
             }
           });
       	});
@@ -34,39 +34,9 @@ angular.
       self.update = function(data,rule) {
         return Backend.getApi().then(function(api) {
           var promise;
-          var labelsToRemove={};
-          var labelsToAdd={};
-          for(var id in rule.labels) {
-            //var labelId = rule.labels[id].split('/').pop();
-            labelsToRemove[rule.labels[id]]=1;
-          }
-          for(var id in data.labels) {
-            //var labelId = data.labels[id].split('/').pop();
-            if(data.labels[id] in labelsToRemove) {
-              delete labelsToRemove[data.labels[id]];
-            } else {
-              labelsToAdd[data.labels[id]] = 1;
-            }
-          }
-
-          var updateLabels = function() {
-            var promises=[];
-            for(var key in labelsToRemove) {
-              var keyLabelId = key.split('/').pop();
-              promises.push(api.labelRules.removeLabel({id:rule.id,labelId:keyLabelId}));
-            }
-            for(var keytwo in labelsToAdd) {
-              var keyLabelId = keytwo.split('/').pop();
-              promises.push(api.labelRules.addLabel({id:rule.id,labelId:keyLabelId}));
-            }
-            return promises;
-          }
-
-          data.labels=undefined;
           if(typeof rule.id === 'undefined') {
             promise = api.labelRules.create(data).then(function(response) {
               rule.id = response.data.id;
-              updateLabels();
               return true;
             },function(response) {
               return response.statusText;
@@ -74,7 +44,6 @@ angular.
           } else {
             angular.extend(data,{id:rule.id});
             promise = api.labelRules.replace(data).then(function(response) {
-              updateLabels();
               return true;
             },function(response) {
               return response.statusText;

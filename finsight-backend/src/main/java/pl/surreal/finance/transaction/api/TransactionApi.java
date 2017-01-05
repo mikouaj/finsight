@@ -1,4 +1,4 @@
-/* Copyright 2016 Mikolaj Stefaniak
+/* Copyright 2017 Mikolaj Stefaniak
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,30 +16,30 @@ package pl.surreal.finance.transaction.api;
 
 import java.math.BigDecimal;
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import pl.surreal.finance.transaction.core.Label;
-
-public class Transaction
+public class TransactionApi
 {
+	@JsonProperty
 	private String type;
+	@JsonProperty
 	@JsonFormat(shape=JsonFormat.Shape.STRING, pattern="yyyy-MM-dd")
 	private Date date;
-	private BigDecimal amount;
-	private String title;
-	private URI url;
-	private List<Label> labels;
-	
-	public Transaction() {
-	}
-	
 	@JsonProperty
+	private BigDecimal amount;
+	@JsonProperty
+	private String title;
+	@JsonProperty("labels")
+	private List<Long> labelIds;
+	@JsonProperty
+	private URI url;
+	
+	public TransactionApi() { }
+	
 	public String getType() {
 		return type;
 	}
@@ -48,7 +48,6 @@ public class Transaction
 		this.type = type;
 	}
 	
-	@JsonProperty
 	public Date getDate() {
 		return date;
 	}
@@ -57,7 +56,6 @@ public class Transaction
 		this.date = date;
 	}
 	
-	@JsonProperty
 	public BigDecimal getAmount() {
 		return amount;
 	}
@@ -66,7 +64,6 @@ public class Transaction
 		this.amount = amount;
 	}
 	
-	@JsonProperty
 	public String getTitle() {
 		return title;
 	}
@@ -75,7 +72,6 @@ public class Transaction
 		this.title = title;
 	}
 	
-	@JsonProperty
 	public URI getUrl() {
 		return url;
 	}
@@ -84,21 +80,11 @@ public class Transaction
 		this.url = url;
 	}
 	
-    @JsonProperty("labels")
-    public List<URI> getLabelURIs() {
-    	List<URI> labelURIs = new ArrayList<>();
-    	for(Label label : labels) {
-    		labelURIs.add(label.getUri());
-    	}
-    	return labelURIs;
-    }
-
-	@JsonIgnore
-	public List<Label> getLabels() {
-		return labels;
+	public List<Long> getLabelIds() {
+		return labelIds;
 	}
 
-	public void setLabels(List<Label> labels) {
-		this.labels = labels;
+	public void setLabelIds(List<Long> labelIds) {
+		this.labelIds = labelIds;
 	}
 }

@@ -7,20 +7,20 @@ angular.
     controller: ['Backend','$scope','$uibModal',function LabelTagController(Backend,$scope,$uibModal) {
       var self = this;
       self.labels=[];
-      self.labelsX=[];
+      self.labelsHash={};
       
       Backend.getApi().then(function(api) {
       	api.labels.get().then(function(response) {
       		self.labels = response.data;
           for(var id in response.data) {
-            self.labelsX[response.data[id].uri] = response.data[id];
+            self.labelsHash[response.data[id].id] = response.data[id];
           }
       	});
       });
 
       self.remove = function(index) {
         Backend.getApi().then(function(api) {
-          api.labels.delete(self.rules[index]).then(function() {
+          api.labels.delete(self.labels[index]).then(function() {
             self.labels.splice(index,1);
           });
         });
@@ -28,6 +28,25 @@ angular.
       }
 
       self.update = function(data,label) {
+        return Backend.getApi().then(function(api) {
+          var promise;
+          if(typeof label.id === 'undefined') {
+            promise = api.labels.create(data).then(function(response) {
+              label.id = response.data.id;
+              return true;
+            },function(response) {
+              return response.statusText;
+            });
+          } else {
+            angular.extend(data,{id:label.id});
+            promise = api.labels.replace(data).then(function(response) {
+              return true;
+            },function(response) {
+              return response.statusText;
+            });
+          }
+          return promise;        
+        });
       }
 
       self.openConfirmModal = function(index) {

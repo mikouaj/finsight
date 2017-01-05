@@ -14,6 +14,7 @@
 
 package pl.surreal.finance.transaction.resources;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.ws.rs.DELETE;
@@ -35,6 +36,7 @@ import com.codahale.metrics.annotation.Timed;
 import io.dropwizard.hibernate.UnitOfWork;
 import io.dropwizard.jersey.params.LongParam;
 import io.swagger.annotations.Api;
+import pl.surreal.finance.transaction.api.LabelRuleApi;
 import pl.surreal.finance.transaction.core.Label;
 import pl.surreal.finance.transaction.core.LabelRule;
 import pl.surreal.finance.transaction.db.LabelDAO;
@@ -52,36 +54,74 @@ public class LabelRuleResource
 		this.labelRuleDAO = labelRuleDAO;
 		this.labelDAO = labelDAO;
 	}
+	
+	private LabelRuleApi mapDomainToApi(LabelRule labelRule) {
+		LabelRuleApi labelRuleApi = new LabelRuleApi();
+		labelRuleApi.setId(labelRule.getId());
+		labelRuleApi.setRegexp(labelRule.getRegexp());
+		labelRuleApi.setActive(labelRule.isActive());
+		List<Long> labelIds = new ArrayList<>();
+		for(Label label : labelRule.getLabels()) {
+			labelIds.add(label.getId());
+		}
+		labelRuleApi.setLabelIDs(labelIds);
+		return labelRuleApi;
+	}
+	
+	private LabelRule mapApiToDomain(LabelRuleApi labelRuleApi,LabelRule labelRule) throws NotFoundException {
+		if(labelRule==null) {
+			labelRule = new LabelRule();
+		}
+		//omitting id overwrite from api level labelRule.setId(labelRuleApi.getId());
+		labelRule.setRegexp(labelRuleApi.getRegexp());
+		labelRule.setActive(labelRuleApi.isActive());
+		List<Label> labels = new ArrayList<>();
+		for(Long labelId : labelRuleApi.getLabelIDs()) {
+			Label label = labelDAO.findById(labelId).orElseThrow(() -> new NotFoundException("Label "+labelId+" not found."));
+			labels.add(label);
+		}
+		labelRule.setLabels(labels);
+		return labelRule;
+	}
 
 	@GET
 	@UnitOfWork
 	@Timed
-	public List<LabelRule> get() {
-		return labelRuleDAO.findAll();
+	public List<LabelRuleApi> get() {
+		List<LabelRuleApi> apiLabelRules = new ArrayList<>();
+		for(LabelRule labelRule : labelRuleDAO.findAll()) {
+			LabelRuleApi labelRuleApi = mapDomainToApi(labelRule);
+			apiLabelRules.add(labelRuleApi);
+		}
+		return apiLabelRules;
 	}
 	
 	@GET
 	@Path("/{id}")
 	@UnitOfWork
-	public LabelRule getById(@PathParam("id") LongParam id) {
+	public LabelRuleApi getById(@PathParam("id") LongParam id) {
 		LabelRule labelRule = labelRuleDAO.findById(id.get()).orElseThrow(() -> new NotFoundException("Not found."));
-		return labelRule;
+		LabelRuleApi labelRuleApi = mapDomainToApi(labelRule);
+		return labelRuleApi;
 	}
 	
 	@POST
 	@UnitOfWork
-	public LabelRule create(LabelRule labelRule) {
-		return labelRuleDAO.create(labelRule);
+	public LabelRuleApi create(LabelRuleApi labelRuleApi) {
+		LabelRule labelRuleToCreate = mapApiToDomain(labelRuleApi,null);
+		LabelRule labelRule = labelRuleDAO.create(labelRuleToCreate);
+		labelRuleApi.setId(labelRule.getId());
+		return labelRuleApi;
 	}
 	
     @PUT
     @Path("/{id}")
     @UnitOfWork
-    public LabelRule replace(@PathParam("id") LongParam id, LabelRule labelRule) {
+    public LabelRuleApi replace(@PathParam("id") LongParam id, LabelRuleApi labelRuleApi) {
     	LabelRule dbLabelRule = labelRuleDAO.findById(id.get()).orElseThrow(() -> new NotFoundException("Not found."));
-    	dbLabelRule.setRegexp(labelRule.getRegexp());
-    	dbLabelRule.setActive(labelRule.isActive());
-    	return labelRuleDAO.create(dbLabelRule);
+    	mapApiToDomain(labelRuleApi, dbLabelRule);
+    	labelRuleDAO.create(dbLabelRule);
+    	return labelRuleApi;
     }
 	
 	@DELETE
@@ -96,33 +136,5 @@ public class LabelRuleResource
 		}
 		labelRuleDAO.delete(labelRule);
 		return Response.ok().build();
-	}
-	
-	@GET
-	@Path("/{id}/labels")
-	@UnitOfWork
-	public List<Label> getLabels(@PathParam("id") LongParam id) {
-		LabelRule labelRule = labelRuleDAO.findById(id.get()).orElseThrow(() -> new NotFoundException("Not found."));
-		return labelRule.getLabels();
-	}
-	
-	@PUT
-	@Path("/{id}/labels/{labelId}")
-	@UnitOfWork
-	public LabelRule addLabel(@PathParam("id") LongParam id,@PathParam("labelId") LongParam labelId) {
-		LabelRule labelRule = labelRuleDAO.findById(id.get()).orElseThrow(() -> new NotFoundException("LabelRule not found."));
-		Label label = labelDAO.findById(labelId.get()).orElseThrow(() -> new NotFoundException("Label not found."));
-		labelRule.addLabel(label);
-		return labelRuleDAO.create(labelRule);
-	}
-	
-	@DELETE
-	@Path("/{id}/labels/{labelId}")
-	@UnitOfWork
-	public LabelRule removeLabel(@PathParam("id") LongParam id,@PathParam("labelId") LongParam labelId) {
-		LabelRule labelRule = labelRuleDAO.findById(id.get()).orElseThrow(() -> new NotFoundException("LabelRule not found."));
-		Label label = labelDAO.findById(labelId.get()).orElseThrow(() -> new NotFoundException("Label not found."));
-		labelRule.removeLabel(label);
-		return labelRuleDAO.create(labelRule);
 	}
 }

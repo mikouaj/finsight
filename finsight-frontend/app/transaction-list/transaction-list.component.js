@@ -8,17 +8,16 @@ angular.
     function TransactionListController(Backend,$http,$q) {
         var self = this;
 
-        self.labelCache = [];
+        self.labelCache = {};
         self.labelPromises = [];
         Backend.getApi().then(function(api) {
           api.transactions.get().then(function(transactions) {
             self.transactions=transactions.data;
             angular.forEach(self.transactions, function(transaction) {
               transaction.labelData=[];
-              angular.forEach(transaction.labels, function(labelURI) {
-                var labelId = labelURI.split('/').pop();
+              angular.forEach(transaction.labels, function(labelId) {
                 if(!(labelId in self.labelCache)) {
-                  self.labelCache[labelId] = {};
+                  self.labelCache[labelId] = [];
                   self.labelPromises.push(api.labels.getById({"id":labelId}).then(function (label) {
                     return label.data;
                   }));
@@ -30,10 +29,10 @@ angular.
               for(var id in objects) {
                 self.labelCache[objects[id].id] = objects[id];
               }
-              for(var id in self.transactions) {
-                for(var labelURIId in self.transactions[id].labels) {
-                  var labelId = self.transactions[id].labels[labelURIId].split('/').pop();
-                  self.transactions[id].labelData.push(self.labelCache[labelId]);
+              for(var i in self.transactions) {
+                for(var j in self.transactions[i].labels) {
+                  var labelId = self.transactions[i].labels[j];
+                  self.transactions[i].labelData.push(self.labelCache[labelId]);
                 }
               }
             });

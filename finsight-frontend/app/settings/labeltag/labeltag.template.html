@@ -18,12 +18,12 @@
       </td>    
       <td class="centered" style="vertical-align: middle;">
         <span editable-ui-select="label.parent" data-e-form="rowform" data-e-name="parent" name="parent" theme="bootstrap" data-e-ng-model="label.parent" data-e-style="min-width:400px;">
-            {{$ctrl.labelsX[label.parent].path || 'no parent'}}
+            {{$ctrl.labelsHash[label.parent].path || 'no parent'}}
     
           <editable-ui-select-match  allow-clear placeholder="Select parent">
             {{$select.selected.text}}
           </editable-ui-select-match>
-          <editable-ui-select-choices repeat="label.uri as label in $ctrl.labels | filter: $select.search track by $index">
+          <editable-ui-select-choices repeat="label.id as label in $ctrl.labels | filter: $select.search track by $index">
             {{label.text}}
           </editable-ui-select-choices>
         </span>          

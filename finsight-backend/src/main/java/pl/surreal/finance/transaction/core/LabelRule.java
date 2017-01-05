@@ -1,4 +1,4 @@
-/* Copyright 2016 Mikolaj Stefaniak
+/* Copyright 2017 Mikolaj Stefaniak
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,6 @@
 
 package pl.surreal.finance.transaction.core;
 
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -31,18 +30,9 @@ import javax.persistence.ManyToMany;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.Table;
-import javax.persistence.Transient;
 
-import org.glassfish.jersey.linking.Binding;
-import org.glassfish.jersey.linking.InjectLink;
-import org.glassfish.jersey.linking.InjectLink.Style;
 import org.hibernate.annotations.NaturalId;
 import org.hibernate.validator.constraints.NotEmpty;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-
-import pl.surreal.finance.transaction.resources.LabelRuleResource;
 
 @Entity
 @Table(name="labelRule")
@@ -67,13 +57,7 @@ public class LabelRule
 	private boolean active = false;
 	
 	@ManyToMany(fetch = FetchType.EAGER,cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-	@JsonIgnore
 	private List<Label> labels = new ArrayList<>();
-	
-	@Transient
-	@JsonProperty
-	@InjectLink(resource=LabelRuleResource.class,method="getById",style=Style.ABSOLUTE,bindings = {@Binding(name="id",value="${instance.id}")})
-	private URI uri;
 	
 	public LabelRule() { }
 	
@@ -102,6 +86,7 @@ public class LabelRule
 	}
 
 	public void setLabels(List<Label> labels) {
+		removeAllLabels();
 		this.labels = labels;
 	}
 	
@@ -128,14 +113,6 @@ public class LabelRule
 		}
 	}
 	
-	public URI getUri() {
-		return uri;
-	}
-
-	public void setUri(URI uri) {
-		this.uri = uri;
-	}
-	
     public boolean isActive() {
 		return active;
 	}
@@ -159,14 +136,5 @@ public class LabelRule
     @Override
     public int hashCode() {
         return Objects.hash( regexp );
-    }
-    
-    @JsonProperty("labels")
-    public List<URI> getLabelsURI() {
-    	List<URI> labelsURIs = new ArrayList<>();
-    	for(Label label : labels) {
-    		labelsURIs.add(label.getUri());
-    	}
-    	return labelsURIs;
     }
 }

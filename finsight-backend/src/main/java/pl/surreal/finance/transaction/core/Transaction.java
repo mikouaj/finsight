@@ -15,7 +15,6 @@
 package pl.surreal.finance.transaction.core;
 
 import java.math.BigDecimal;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -171,12 +170,12 @@ public abstract class Transaction
 		this.labels = labels;
 	}
 	
-    @JsonProperty("labels")
-    public List<URI> getLabelsURI() {
-    	List<URI> labelsURIs = new ArrayList<>();
-    	for(Label label : labels) {
-    		labelsURIs.add(label.getUri());
-    	}
-    	return labelsURIs;
-    }
+	@JsonProperty("labels")
+	public List<Long> getLabelIds() {
+		List<Long> labelIds = new ArrayList<>();
+		for(Label label : labels) {
+			labelIds.add(label.getId());
+		}
+		return labelIds;
+	}
 }

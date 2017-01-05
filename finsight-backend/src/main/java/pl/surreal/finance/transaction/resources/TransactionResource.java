@@ -52,9 +52,11 @@ import io.dropwizard.jersey.params.LongParam;
 import io.swagger.annotations.Api;
 import pl.surreal.finance.transaction.api.ImportResult;
 import pl.surreal.finance.transaction.api.ImportType;
-import pl.surreal.finance.transaction.api.Transaction;
+import pl.surreal.finance.transaction.api.TransactionApi;
 import pl.surreal.finance.transaction.core.CardOperation;
 import pl.surreal.finance.transaction.core.Commission;
+import pl.surreal.finance.transaction.core.Label;
+import pl.surreal.finance.transaction.core.Transaction;
 import pl.surreal.finance.transaction.core.Transfer;
 import pl.surreal.finance.transaction.db.TransactionDAO;
 import pl.surreal.finance.transaction.labeler.ITransactionLabeler;
@@ -80,36 +82,45 @@ public class TransactionResource
 		this.transactionLabeler = transactionLabeler;
 	}
 	
+	private TransactionApi mapDomainToApi(Transaction transaction) {
+		TransactionApi transactionApi = new TransactionApi();
+		transactionApi.setDate(transaction.getAccountingDate());
+		transactionApi.setAmount(transaction.getAccountingAmount());
+		transactionApi.setTitle(transaction.getTitle());
+		transactionApi.setType(transaction.getClass().getSimpleName());
+		List<Long> labelIds = new ArrayList<>();
+		for(Label label : transaction.getLabels()) {
+			labelIds.add(label.getId());
+		}
+		transactionApi.setLabelIds(labelIds);
+		
+		UriBuilder uriBuilder=uriInfo.getAbsolutePathBuilder();
+		if(transaction instanceof Commission) {
+			uriBuilder = uriInfo.getBaseUriBuilder().path(CommissionResource.class);
+		} else if(transaction instanceof CardOperation) {
+			uriBuilder = uriInfo.getBaseUriBuilder().path(CardOperationResource.class);
+		} else if(transaction instanceof Transfer) {
+			uriBuilder = uriInfo.getBaseUriBuilder().path(TransferResource.class);
+		}
+		transactionApi.setUrl(uriBuilder.path("/{id}").resolveTemplate("id",transaction.getId()).build());
+		return transactionApi;
+	}
+	
 	@GET
 	@UnitOfWork
 	@Timed
-	public List<Transaction> get(
+	public List<TransactionApi> get(
 			@QueryParam("first") @Min(0) Integer first,
 			@QueryParam("max") @Min(0) Integer max)
 	{
 		LOGGER.debug("Query params value '{}' '{}'",first,max);
 	
-		ArrayList<Transaction> transactions = new ArrayList<>();
-	
-		for(pl.surreal.finance.transaction.core.Transaction coreTransaction : transactionDAO.findAll(first,max)) {
-			Transaction transaction = new Transaction();
-			transaction.setDate(coreTransaction.getAccountingDate());
-			transaction.setAmount(coreTransaction.getAccountingAmount());
-			transaction.setTitle(coreTransaction.getTitle());
-			transaction.setType(coreTransaction.getClass().getSimpleName());
-			transaction.setLabels(coreTransaction.getLabels());
-			UriBuilder uriBuilder=uriInfo.getAbsolutePathBuilder();
-			if(coreTransaction instanceof Commission) {
-				uriBuilder = uriInfo.getBaseUriBuilder().path(CommissionResource.class);
-			} else if(coreTransaction instanceof CardOperation) {
-				uriBuilder = uriInfo.getBaseUriBuilder().path(CardOperationResource.class);
-			} else if(coreTransaction instanceof Transfer) {
-				uriBuilder = uriInfo.getBaseUriBuilder().path(TransferResource.class);
-			}
-			transaction.setUrl(uriBuilder.path("/{id}").resolveTemplate("id",coreTransaction.getId()).build());
-			transactions.add(transaction);
+		ArrayList<TransactionApi> apiTransactions = new ArrayList<>();
+		for(Transaction transaction : transactionDAO.findAll(first,max)) {
+			TransactionApi transactionApi = mapDomainToApi(transaction);
+			apiTransactions.add(transactionApi);
 		}
-		return transactions;
+		return apiTransactions;
 	}
 	
 	@POST
