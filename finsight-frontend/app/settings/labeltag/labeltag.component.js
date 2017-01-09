@@ -85,5 +85,9 @@ angular.
         }
         self.labels.push(self.inserted);
       }
+
+      self.filterSelfParent = function(actual, expected) {
+         return !angular.equals(actual, expected);
+      }
     }]
   });
