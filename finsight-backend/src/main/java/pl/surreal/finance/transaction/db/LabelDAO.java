@@ -17,12 +17,13 @@ package pl.surreal.finance.transaction.db;
 import java.util.List;
 import java.util.Optional;
 
+import org.hibernate.Query;
 import org.hibernate.SessionFactory;
 
 import io.dropwizard.hibernate.AbstractDAO;
 import pl.surreal.finance.transaction.core.Label;
 
-public class LabelDAO  extends AbstractDAO<Label>
+public class LabelDAO  extends AbstractDAO<Label> implements IResourceLookup<Label>
 {
 	public LabelDAO(SessionFactory sessionFactory) {
 		super(sessionFactory);
@@ -48,4 +49,11 @@ public class LabelDAO  extends AbstractDAO<Label>
     	Label label = (Label)currentSession().load(Label.class,id);
     	currentSession().delete(label);
     }
+    
+	@Override
+	public Label lookup(String naturalId) {
+		Query labelQuery = namedQuery("pl.surreal.finance.transaction.core.Label.findByText");
+		labelQuery.setString("text",naturalId);
+		return uniqueResult(labelQuery);
+	}
 }

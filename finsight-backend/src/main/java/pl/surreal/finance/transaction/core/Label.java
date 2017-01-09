@@ -42,6 +42,10 @@ import org.hibernate.validator.constraints.NotEmpty;
     @NamedQuery(
             name = "pl.surreal.finance.transaction.core.Label.findAll",
             query = "SELECT l FROM Label l"
+    ),
+    @NamedQuery(
+            name = "pl.surreal.finance.transaction.core.Label.findByText",
+            query = "SELECT l FROM Label l WHERE l.text = :text"
     )
 })
 public class Label
@@ -55,7 +59,7 @@ public class Label
 	@NotEmpty
 	private String text;
 	
-	@ManyToOne
+	@ManyToOne(cascade = CascadeType.ALL)
 	private Label parent;
 	
 	@OneToMany(fetch = FetchType.EAGER, mappedBy = "parent", cascade = CascadeType.ALL, orphanRemoval = false)
@@ -106,14 +110,18 @@ public class Label
 
 	public Label addChild(String text) {
 		Label child = new Label(text);
-		children.add(child);
-		child.setParent(this);
+		if(!children.contains(child)) {
+			children.add(child);
+			child.setParent(this);
+		}
 		return child;
 	}
 
 	public Label addChild(Label child) {
-		children.add(child);
-		child.setParent(this);
+		if(!children.contains(child)) {
+			children.add(child);
+			child.setParent(this);
+		}
 		return child;
 	}
 	

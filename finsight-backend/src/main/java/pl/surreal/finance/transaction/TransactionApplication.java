@@ -31,6 +31,7 @@ import io.dropwizard.hibernate.HibernateBundle;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import pl.surreal.finance.transaction.cli.GenerateCommand;
+import pl.surreal.finance.transaction.cli.MigrateCommand;
 import pl.surreal.finance.transaction.core.Account;
 import pl.surreal.finance.transaction.core.Card;
 import pl.surreal.finance.transaction.core.CardOperation;
@@ -84,6 +85,7 @@ public class TransactionApplication extends Application<TransactionConfiguration
         bootstrap.addBundle(hibernateBundle);
         bootstrap.addBundle(new MultiPartBundle());
         bootstrap.addCommand(new GenerateCommand());
+        bootstrap.addCommand(new MigrateCommand());
     }
 	
 	@Override	
