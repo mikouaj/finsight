@@ -89,5 +89,9 @@ angular.
       self.filterSelfParent = function(actual, expected) {
          return !angular.equals(actual, expected);
       }
+
+      self.searchQueryClear = function() {
+        self.searchQuery="";
+      }
     }]
   });

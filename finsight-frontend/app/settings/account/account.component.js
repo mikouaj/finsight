@@ -69,5 +69,9 @@ angular.
           return "can't be empty !";
         }
       }
+
+      self.searchQueryClear = function() {
+        self.searchQuery="";
+      }
     }]
   });

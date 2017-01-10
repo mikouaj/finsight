@@ -89,5 +89,9 @@ angular.
         }
         self.rules.push(self.inserted);
       }
+
+      self.searchQueryClear = function() {
+        self.searchQuery="";
+      }
     }]
   });
