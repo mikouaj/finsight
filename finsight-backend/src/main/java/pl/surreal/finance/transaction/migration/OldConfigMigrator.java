@@ -22,6 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import pl.surreal.finance.transaction.core.Label;
+import pl.surreal.finance.transaction.core.LabelRule;
 
 public class OldConfigMigrator
 {
@@ -33,7 +34,7 @@ public class OldConfigMigrator
 		this.config = config;
 	}
 	
-	public List<Label> getLabels() {
+	public List<Label> getLabels(boolean dependencies) {
 		for(OldPatternConfig pattern : config.getPatterns()) {
 			Label parent;
 			if(labelCache.containsKey(pattern.getCategory())) {
@@ -53,8 +54,19 @@ public class OldConfigMigrator
 				child = new Label(pattern.getSubcategory());
 				labelCache.put(child.getText(),child);
 			}
-			parent.addChild(child);
+			if(dependencies) {
+				parent.addChild(child);
+			}
 		}
 		return new ArrayList<Label>(labelCache.values());
+	}
+	
+	public List<LabelRule> getRules(boolean dependencies) {
+		ArrayList<LabelRule> rules = new ArrayList<>();
+		for(OldPatternConfig pattern : config.getPatterns()) {
+			LabelRule rule = new LabelRule(pattern.getRegexp());
+			rules.add(rule);
+		}
+		return rules;
 	}
 }

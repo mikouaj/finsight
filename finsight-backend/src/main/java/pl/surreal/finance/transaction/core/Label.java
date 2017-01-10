@@ -59,7 +59,7 @@ public class Label
 	@NotEmpty
 	private String text;
 	
-	@ManyToOne(cascade = CascadeType.ALL)
+	@ManyToOne //(cascade = CascadeType.ALL)
 	private Label parent;
 	
 	@OneToMany(fetch = FetchType.EAGER, mappedBy = "parent", cascade = CascadeType.ALL, orphanRemoval = false)

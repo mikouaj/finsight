@@ -40,6 +40,10 @@ import org.hibernate.validator.constraints.NotEmpty;
     @NamedQuery(
             name = "pl.surreal.finance.transaction.core.LabelRule.findAll",
             query = "SELECT l FROM LabelRule l"
+    ),
+    @NamedQuery(
+            name = "pl.surreal.finance.transaction.core.LabelRule.findByRegexp",
+            query = "SELECT l FROM LabelRule l WHERE l.regexp = :regexp"
     )
 })
 public class LabelRule
