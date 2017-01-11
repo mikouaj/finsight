@@ -76,6 +76,10 @@ public class TransactionData
 		int minDay = gc.get(GregorianCalendar.DAY_OF_YEAR);
 		gc.setTime(maxDate);
 		int maxDay = gc.get(GregorianCalendar.DAY_OF_YEAR);
+	    // this can occur when year was changed
+		if(minDay>=maxDay) {
+			minDay = 1;
+		}
 		int rndDay = ThreadLocalRandom.current().nextInt(minDay,maxDay);
 		gc.set(GregorianCalendar.DAY_OF_YEAR, rndDay);
 		return gc.getTime();
