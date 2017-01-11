@@ -69,6 +69,22 @@ angular.
         }
       }
 
+      self.openProcessedModal = function(index) {
+        $scope.index = index;
+        self.processedModalInstance = $uibModal.open({
+          animation: 'true',
+          templateUrl: 'settings/rule/processed-modal.template.html',
+          scope: $scope,
+          size: 'sm'
+        });
+      }
+
+      self.closeProcessedModal = function() {
+        if(self.processedModalInstance) {
+          self.processedModalInstance.close();
+        }
+      }
+
       self.cancelUpdate = function(index) {
         if(self.inserted == self.rules[index]) {
           self.rules.splice(index,1);
@@ -92,6 +108,14 @@ angular.
 
       self.searchQueryClear = function() {
         self.searchQuery="";
+      }
+
+      self.labelTransactions = function(index) {
+        Backend.getApi().then(function(api) {
+          api.transactions.labelAll({ruleId:self.rules[index].id}).then(function(response) {
+            self.openProcessedModal();
+          });
+        });
       }
     }]
   });

@@ -68,6 +68,9 @@
           <button type="button" class="btn btn-default" ng-click="$ctrl.openConfirmModal($index)" ng-show="!rowform.$visible">
             <i class="glyphicon glyphicon-remove"></i>
           </button>
+          <button type="button" class="btn btn-default" ng-click="$ctrl.labelTransactions($index)" ng-show="!rowform.$visible" title="Run selected rule if active" ng-disabled="!$ctrl.rules[$index].active">
+            <i class="glyphicon glyphicon-flash"></i>
+          </button>
         </div>
       </td>
     </tr>
