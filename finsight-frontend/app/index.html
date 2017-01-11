@@ -44,7 +44,7 @@
     <script src="settings/labeltag/labeltag.component.js"></script> 
 
   </head>
-  <body>
+  <body id="pagebody">
     <nav class="navbar navbar-inverse navbar-fixed-top">
       <div class="container-fluid">
         <div class="navbar-header">
@@ -65,9 +65,15 @@
         </div>
       </div>
     </nav>
-
     <div class="container-fluid container-main">
       <div ng-view ></div>
     </div>
   </body>
+  <footer ng-controller="FooterController">
+    <div detectscroll class="text-center">
+      <a class="up-arrow" ng-click="goToTop()" data-toggle="tooltip" title="Scroll to top" ng-if="footerVisible">
+        <span class="glyphicon glyphicon-chevron-up"></span>
+      </a>
+    </div>
+  </footer>
 </html>
