@@ -69,8 +69,10 @@ angular.
         }
       }
 
-      self.openProcessedModal = function(index) {
-        $scope.index = index;
+      self.openProcessedModal = function(isSuccess,transactionsCnt,labelsCnt) {
+        $scope.isSuccess = isSuccess;
+        $scope.transactionsCnt = transactionsCnt;
+        $scope.labelsCnt = labelsCnt;
         self.processedModalInstance = $uibModal.open({
           animation: 'true',
           templateUrl: 'settings/rule/processed-modal.template.html',
@@ -112,8 +114,20 @@ angular.
 
       self.labelTransactions = function(index) {
         Backend.getApi().then(function(api) {
-          api.transactions.labelAll({ruleId:self.rules[index].id}).then(function(response) {
-            self.openProcessedModal();
+          api.transactions.runRule({id:self.rules[index].id}).then(function(response) {
+            self.openProcessedModal(true,response.data.transactionsCount,response.data.labelsCount);
+          },function(response) {
+              self.openProcessedModal(false);
+          });
+        });
+      }
+
+      self.labelAllTransactions = function() {
+        Backend.getApi().then(function(api) {
+          api.transactions.runAllRules().then(function(response) {
+            self.openProcessedModal(true,response.data.transactionsCount,response.data.labelsCount);
+          },function(response) {
+              self.openProcessedModal(false);
           });
         });
       }

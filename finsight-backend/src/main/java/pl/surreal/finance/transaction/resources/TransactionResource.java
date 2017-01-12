@@ -52,6 +52,7 @@ import io.dropwizard.jersey.params.LongParam;
 import io.swagger.annotations.Api;
 import pl.surreal.finance.transaction.api.ImportResult;
 import pl.surreal.finance.transaction.api.ImportType;
+import pl.surreal.finance.transaction.api.LabelResultApi;
 import pl.surreal.finance.transaction.api.TransactionApi;
 import pl.surreal.finance.transaction.core.CardOperation;
 import pl.surreal.finance.transaction.core.Commission;
@@ -159,29 +160,41 @@ public class TransactionResource
 	}
 	
 	@POST
-	@Path("/doLabelAll")
+	@Path("/runAllRules")
 	@UnitOfWork
-	public Response labelAll() {
+	public LabelResultApi runAllRules() {
+		int transactionCount=0;
+		int labelsCount=0;
 		for(pl.surreal.finance.transaction.core.Transaction t: transactionDAO.findAll()) {
-			transactionLabeler.label(t);
-			transactionDAO.create(t);
+			int appliedCount = transactionLabeler.label(t);
+			if(appliedCount>0) {
+				transactionCount++;
+				labelsCount+=appliedCount;
+				transactionDAO.create(t);
+			}
 		}
-		return Response.status(200).build();
+		return new LabelResultApi(transactionCount,labelsCount);
 	}
 	
 	@POST
-	@Path("/doLabelAll/{ruleId}")
+	@Path("/runRule/{id}")
 	@UnitOfWork
-	public Response labelAll(@PathParam("ruleId") LongParam ruleId) {
+	public LabelResultApi runRule(@PathParam("id") LongParam id) {
+		int transactionCount=0;
+		int labelsCount=0;
 		for(pl.surreal.finance.transaction.core.Transaction t: transactionDAO.findAll()) {
 			try {
-				transactionLabeler.label(t,ruleId.get());
-				transactionDAO.create(t);
+				int appliedCount = transactionLabeler.label(t,id.get());
+				if(appliedCount>0) {
+					transactionCount++;
+					labelsCount+=appliedCount;
+					transactionDAO.create(t);
+				}
 			} catch(NoSuchElementException ex) {
 				throw new NotFoundException(ex.getMessage());
 			}
 		}
-		return Response.status(200).build();
+		return new LabelResultApi(transactionCount,labelsCount);
 	}
 	
 	private ImportResult importTransactions(ITransactionParser parser) {

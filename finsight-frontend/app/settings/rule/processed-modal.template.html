@@ -1,8 +1,10 @@
 <div class="modal-header">
-  <h3 class="modal-title">Rule processing</h3>
+  <h3 class="modal-title">Labeling status</h3>
 </div>
 <div class="modal-body container-fluid">
-  <p>Rule has been ran successfully!</p>
+  <p ng-if=!isSuccess>Labeling process has finished with failture!</p>
+  <p ng-if=isSuccess>Labeling process has finished successfully!</p>
+  <p ng-if=isSuccess>Added {{labelsCnt}} labels to {{transactionsCnt}} transactions.</p>
 </div>
 <div class="modal-footer">
   <button class="btn btn-warning" type="button" ng-click="$ctrl.closeProcessedModal()">Ok</button>

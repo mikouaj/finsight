@@ -91,20 +91,29 @@ public class TransactionLabeler implements ITransactionLabeler
 	}
 
 	@Override
-	public Transaction label(Transaction t) {
-		t.setLabels(this.getLabels(t));
-		return t;
-	}
-
-	@Override
-	public Transaction label(Transaction t, Long ruleId) throws NoSuchElementException {
-		LabelRule labelRule = labelRuleDAO.findById(ruleId).orElseThrow(() -> new NoSuchElementException("LabelRule not found."));
-		List<Label> labels = getLabels(t,labelRule);
+	public int label(Transaction t) {
+		List<Label> labels = getLabels(t);
+		int appliedCount = 0;
 	    for(Label label : labels) {
 	    	if(!t.getLabels().contains(label)) {
 	    		t.getLabels().add(label);
+	    		appliedCount++;
 	    	}
 	    }
-		return t;
+		return appliedCount;
+	}
+
+	@Override
+	public int label(Transaction t, Long ruleId) throws NoSuchElementException {
+		LabelRule labelRule = labelRuleDAO.findById(ruleId).orElseThrow(() -> new NoSuchElementException("LabelRule not found."));
+		List<Label> labels = getLabels(t,labelRule);
+		int appliedCount = 0;
+	    for(Label label : labels) {
+	    	if(!t.getLabels().contains(label)) {
+	    		t.getLabels().add(label);
+	    		appliedCount++;
+	    	}
+	    }
+		return appliedCount;
 	}
 }

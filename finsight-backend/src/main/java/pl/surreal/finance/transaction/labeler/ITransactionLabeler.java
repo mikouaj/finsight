@@ -20,6 +20,6 @@ import pl.surreal.finance.transaction.core.Transaction;
 
 public interface ITransactionLabeler
 {
-	public Transaction label(Transaction t);
-	public Transaction label(Transaction t,Long ruleId) throws NoSuchElementException;
+	public int label(Transaction t);
+	public int label(Transaction t,Long ruleId) throws NoSuchElementException;
 }
