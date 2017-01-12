@@ -105,7 +105,7 @@ public class TransactionApplication extends Application<TransactionConfiguration
 		
 		final TransactionLabeler transactionLabeler = new TransactionLabeler(labelRuleDAO);
 		
-		environment.jersey().register(new TransactionResource(dao,parserFactory,transactionLabeler));
+		environment.jersey().register(new TransactionResource(dao,labelDAO,parserFactory,transactionLabeler));
 		environment.jersey().register(new CommissionResource(commissionDAO));
 		environment.jersey().register(new CardOperationResource(cardOperationDAO));
 		environment.jersey().register(new TransferResource(transferDAO));

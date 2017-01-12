@@ -15,6 +15,7 @@
 package pl.surreal.finance.transaction.db;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.hibernate.Query;
 import org.hibernate.SessionFactory;
@@ -44,4 +45,8 @@ public class TransactionDAO extends AbstractDAO<Transaction>
 	public List<Transaction> findAll() {
 		return list(namedQuery(findAllQuery));
 	}
+	
+    public Optional<Transaction> findById(Long id) {
+        return Optional.ofNullable(get(id));
+    }
 }

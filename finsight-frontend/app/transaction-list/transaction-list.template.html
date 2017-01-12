@@ -50,21 +50,47 @@
         <th>Currency</th>
    	    <th>Title</th>
         <th>Labels</th>
+        <th></th>
    	  </tr>
    </thead>
    <tbody>
-     <tr ng-repeat-start="transaction in $ctrl.transactions | dateRange:$ctrl.dateFrom:$ctrl.dateTo | filter:$ctrl.searchQuery | filter:$ctrl.type" ng-click="$ctrl.toggleDetails(transaction)">
-       <td class="centered">{{transaction.type}}</td>
-       <td class="centered">{{transaction.date}}</td>
-       <td class="centered">{{transaction.amount | number : 2}}</td>
-       <td class="centered">{{$ctrl.displayCurrency}}</td>
-       <td>{{transaction.title}}</td>
+     <tr ng-repeat-start="transaction in $ctrl.transactions | dateRange:$ctrl.dateFrom:$ctrl.dateTo | filter:$ctrl.searchQuery | filter:$ctrl.type">
+       <td class="centered" ng-click="$ctrl.toggleDetails(transaction)">{{transaction.type}}</td>
+       <td class="centered" ng-click="$ctrl.toggleDetails(transaction)">{{transaction.date}}</td>
+       <td class="centered" ng-click="$ctrl.toggleDetails(transaction)">{{transaction.amount | number : 2}}</td>
+       <td class="centered" ng-click="$ctrl.toggleDetails(transaction)">{{$ctrl.displayCurrency}}</td>
+       <td ng-click="$ctrl.toggleDetails(transaction)">{{transaction.title}}</td>
        <td class="centered">
-         <span class="label label-default" style="margin-right: 5px" ng-repeat="label in transaction.labelData">{{label.path}}</span>
+        <span editable-ui-select="transaction.labels" data-e-form="rowform" data-e-name="labels" name="labels" theme="bootstrap" e-multiple data-e-ng-model="transaction.labels" data-e-style="min-width:400px; max-width:400px;">
+          <span class="label label-default" style="margin-right: 5px" ng-repeat="labelId in transaction.labels">
+            {{$ctrl.labelsHash[labelId].path || "???"}}
+          </span>
+          <editable-ui-select-match placeholder="No labels">
+            {{$item.path}}
+          </editable-ui-select-match>
+          <editable-ui-select-choices repeat="label.id as label in $ctrl.labels | filter: $select.search track by $index">
+            {{label.path}}
+          </editable-ui-select-choices>
+        </span>
+       </td>
+       <td>
+         <form editable-form name="rowform" onbeforesave="$ctrl.update($data,transaction)" oncancel="$ctrl.cancelUpdate($index)" ng-show="rowform.$visible" class="form-buttons form-inline" shown="$ctrl.inserted == transaction">
+           <button type="submit" ng-disabled="rowform.$waiting" class="btn btn-default">
+             <i class="glyphicon glyphicon-ok-sign"></i>
+           </button>
+           <button type="button" ng-disabled="rowform.$waiting" ng-click="rowform.$cancel();" class="btn btn-default">
+             <i class="glyphicon glyphicon-remove-sign"></i>
+           </button>
+         </form>    
+         <div class="buttons">
+           <button type="button" class="btn btn-default" ng-click="rowform.$show();" ng-show="!rowform.$visible">
+             <i class="glyphicon glyphicon-pencil"></i>
+           </button>
+         </div>
        </td>
      </tr>
      <tr ng-repeat-end="">
-       <td colspan="5" style="padding:0">
+       <td colspan="7" style="padding:0">
          <div uib-collapse="!transaction.collapsed">
            <cardoperation-detail ng-if="transaction.type=='CardOperation'" data="transaction.details"></cardoperation-detail>
            <transfer-detail ng-if="transaction.type=='Transfer'" data="transaction.details"></transfer-detail>

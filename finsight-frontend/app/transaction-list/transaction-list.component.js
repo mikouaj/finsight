@@ -8,32 +8,14 @@ angular.
     function TransactionListController(Backend,$http,$q) {
         var self = this;
 
-        self.labelCache = {};
-        self.labelPromises = [];
+        self.labelsHash={};
         Backend.getApi().then(function(api) {
           api.transactions.get().then(function(transactions) {
             self.transactions=transactions.data;
-            angular.forEach(self.transactions, function(transaction) {
-              transaction.labelData=[];
-              angular.forEach(transaction.labels, function(labelId) {
-                if(!(labelId in self.labelCache)) {
-                  self.labelCache[labelId] = [];
-                  self.labelPromises.push(api.labels.getById({"id":labelId}).then(function (label) {
-                    return label.data;
-                  }));
-                }
-              });
-            });
-          }).then(function() {
-            $q.all(self.labelPromises).then(function(objects) {
-              for(var id in objects) {
-                self.labelCache[objects[id].id] = objects[id];
-              }
-              for(var i in self.transactions) {
-                for(var j in self.transactions[i].labels) {
-                  var labelId = self.transactions[i].labels[j];
-                  self.transactions[i].labelData.push(self.labelCache[labelId]);
-                }
+            api.labels.get().then(function(response) {
+              self.labels=response.data;
+              for(var id in response.data) {
+                self.labelsHash[response.data[id].id] = response.data[id];
               }
             });
           });
@@ -84,6 +66,17 @@ angular.
 
         self.searchQueryClear = function() {
           self.searchQuery="";
+        }
+
+        self.update = function(data,transaction) {
+          return Backend.getApi().then(function(api) {
+            angular.extend(data,{id:transaction.id});
+            return api.transactions.replace(data).then(function(response) {
+              return true;
+            },function(response) {
+              return response.statusText;
+            });
+          });
         }
       }
     ]

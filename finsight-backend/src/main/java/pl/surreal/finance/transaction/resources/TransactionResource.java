@@ -19,6 +19,7 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.Optional;
 
 import javax.validation.constraints.Min;
@@ -28,6 +29,7 @@ import javax.ws.rs.GET;
 import javax.ws.rs.InternalServerErrorException;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -59,6 +61,7 @@ import pl.surreal.finance.transaction.core.Commission;
 import pl.surreal.finance.transaction.core.Label;
 import pl.surreal.finance.transaction.core.Transaction;
 import pl.surreal.finance.transaction.core.Transfer;
+import pl.surreal.finance.transaction.db.LabelDAO;
 import pl.surreal.finance.transaction.db.TransactionDAO;
 import pl.surreal.finance.transaction.labeler.ITransactionLabeler;
 import pl.surreal.finance.transaction.parser.IParserFactory;
@@ -72,19 +75,22 @@ public class TransactionResource
 {
 	private static final Logger LOGGER = LoggerFactory.getLogger(TransactionResource.class);
 	private TransactionDAO transactionDAO;
+	private LabelDAO labelDAO;
 	private IParserFactory parserFactory;
 	private ITransactionLabeler transactionLabeler;
 	@Context
 	private UriInfo uriInfo;
 	
-	public TransactionResource(TransactionDAO transactionDAO,IParserFactory parserFactory,ITransactionLabeler transactionLabeler) {
+	public TransactionResource(TransactionDAO transactionDAO,LabelDAO labelDAO,IParserFactory parserFactory,ITransactionLabeler transactionLabeler) {
 		this.transactionDAO = transactionDAO;
 		this.parserFactory = parserFactory;
 		this.transactionLabeler = transactionLabeler;
+		this.labelDAO = labelDAO;
 	}
 	
 	private TransactionApi mapDomainToApi(Transaction transaction) {
 		TransactionApi transactionApi = new TransactionApi();
+		transactionApi.setId(transaction.getId());
 		transactionApi.setDate(transaction.getAccountingDate());
 		transactionApi.setAmount(transaction.getAccountingAmount());
 		transactionApi.setTitle(transaction.getTitle());
@@ -107,6 +113,17 @@ public class TransactionResource
 		return transactionApi;
 	}
 	
+	private Transaction mapApiToDomain(TransactionApi transactionApi,Transaction transaction) throws NotFoundException {
+		Objects.requireNonNull(transaction);
+		List<Label> labels = new ArrayList<>();
+		for(Long labelId : transactionApi.getLabelIds()) {
+			Label label = labelDAO.findById(labelId).orElseThrow(() -> new NotFoundException("Label "+labelId+" not found."));
+			labels.add(label);
+		}
+		transaction.setLabels(labels);
+		return transaction;
+	}
+	
 	@GET
 	@UnitOfWork
 	@Timed
@@ -123,6 +140,16 @@ public class TransactionResource
 		}
 		return apiTransactions;
 	}
+	
+    @PUT
+    @Path("/{id}")
+    @UnitOfWork
+    public TransactionApi replace(@PathParam("id") LongParam id, TransactionApi transactionApi) {
+    	Transaction transaction = transactionDAO.findById(id.get()).orElseThrow(() -> new NotFoundException("Transaction not found."));
+    	mapApiToDomain(transactionApi, transaction);
+    	transactionDAO.create(transaction);
+    	return transactionApi;
+    }
 	
 	@POST
 	@Path("/import")
