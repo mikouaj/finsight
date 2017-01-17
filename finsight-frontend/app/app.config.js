@@ -13,6 +13,9 @@ angular.
         when('/settings', {
           template: '<settings></settings>'
         }).
+        when('/reports', {
+          template: '<reports></reports>'
+        }).
         otherwise('/transactions');
     }
   ]);

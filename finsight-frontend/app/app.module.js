@@ -7,5 +7,6 @@ angular.module('moneySaverApp', [
   'ui.scrollpoint',
   'core',
   'transactionList',
-  'settings'
+  'settings',
+  'reports'
 ]);
