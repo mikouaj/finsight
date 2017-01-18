@@ -1,3 +1,3 @@
 'use strict';
 
-angular.module('reports',['core.backend']);
+angular.module('reports',['core.backend','googlechart']);
