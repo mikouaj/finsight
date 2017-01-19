@@ -41,6 +41,8 @@ public class LabelApi {
 	//@JsonProperty("rules")
 	@JsonIgnore
 	private List<Long> ruleIds = new ArrayList<>();
+	@JsonProperty("transactions")
+	private List<URI> transactionURIs = new ArrayList<>();
 	@JsonProperty
 	@InjectLink(resource=LabelResource.class,method="getById",style=Style.ABSOLUTE,bindings = {@Binding(name="id",value="${instance.id}")})
 	private URI uri;
@@ -95,6 +97,15 @@ public class LabelApi {
 		this.ruleIds = ruleIds;
 	}
 	
+
+	public List<URI> getTransactionURIs() {
+		return transactionURIs;
+	}
+
+	public void setTransactionURIs(List<URI> transactionURIs) {
+		this.transactionURIs = transactionURIs;
+	}
+
 	public URI getUri() {
 		return uri;
 	}

@@ -53,7 +53,7 @@ public class MigrateCommand extends ConfiguredCommand<TransactionConfiguration>
 	}
 	
 	private Session configureHibernateSession(Bootstrap<TransactionConfiguration> bootstrap, TransactionConfiguration configuration) throws Exception {
-		HibernateBundle<TransactionConfiguration> hibernate = new HibernateBundle<TransactionConfiguration>(Label.class,LabelRule.class) {
+		HibernateBundle<TransactionConfiguration> hibernate = new HibernateBundle<TransactionConfiguration>(Label.class,LabelRule.class,pl.surreal.finance.transaction.core.Transaction.class) {
 		    @Override
 		    public DataSourceFactory getDataSourceFactory(TransactionConfiguration configuration) {
 		        return configuration.getDataSourceFactory();

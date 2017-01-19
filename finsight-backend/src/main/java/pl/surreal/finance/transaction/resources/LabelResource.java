@@ -14,6 +14,7 @@
 
 package pl.surreal.finance.transaction.resources;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,8 +29,11 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriBuilder;
+import javax.ws.rs.core.UriInfo;
 
 import com.codahale.metrics.annotation.Timed;
 
@@ -41,7 +45,11 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import pl.surreal.finance.transaction.api.LabelApi;
+import pl.surreal.finance.transaction.core.CardOperation;
+import pl.surreal.finance.transaction.core.Commission;
 import pl.surreal.finance.transaction.core.Label;
+import pl.surreal.finance.transaction.core.Transaction;
+import pl.surreal.finance.transaction.core.Transfer;
 import pl.surreal.finance.transaction.db.LabelDAO;
 
 @Path("/labels")
@@ -51,6 +59,9 @@ public class LabelResource
 {
 //	private static final Logger LOGGER = LoggerFactory.getLogger(LabelResource.class);
 	private LabelDAO labelDAO;
+	
+	@Context
+	private UriInfo uriInfo;
 	
 	public LabelResource(LabelDAO labelDAO) {
 		this.labelDAO = labelDAO;
@@ -69,6 +80,20 @@ public class LabelResource
 			childrenIds.add(childLabel.getId());
 		}
 		labelApi.setChildrenIds(childrenIds);
+		
+		UriBuilder uriBuilder=uriInfo.getAbsolutePathBuilder();
+		List<URI> transactionURIs = new ArrayList<>();
+		for(Transaction transaction : label.getTransactions()) {
+			if(transaction instanceof Commission) {
+				uriBuilder = uriInfo.getBaseUriBuilder().path(CommissionResource.class);
+			} else if(transaction instanceof CardOperation) {
+				uriBuilder = uriInfo.getBaseUriBuilder().path(CardOperationResource.class);
+			} else if(transaction instanceof Transfer) {
+				uriBuilder = uriInfo.getBaseUriBuilder().path(TransferResource.class);
+			}
+			transactionURIs.add(uriBuilder.path("/{id}").resolveTemplate("id",transaction.getId()).build());
+		}
+		labelApi.setTransactionURIs(transactionURIs);
 		return labelApi;
 	}
 	

@@ -69,6 +69,9 @@ public class Label
     @ManyToMany(fetch = FetchType.EAGER, mappedBy = "labels")
 	private List<LabelRule> rules = new ArrayList<>();
     
+    @ManyToMany(fetch = FetchType.EAGER, mappedBy = "labels")
+    private List<Transaction> transactions = new ArrayList<>();
+    
 	public Label() { }
 	
 	public Label(String text) {
@@ -145,6 +148,14 @@ public class Label
 
 	public void setRules(List<LabelRule> rules) {
 		this.rules = rules;
+	}
+
+	public List<Transaction> getTransactions() {
+		return transactions;
+	}
+
+	public void setTransactions(List<Transaction> transactions) {
+		this.transactions = transactions;
 	}
 
 	public String getPath() {
