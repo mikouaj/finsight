@@ -46,6 +46,22 @@ import com.fasterxml.jackson.annotation.JsonProperty;
     @NamedQuery(
             name = "pl.surreal.finance.transaction.core.Transaction.findAll",
             query = "SELECT t FROM Transaction t ORDER BY t.accountingDate DESC"
+    ),
+    @NamedQuery(
+            name = "pl.surreal.finance.transaction.core.Transaction.findByLabel",
+            query = "SELECT t FROM Transaction t WHERE :label member of t.labels"
+    ),
+    @NamedQuery(
+            name = "pl.surreal.finance.transaction.core.Transaction.findByLabelFrom",
+            query = "SELECT t FROM Transaction t WHERE :label member of t.labels AND t.date > :dateFrom"
+    ),
+    @NamedQuery(
+            name = "pl.surreal.finance.transaction.core.Transaction.findByLabelTo",
+            query = "SELECT t FROM Transaction t WHERE :label member of t.labels AND t.date < :dateTo"
+    ),
+    @NamedQuery(
+            name = "pl.surreal.finance.transaction.core.Transaction.findByLabelFromTo",
+            query = "SELECT t FROM Transaction t WHERE :label member of t.labels AND t.date > :dateFrom AND t.date < :dateTo"
     )
 })
 public abstract class Transaction

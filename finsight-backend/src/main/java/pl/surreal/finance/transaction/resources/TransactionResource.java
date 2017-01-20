@@ -24,6 +24,7 @@ import java.util.Optional;
 
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.InternalServerErrorException;
@@ -150,6 +151,24 @@ public class TransactionResource
     	transactionDAO.create(transaction);
     	return transactionApi;
     }
+    
+	@GET
+	@Path("/label/{id}")
+	@Timed
+	@UnitOfWork
+	public List<TransactionApi> getByLabel(@PathParam("id") LongParam id,
+			@QueryParam("dateFrom") @Pattern(regexp="\\d{4}-\\d{2}-\\d{2}") String dateFromString,
+			@QueryParam("dateTo") @Pattern(regexp="\\d{4}-\\d{2}-\\d{2}") String dateToString)
+	{
+		LOGGER.debug("Query params value '{}' '{}'",dateFromString,dateToString);
+		Label label = labelDAO.findById(id.get()).orElseThrow(() -> new NotFoundException("Label "+id.get()+" not found."));
+		ArrayList<TransactionApi> apiTransactions = new ArrayList<>();
+		for(Transaction transaction : transactionDAO.findByLabel(label,null,null)) {
+			TransactionApi transactionApi = mapDomainToApi(transaction);
+			apiTransactions.add(transactionApi);
+		}
+		return apiTransactions;
+	}
 	
 	@POST
 	@Path("/import")

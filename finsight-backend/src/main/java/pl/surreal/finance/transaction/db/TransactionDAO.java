@@ -14,19 +14,26 @@
 
 package pl.surreal.finance.transaction.db;
 
+import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 import org.hibernate.Query;
 import org.hibernate.SessionFactory;
 
 import io.dropwizard.hibernate.AbstractDAO;
+import pl.surreal.finance.transaction.core.Label;
 import pl.surreal.finance.transaction.core.Transaction;
 
 public class TransactionDAO extends AbstractDAO<Transaction>
 {
 	private static final String findAllQuery = "pl.surreal.finance.transaction.core.Transaction.findAll";
-	
+	private static final String findByLabelQuery = "pl.surreal.finance.transaction.core.Transaction.findByLabel";
+	private static final String findByLabelFromQuery = "pl.surreal.finance.transaction.core.Transaction.findByLabelFrom";
+	private static final String findByLabelToQuery = "pl.surreal.finance.transaction.core.Transaction.findByLabelTo";
+	private static final String findByLabelFromToQuery = "pl.surreal.finance.transaction.core.Transaction.findByLabelFromTo";
+
 	public TransactionDAO(SessionFactory sessionFactory) {
 		super(sessionFactory);
 	}
@@ -44,6 +51,26 @@ public class TransactionDAO extends AbstractDAO<Transaction>
 	
 	public List<Transaction> findAll() {
 		return list(namedQuery(findAllQuery));
+	}
+	
+	public List<Transaction> findByLabel(Label label,Date dateFrom,Date dateTo) {
+		Objects.requireNonNull(label);
+		Query query;
+		if(dateFrom==null && dateTo==null) {
+			query = namedQuery(findByLabelQuery);
+		} else if(dateFrom!=null && dateTo!=null) {
+			query = namedQuery(findByLabelFromToQuery);
+			query.setParameter("dateFrom",dateFrom);
+			query.setParameter("dateTo",dateTo);
+		} else if(dateFrom!=null && dateTo==null) {
+			query = namedQuery(findByLabelFromQuery);
+			query.setParameter("dateFrom",dateFrom);
+		} else {
+			query = namedQuery(findByLabelToQuery);
+			query.setParameter("dateTo",dateTo);
+		}
+		query.setParameter("label", Objects.requireNonNull(label));
+		return list(query);
 	}
 	
     public Optional<Transaction> findById(Long id) {
