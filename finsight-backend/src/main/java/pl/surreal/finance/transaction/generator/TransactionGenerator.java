@@ -15,6 +15,7 @@
 package pl.surreal.finance.transaction.generator;
 
 import java.math.BigDecimal;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.concurrent.ThreadLocalRandom;
@@ -26,7 +27,7 @@ import pl.surreal.finance.transaction.core.Transaction;
 import pl.surreal.finance.transaction.core.Transfer;
 
 public class TransactionGenerator implements Iterator<Transaction>
-{	
+{		
 	private int transferIndex = 0;
 	private int cardOperationIndex = 0;
 	private int commissionIndex = 0;
@@ -34,17 +35,26 @@ public class TransactionGenerator implements Iterator<Transaction>
 	private final int transferLimit;
 	private final int cardOperatonLimit;
 	private final  int commissionLimit;
-	private Date startDate = new Date(new Date().getTime() - 2678400000L);
-	private Date endDate = new Date();
+	private Date startDate;
+	private Date endDate;
 	private String currency = "PLN";
 	
 	public TransactionGenerator() {
 		this.transferLimit = 50;
 		this.cardOperatonLimit = 50;
 		this.commissionLimit = 10;
+		
+		Calendar calendar = Calendar.getInstance();
+		calendar.set(Calendar.HOUR_OF_DAY, 0);
+		calendar.set(Calendar.MINUTE, 0);
+		calendar.set(Calendar.SECOND, 0);
+		calendar.set(Calendar.MILLISECOND, 0);
+		endDate = calendar.getTime();
+		startDate = new Date(endDate.getTime() - 2678400000L);
 	}
 	
 	public TransactionGenerator(int transferLimit,int cardOperatonLimit,int commissionLimit) {
+		super();
 		this.transferLimit = transferLimit;
 		this.cardOperatonLimit = cardOperatonLimit;
 		this.commissionLimit = commissionLimit;
