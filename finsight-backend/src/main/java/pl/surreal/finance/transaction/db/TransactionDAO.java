@@ -60,14 +60,14 @@ public class TransactionDAO extends AbstractDAO<Transaction>
 			query = namedQuery(findByLabelQuery);
 		} else if(dateFrom!=null && dateTo!=null) {
 			query = namedQuery(findByLabelFromToQuery);
-			query.setParameter("dateFrom",dateFrom);
-			query.setParameter("dateTo",dateTo);
+			query.setDate("dateFrom",dateFrom);
+			query.setDate("dateTo",dateTo);
 		} else if(dateFrom!=null && dateTo==null) {
 			query = namedQuery(findByLabelFromQuery);
-			query.setParameter("dateFrom",dateFrom);
+			query.setDate("dateFrom",dateFrom);
 		} else {
 			query = namedQuery(findByLabelToQuery);
-			query.setParameter("dateTo",dateTo);
+			query.setDate("dateTo",dateTo);
 		}
 		query.setParameter("label", Objects.requireNonNull(label));
 		return list(query);

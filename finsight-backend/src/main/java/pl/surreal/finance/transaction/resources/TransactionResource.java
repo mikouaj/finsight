@@ -16,7 +16,10 @@ package pl.surreal.finance.transaction.resources;
 
 import java.io.InputStream;
 import java.net.URI;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Objects;
@@ -25,6 +28,7 @@ import java.util.Optional;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
+import javax.ws.rs.BadRequestException;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.InternalServerErrorException;
@@ -162,8 +166,22 @@ public class TransactionResource
 	{
 		LOGGER.debug("Query params value '{}' '{}'",dateFromString,dateToString);
 		Label label = labelDAO.findById(id.get()).orElseThrow(() -> new NotFoundException("Label "+id.get()+" not found."));
+		
+		Date dateFrom=null;
+		Date dateTo=null;
+		try {
+			dateFrom = new SimpleDateFormat("yyyy-MM-dd").parse(dateFromString);
+			dateTo = new SimpleDateFormat("yyyy-MM-dd").parse(dateToString);
+		} catch(NullPointerException e) {
+			LOGGER.debug("getByLabel : null pointer on parsing dates");
+		} catch(ParseException e) {
+			throw new BadRequestException("Unparsable date");
+		}
+	
+		LOGGER.debug("getByLabel dateFrom '{}', dateTo '{}'",dateFrom,dateTo);
 		ArrayList<TransactionApi> apiTransactions = new ArrayList<>();
-		for(Transaction transaction : transactionDAO.findByLabel(label,null,null)) {
+		for(Transaction transaction : transactionDAO.findByLabel(label,dateFrom,dateTo)) {
+			LOGGER.debug("getByLabel transaction id '{}' date '{}'",transaction.getId(),transaction.getDate());
 			TransactionApi transactionApi = mapDomainToApi(transaction);
 			apiTransactions.add(transactionApi);
 		}
