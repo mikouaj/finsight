@@ -15,6 +15,7 @@
 package pl.surreal.finance.transaction.db;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -46,6 +47,40 @@ public class TransactionDAO extends AbstractDAO<Transaction>
 		Query query = namedQuery(findAllQuery);
 		if(first!=null) query.setFirstResult(first);
 		if(max!=null) query.setMaxResults(max);
+		return list(query);
+	}
+	
+	public List<Transaction> findAll(HashMap<String,Object> params) {
+		StringBuilder queryBuilder = new StringBuilder();
+		queryBuilder.append("SELECT t FROM Transaction t");
+		if(params.size()>0) {
+			queryBuilder.append(" WHERE 1=1");
+			if(params.containsKey("label")) {
+				queryBuilder.append(" AND :label member of t.labels");
+			}
+			if(params.containsKey("dateFrom")) {
+				queryBuilder.append(" AND  t.date > :dateFrom");
+			}
+			if(params.containsKey("dateTo")) {
+				queryBuilder.append(" AND  t.date < :dateTo");
+			}
+		}
+		queryBuilder.append(" ORDER BY t.accountingDate DESC");
+		Query query = currentSession().createQuery(queryBuilder.toString());
+		if(params.size()>0) {
+			if(params.containsKey("label")) {
+				query.setParameter("label", params.get("label"));
+			}
+			if(params.containsKey("dateFrom")) {
+				query.setParameter("dateFrom", params.get("dateFrom"));
+			}
+			if(params.containsKey("dateTo")) {
+				query.setParameter("dateTo", params.get("dateTo"));
+			}
+		}
+		
+		if(params.containsKey("first")) query.setFirstResult((Integer.parseInt((String)params.get("first"))));
+		if(params.containsKey("max")) query.setMaxResults((Integer.parseInt((String)params.get("max"))));
 		return list(query);
 	}
 	

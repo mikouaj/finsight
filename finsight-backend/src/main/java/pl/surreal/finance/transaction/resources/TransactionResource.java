@@ -20,6 +20,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Objects;
@@ -42,6 +43,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Link;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
@@ -134,12 +136,32 @@ public class TransactionResource
 	@Timed
 	public List<TransactionApi> get(
 			@QueryParam("first") @Min(0) Integer first,
-			@QueryParam("max") @Min(0) Integer max)
-	{
-		LOGGER.debug("Query params value '{}' '{}'",first,max);
-	
+			@QueryParam("max") @Min(0) Integer max,
+			@QueryParam("label") @Min(0) Integer labelId,
+			@QueryParam("dateFrom") @Pattern(regexp="\\d{4}-\\d{2}-\\d{2}") String dateFromString,
+			@QueryParam("dateTo") @Pattern(regexp="\\d{4}-\\d{2}-\\d{2}") String dateToString)
+	{	
+		MultivaluedMap<String,String> queryParams = uriInfo.getQueryParameters();
+		HashMap<String,Object> queryAttributes = new HashMap<>();		
+		for(String queryParam : queryParams.keySet()) {
+			Object attrToAdd = queryParams.getFirst(queryParam);
+			if(queryParam.equals("dateFrom") || queryParam.equals("dateTo")) {
+				try {
+					attrToAdd = new SimpleDateFormat("yyyy-MM-dd").parse((String)attrToAdd);
+				} catch (ParseException e) {
+					LOGGER.debug("Can't parse date string {}",dateFromString);
+					continue;
+				}
+			}
+			if(queryParam.equals("label")) {
+				Label label = labelDAO.findById(Long.parseLong((String)attrToAdd)).orElseThrow(() -> new NotFoundException("Label "+labelId+" not found."));
+				attrToAdd = label;
+			}
+			queryAttributes.put(queryParam,attrToAdd);
+		}
+		
 		ArrayList<TransactionApi> apiTransactions = new ArrayList<>();
-		for(Transaction transaction : transactionDAO.findAll(first,max)) {
+		for(Transaction transaction : transactionDAO.findAll(queryAttributes)) {
 			TransactionApi transactionApi = mapDomainToApi(transaction);
 			apiTransactions.add(transactionApi);
 		}
