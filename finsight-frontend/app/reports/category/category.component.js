@@ -7,6 +7,16 @@ angular.
     controller: ['Backend','$scope','$uibModal',function CategoryReportController(Backend,$scope,$uibModal) {
       var self = this;
 
+      self.typesChart={};
+      self.typesChart.type = "PieChart";
+      self.typesChart.options = {
+        'title': 'Transaction types'
+      };
+      self.typesChart.data={"cols": [
+        {id: "t", label: "Type", type: "string"},
+        {id: "s", label: "Transactions", type: "number"}
+      ], "rows": []};
+
       var transactionCache={};
 
       Backend.getApi().then(function(api) {
@@ -16,7 +26,7 @@ angular.
       });
 
       self.dateFormat = 'yyyy-MM-dd';
-      
+
       self.dateFrom = new Date(2000,1,1);
       self.dateFromPopupOpened = false;
       self.dateFromOptions = {
@@ -43,15 +53,37 @@ angular.
         self.dateToPopupOpened = true;
       }
 
+      self.updateTypesChart = function(typesCountData) {
+        var rows=[];
+        for(var type in typesCountData) {
+          if (typesCountData.hasOwnProperty(type)) {
+            console.log(type);
+            rows.push(
+              {c:[{v: type},{v: typesCountData[type]},]}
+            );
+          }
+        }
+        self.typesChart.data.rows = rows;
+      }
+
+      self.queryReportData = function(dateFrom,dateTo,labelId) {
+        Backend.getApi().then(function(api) {
+          api.transactions.get({},{params:{label:labelId}}).then(function(response) {
+            var typeCount={};
+            for(var id in response.data) {
+              if(typeof typeCount[response.data[id].type] === 'undefined') {
+                typeCount[response.data[id].type]=1;
+              } else {
+                typeCount[response.data[id].type]++;
+              }
+            }
+            self.updateTypesChart(typeCount);
+          });
+        });
+      }
 
       self.labelSelected = function labelSelected(item,model) {
-        for(var id in model.transactions) {
-          var transactionURL = model.transactions[id];
-          console.log("fetching transaction "+transaction.id)
-         /* if(typeof transactionCache[transaction.id] === 'undefined') {
-            console.log("fetching transaction "+transaction.id)
-          }*/
-        }
+        self.queryReportData(self.dateFrom,self.dateTo,model.id);
       }
     }]
   });

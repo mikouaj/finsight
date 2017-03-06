@@ -17,7 +17,7 @@
 	        <button type="button" class="btn btn-default" ng-click="$ctrl.dateToPopupOpen()"><i class="glyphicon glyphicon-calendar"></i></button>
 	      </span>
 	   </p>
-   </div> 
+   </div>
    <div class="col-sm-8">
    	<p class="input-group">
 	    <span class="input-group-addon">Label</span>
@@ -36,9 +36,10 @@
 	  </p>
    </div>
   </div>
-  <div class="row" style="margin-top: 20px;">
+  <div class="row" style="margin-top: 20px; border:1px solid;">
     <div class="col-sm-6">
       <p>Chart1</p>
+      <div google-chart chart="$ctrl.typesChart"></div>
     </div>
     <div class="col-sm-6">
       <p>Chart2</p>
