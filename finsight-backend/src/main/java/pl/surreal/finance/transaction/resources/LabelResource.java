@@ -45,11 +45,8 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import pl.surreal.finance.transaction.api.LabelApi;
-import pl.surreal.finance.transaction.core.CardOperation;
-import pl.surreal.finance.transaction.core.Commission;
 import pl.surreal.finance.transaction.core.Label;
 import pl.surreal.finance.transaction.core.Transaction;
-import pl.surreal.finance.transaction.core.Transfer;
 import pl.surreal.finance.transaction.db.LabelDAO;
 
 @Path("/labels")
@@ -84,13 +81,7 @@ public class LabelResource
 		UriBuilder uriBuilder=uriInfo.getAbsolutePathBuilder();
 		List<URI> transactionURIs = new ArrayList<>();
 		for(Transaction transaction : label.getTransactions()) {
-			if(transaction instanceof Commission) {
-				uriBuilder = uriInfo.getBaseUriBuilder().path(CommissionResource.class);
-			} else if(transaction instanceof CardOperation) {
-				uriBuilder = uriInfo.getBaseUriBuilder().path(CardOperationResource.class);
-			} else if(transaction instanceof Transfer) {
-				uriBuilder = uriInfo.getBaseUriBuilder().path(TransferResource.class);
-			}
+			uriBuilder = uriInfo.getBaseUriBuilder().path(Transaction.class);
 			transactionURIs.add(uriBuilder.path("/{id}").resolveTemplate("id",transaction.getId()).build());
 		}
 		labelApi.setTransactionURIs(transactionURIs);
