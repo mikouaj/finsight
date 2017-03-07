@@ -14,6 +14,7 @@
 
 package pl.surreal.finance.transaction.resources;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.ws.rs.BadRequestException;
@@ -40,6 +41,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import pl.surreal.finance.transaction.api.AccountApi;
 import pl.surreal.finance.transaction.core.Account;
 import pl.surreal.finance.transaction.db.AccountDAO;
 
@@ -54,12 +56,34 @@ public class AccountResource
 		this.accountDAO = accountDAO;
 	}
 	
+	private AccountApi mapDomainToApi(Account account) {
+		AccountApi accountApi = new AccountApi();
+		accountApi.setId(account.getId());
+		accountApi.setName(account.getName());
+		accountApi.setNumber(account.getNumber());
+		return accountApi;
+	}
+	
+	private Account mapApiToDomain(AccountApi accountApi,Account account) {
+		if(account==null) {
+			account = new Account();
+		}
+		account.setName(accountApi.getName());
+		account.setNumber(accountApi.getNumber());
+		return account;
+	}	
+	
 	@GET
 	@UnitOfWork
 	@Timed
 	@ApiOperation(value = "Get all accounts")
-	public List<Account> getAccounts() {
-		return accountDAO.findAll();
+	public List<AccountApi> getAccounts() {
+		List<AccountApi> accountApis = new ArrayList<>();
+		for(Account account : accountDAO.findAll()) {
+			AccountApi accountApi = mapDomainToApi(account);
+			accountApis.add(accountApi);
+		}
+		return accountApis;
 	}
 	
 	@GET
@@ -67,23 +91,26 @@ public class AccountResource
 	@UnitOfWork
 	@ApiOperation(value = "Get account by id")
 	@ApiResponses(value = { @ApiResponse(code = 404, message = "Account not found.") })
-	public Account getAccount(@ApiParam(value = "id of the account", required = true) @PathParam("id") LongParam accountId) {
+	public AccountApi getAccount(@ApiParam(value = "id of the account", required = true) @PathParam("id") LongParam accountId) {
 		Account account = accountDAO.findById(accountId.get()).orElseThrow(() -> new NotFoundException("Account not found."));
-		return account;
+		AccountApi accountApi = mapDomainToApi(account);
+		return accountApi;
 	}
 	
     @POST
     @UnitOfWork
     @ApiOperation(value = "Create new account")
     @ApiResponses(value = { @ApiResponse(code = 400, message = "Contraint violation") })
-    public Account createAccount(@ApiParam(value = "new account object", required = true) Account account) {
-    	Account dbAccount;
+    public AccountApi createAccount(@ApiParam(value = "new account object", required = true) AccountApi accountApi) {
+    	Account accountToCreate = mapApiToDomain(accountApi, null);
+    	Account account;
     	try {
-    		dbAccount = accountDAO.create(account);
+    		account = accountDAO.create(accountToCreate);
     	} catch(ConstraintViolationException ex) {
     		throw new BadRequestException("Constraint violation on "+ex.getConstraintName());
     	}
-        return dbAccount;
+    	accountApi.setId(account.getId());
+        return accountApi;
     }
     
     @PUT
@@ -91,12 +118,12 @@ public class AccountResource
     @UnitOfWork
     @ApiOperation(value = "Update account by id")
 	@ApiResponses(value = { @ApiResponse(code = 404, message = "Account not found.") })
-    public Account replace(@ApiParam(value = "id of the account", required = true) @PathParam("id") LongParam accountId,
-    					   @ApiParam(value = "updated account object", required = true) Account account) {
-    	Account dbAccount = accountDAO.findById(accountId.get()).orElseThrow(() -> new NotFoundException("Account not found."));
-    	dbAccount.setName(account.getName());
-    	dbAccount.setNumber(account.getNumber());
-    	return accountDAO.create(dbAccount);
+    public AccountApi replace(@ApiParam(value = "id of the account", required = true) @PathParam("id") LongParam accountId,
+    					   @ApiParam(value = "updated account object", required = true) AccountApi accountApi) {
+    	Account account = accountDAO.findById(accountId.get()).orElseThrow(() -> new NotFoundException("Account not found."));
+    	mapApiToDomain(accountApi, account);
+    	accountDAO.create(account);
+    	return accountApi;
     }
     
     @DELETE
