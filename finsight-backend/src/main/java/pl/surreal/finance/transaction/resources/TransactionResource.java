@@ -19,7 +19,6 @@ import java.net.URI;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -29,7 +28,6 @@ import java.util.Optional;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
-import javax.ws.rs.BadRequestException;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.InternalServerErrorException;
@@ -45,7 +43,6 @@ import javax.ws.rs.core.Link;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
@@ -59,12 +56,15 @@ import com.codahale.metrics.annotation.Timed;
 import io.dropwizard.hibernate.UnitOfWork;
 import io.dropwizard.jersey.params.LongParam;
 import io.swagger.annotations.Api;
+import pl.surreal.finance.transaction.api.AccountApi;
+import pl.surreal.finance.transaction.api.CardApi;
+import pl.surreal.finance.transaction.api.CardOperationApi;
 import pl.surreal.finance.transaction.api.ImportResult;
 import pl.surreal.finance.transaction.api.ImportType;
 import pl.surreal.finance.transaction.api.LabelResultApi;
 import pl.surreal.finance.transaction.api.TransactionApi;
+import pl.surreal.finance.transaction.api.TransferApi;
 import pl.surreal.finance.transaction.core.CardOperation;
-import pl.surreal.finance.transaction.core.Commission;
 import pl.surreal.finance.transaction.core.Label;
 import pl.surreal.finance.transaction.core.Transaction;
 import pl.surreal.finance.transaction.core.Transfer;
@@ -100,6 +100,8 @@ public class TransactionResource
 		transactionApi.setId(transaction.getId());
 		transactionApi.setDate(transaction.getAccountingDate());
 		transactionApi.setAmount(transaction.getAccountingAmount());
+		transactionApi.setAccountingAmount(transaction.getAccountingAmount());
+		transactionApi.setCurrency(transaction.getCurrency());
 		transactionApi.setTitle(transaction.getTitle());
 		transactionApi.setType(transaction.getClass().getSimpleName());
 		List<Long> labelIds = new ArrayList<>();
@@ -107,16 +109,28 @@ public class TransactionResource
 			labelIds.add(label.getId());
 		}
 		transactionApi.setLabelIds(labelIds);
-		
-		UriBuilder uriBuilder=uriInfo.getAbsolutePathBuilder();
-		if(transaction instanceof Commission) {
-			uriBuilder = uriInfo.getBaseUriBuilder().path(CommissionResource.class);
-		} else if(transaction instanceof CardOperation) {
-			uriBuilder = uriInfo.getBaseUriBuilder().path(CardOperationResource.class);
+		if(transaction instanceof CardOperation) {
+			CardOperation cardOperTrans = (CardOperation)transaction;
+			CardOperationApi cardOperApi = new CardOperationApi();
+			if(cardOperTrans.getCard()!=null) {
+				cardOperApi.setCard(new CardApi(cardOperTrans.getCard().getNumber(),(cardOperTrans.getCard().getName())));
+			}
+			cardOperApi.setDestination(cardOperTrans.getDestination());
+			transactionApi.setDetails(cardOperApi);
 		} else if(transaction instanceof Transfer) {
-			uriBuilder = uriInfo.getBaseUriBuilder().path(TransferResource.class);
+			Transfer transferTrans = (Transfer)transaction;
+			TransferApi transferApi = new TransferApi();
+			transferApi.setDescription(transferTrans.getDescription());
+			transferApi.setInternal(transferTrans.isInternal());
+			transferApi.setDirection(transferTrans.getDirection().toString());
+			if(transferTrans.getDstAccount()!=null) {
+				transferApi.setDstAccount(new AccountApi(transferTrans.getDstAccount().getNumber(),transferTrans.getDstAccount().getName()));
+			}
+			if(transferTrans.getSrcAccount()!=null) {
+				transferApi.setSrcAccount(new AccountApi(transferTrans.getSrcAccount().getNumber(),transferTrans.getSrcAccount().getName()));
+			}
+			transactionApi.setDetails(transferApi);
 		}
-		transactionApi.setUrl(uriBuilder.path("/{id}").resolveTemplate("id",transaction.getId()).build());
 		return transactionApi;
 	}
 	
@@ -168,6 +182,15 @@ public class TransactionResource
 		return apiTransactions;
 	}
 	
+	@GET
+	@Path("/{id}")
+	@UnitOfWork
+	public TransactionApi getById(@PathParam("id") LongParam id) {
+		Transaction transaction = transactionDAO.findById(id.get()).orElseThrow(() -> new NotFoundException("Not found."));
+		TransactionApi transactionApi = mapDomainToApi(transaction);
+		return transactionApi;
+	}
+	
     @PUT
     @Path("/{id}")
     @UnitOfWork
@@ -178,38 +201,6 @@ public class TransactionResource
     	return transactionApi;
     }
     
-	@GET
-	@Path("/label/{id}")
-	@Timed
-	@UnitOfWork
-	public List<TransactionApi> getByLabel(@PathParam("id") LongParam id,
-			@QueryParam("dateFrom") @Pattern(regexp="\\d{4}-\\d{2}-\\d{2}") String dateFromString,
-			@QueryParam("dateTo") @Pattern(regexp="\\d{4}-\\d{2}-\\d{2}") String dateToString)
-	{
-		LOGGER.debug("Query params value '{}' '{}'",dateFromString,dateToString);
-		Label label = labelDAO.findById(id.get()).orElseThrow(() -> new NotFoundException("Label "+id.get()+" not found."));
-		
-		Date dateFrom=null;
-		Date dateTo=null;
-		try {
-			dateFrom = new SimpleDateFormat("yyyy-MM-dd").parse(dateFromString);
-			dateTo = new SimpleDateFormat("yyyy-MM-dd").parse(dateToString);
-		} catch(NullPointerException e) {
-			LOGGER.debug("getByLabel : null pointer on parsing dates");
-		} catch(ParseException e) {
-			throw new BadRequestException("Unparsable date");
-		}
-	
-		LOGGER.debug("getByLabel dateFrom '{}', dateTo '{}'",dateFrom,dateTo);
-		ArrayList<TransactionApi> apiTransactions = new ArrayList<>();
-		for(Transaction transaction : transactionDAO.findByLabel(label,dateFrom,dateTo)) {
-			LOGGER.debug("getByLabel transaction id '{}' date '{}'",transaction.getId(),transaction.getDate());
-			TransactionApi transactionApi = mapDomainToApi(transaction);
-			apiTransactions.add(transactionApi);
-		}
-		return apiTransactions;
-	}
-	
 	@POST
 	@Path("/import")
 	@Consumes(MediaType.MULTIPART_FORM_DATA)

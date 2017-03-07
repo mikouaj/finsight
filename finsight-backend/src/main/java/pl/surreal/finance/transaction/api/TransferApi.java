@@ -16,7 +16,7 @@ package pl.surreal.finance.transaction.api;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class TransferApi
+public class TransferApi implements ITransactionDetailApi
 {
 	@JsonProperty
 	private boolean internal;

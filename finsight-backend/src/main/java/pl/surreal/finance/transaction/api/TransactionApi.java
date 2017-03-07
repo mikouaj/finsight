@@ -15,7 +15,6 @@
 package pl.surreal.finance.transaction.api;
 
 import java.math.BigDecimal;
-import java.net.URI;
 import java.util.Date;
 import java.util.List;
 
@@ -34,11 +33,15 @@ public class TransactionApi
 	@JsonProperty
 	private BigDecimal amount;
 	@JsonProperty
+	private BigDecimal accountingAmount;
+	@JsonProperty
+	private String currency;
+	@JsonProperty
 	private String title;
 	@JsonProperty("labels")
 	private List<Long> labelIds;
 	@JsonProperty
-	private URI url;
+	private ITransactionDetailApi details;
 	
 	public TransactionApi() { }
 	
@@ -74,6 +77,22 @@ public class TransactionApi
 		this.amount = amount;
 	}
 	
+	public BigDecimal getAccountingAmount() {
+		return accountingAmount;
+	}
+
+	public String getCurrency() {
+		return currency;
+	}
+
+	public void setCurrency(String currency) {
+		this.currency = currency;
+	}
+
+	public void setAccountingAmount(BigDecimal accountingAmount) {
+		this.accountingAmount = accountingAmount;
+	}
+
 	public String getTitle() {
 		return title;
 	}
@@ -82,19 +101,19 @@ public class TransactionApi
 		this.title = title;
 	}
 	
-	public URI getUrl() {
-		return url;
-	}
-	
-	public void setUrl(URI url) {
-		this.url = url;
-	}
-	
 	public List<Long> getLabelIds() {
 		return labelIds;
 	}
 
 	public void setLabelIds(List<Long> labelIds) {
 		this.labelIds = labelIds;
+	}
+
+	public ITransactionDetailApi getDetails() {
+		return details;
+	}
+
+	public void setDetails(ITransactionDetailApi details) {
+		this.details = details;
 	}
 }

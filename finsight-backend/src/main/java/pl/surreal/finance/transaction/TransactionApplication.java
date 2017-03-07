@@ -42,22 +42,16 @@ import pl.surreal.finance.transaction.core.Transaction;
 import pl.surreal.finance.transaction.core.Transfer;
 import pl.surreal.finance.transaction.db.AccountDAO;
 import pl.surreal.finance.transaction.db.CardDAO;
-import pl.surreal.finance.transaction.db.CardOperationDAO;
-import pl.surreal.finance.transaction.db.CommissionDAO;
 import pl.surreal.finance.transaction.db.LabelDAO;
 import pl.surreal.finance.transaction.db.LabelRuleDAO;
 import pl.surreal.finance.transaction.db.TransactionDAO;
-import pl.surreal.finance.transaction.db.TransferDAO;
 import pl.surreal.finance.transaction.labeler.TransactionLabeler;
 import pl.surreal.finance.transaction.parser.ParserFactory;
 import pl.surreal.finance.transaction.resources.AccountResource;
-import pl.surreal.finance.transaction.resources.CardOperationResource;
 import pl.surreal.finance.transaction.resources.CardResource;
-import pl.surreal.finance.transaction.resources.CommissionResource;
 import pl.surreal.finance.transaction.resources.LabelResource;
 import pl.surreal.finance.transaction.resources.LabelRuleResource;
 import pl.surreal.finance.transaction.resources.TransactionResource;
-import pl.surreal.finance.transaction.resources.TransferResource;
 
 public class TransactionApplication extends Application<TransactionConfiguration>
 {
@@ -91,9 +85,6 @@ public class TransactionApplication extends Application<TransactionConfiguration
 	@Override	
 	public void run(TransactionConfiguration configuration, Environment environment) throws Exception {
 		final TransactionDAO dao = new TransactionDAO(hibernateBundle.getSessionFactory());
-		final CommissionDAO commissionDAO = new CommissionDAO(hibernateBundle.getSessionFactory());
-		final CardOperationDAO cardOperationDAO = new CardOperationDAO(hibernateBundle.getSessionFactory());
-		final TransferDAO transferDAO = new TransferDAO(hibernateBundle.getSessionFactory());
 		final CardDAO cardDAO = new CardDAO(hibernateBundle.getSessionFactory());
 		final AccountDAO accountDAO = new AccountDAO(hibernateBundle.getSessionFactory());
 		final LabelDAO labelDAO = new LabelDAO(hibernateBundle.getSessionFactory());
@@ -106,9 +97,6 @@ public class TransactionApplication extends Application<TransactionConfiguration
 		final TransactionLabeler transactionLabeler = new TransactionLabeler(labelRuleDAO);
 		
 		environment.jersey().register(new TransactionResource(dao,labelDAO,parserFactory,transactionLabeler));
-		environment.jersey().register(new CommissionResource(commissionDAO));
-		environment.jersey().register(new CardOperationResource(cardOperationDAO));
-		environment.jersey().register(new TransferResource(transferDAO));
 		environment.jersey().register(new CardResource(cardDAO));
 		environment.jersey().register(new AccountResource(accountDAO));
 		environment.jersey().register(new LabelResource(labelDAO));

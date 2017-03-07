@@ -14,31 +14,5 @@
 
 package pl.surreal.finance.transaction.api;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
-public class CardOperationApi implements ITransactionDetailApi
-{
-	@JsonProperty
-	private CardApi card;
-	@JsonProperty
-	private String destination;
-	
-	public CardOperationApi() {
-	}
-
-	public CardApi getCard() {
-		return card;
-	}
-
-	public void setCard(CardApi card) {
-		this.card = card;
-	}
-
-	public String getDestination() {
-		return destination;
-	}
-
-	public void setDestination(String destination) {
-		this.destination = destination;
-	}
+public interface ITransactionDetailApi {
 }
