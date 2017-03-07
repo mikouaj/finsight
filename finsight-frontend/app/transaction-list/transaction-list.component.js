@@ -48,11 +48,6 @@ angular.
         self.orderProp = 'date';
 
         self.toggleDetails = function(transaction) {
-          if(!transaction.details) {
-             $http.get(transaction.url).then(function(response) {
-               transaction.details = response.data;
-             });
-          }
           transaction.collapsed = !transaction.collapsed;
         };
 

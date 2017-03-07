@@ -2,7 +2,7 @@
 <table class="table table-condensed table-bordered smalltable">
   <thead>
     <tr>
-      <th class="centered">Date</th>
+      <th class="centered">Title</th>
       <th class="centered">Card</th>
       <th class="centered">Destination</th>
       <th class="centered">Amount</th>
@@ -11,13 +11,13 @@
   </thead>
   <tbody>
   	<tr>
-  	  <td>{{$ctrl.data.date}}</td>
+  	  <td>{{$ctrl.data.title}}</td>
   	  <td>
         <div uib-popover-template="$ctrl.cardPopoverTemplateUrl" popover-trigger="'mouseenter'">
-          {{$ctrl.data.card.name}}
+          {{$ctrl.data.details.card.name}}
         </div>
       </td>
-  	  <td>{{$ctrl.data.destination}}</td>
+  	  <td>{{$ctrl.data.details.destination}}</td>
   	  <td>{{$ctrl.data.amount | number : 2}}</td>
       <td>{{$ctrl.data.currency}}</td>
   	</tr>

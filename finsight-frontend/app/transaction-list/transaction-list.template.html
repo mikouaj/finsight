@@ -18,7 +18,7 @@
             <button type="button" class="btn btn-default" ng-click="$ctrl.dateToPopupOpen()"><i class="glyphicon glyphicon-calendar"></i></button>
           </span>
        </p>
-     </div>   
+     </div>
      <div class="col-sm-3">
        <p class="input-group">
          <span class="input-group-addon">Type</span>
@@ -47,8 +47,7 @@
    	    <th class="centered">Type</th>
    	    <th class="centered">Date</th>
    	    <th class="centered">Amount</th>
-        <th class="centered">Currency</th>
-   	    <th class="centered">Title</th>
+   	    <th class="centered">Destination</th>
         <th class="centered">Labels</th>
         <th></th>
    	  </tr>
@@ -57,9 +56,12 @@
      <tr ng-repeat-start="transaction in $ctrl.transactions | dateRange:$ctrl.dateFrom:$ctrl.dateTo | filter:$ctrl.searchQuery | filter:$ctrl.type">
        <td class="centered" ng-click="$ctrl.toggleDetails(transaction)">{{transaction.type}}</td>
        <td class="centered" ng-click="$ctrl.toggleDetails(transaction)">{{transaction.date}}</td>
-       <td class="centered" ng-click="$ctrl.toggleDetails(transaction)">{{transaction.amount | number : 2}}</td>
-       <td class="centered" ng-click="$ctrl.toggleDetails(transaction)">{{$ctrl.displayCurrency}}</td>
-       <td ng-click="$ctrl.toggleDetails(transaction)">{{transaction.title}}</td>
+       <td class="centered" ng-click="$ctrl.toggleDetails(transaction)">{{transaction.accountingAmount | number : 2}} {{$ctrl.displayCurrency}}</td>
+       <td class="centered" ng-click="$ctrl.toggleDetails(transaction)">
+         <span ng-if="transaction.type=='CardOperation'">{{transaction.details.destination}}</span>
+         <span ng-if="transaction.type=='Transfer'">{{transaction.details.dstAccount.name}}</span>
+         <span ng-if="transaction.type=='Commission'">{{transaction.title}}</span>
+       </td>
        <td class="centered">
         <span editable-ui-select="transaction.labels" data-e-form="rowform" data-e-name="labels" name="labels" theme="bootstrap" e-multiple data-e-ng-model="transaction.labels" data-e-style="min-width:400px; max-width:400px;">
           <span class="label label-default" style="margin-right: 5px" ng-repeat="labelId in transaction.labels">
@@ -81,7 +83,7 @@
            <button type="button" ng-disabled="rowform.$waiting" ng-click="rowform.$cancel();" class="btn btn-default">
              <i class="glyphicon glyphicon-remove-sign"></i>
            </button>
-         </form>    
+         </form>
          <div class="buttons">
            <button type="button" class="btn btn-default" ng-click="rowform.$show();" ng-show="!rowform.$visible">
              <i class="glyphicon glyphicon-pencil"></i>
@@ -90,10 +92,10 @@
        </td>
      </tr>
      <tr ng-repeat-end="">
-       <td colspan="7" style="padding:0">
+       <td colspan="6" style="padding:0">
          <div uib-collapse="!transaction.collapsed">
-           <cardoperation-detail ng-if="transaction.type=='CardOperation'" data="transaction.details"></cardoperation-detail>
-           <transfer-detail ng-if="transaction.type=='Transfer'" data="transaction.details"></transfer-detail>
+           <cardoperation-detail ng-if="transaction.type=='CardOperation'" data="transaction"></cardoperation-detail>
+           <transfer-detail ng-if="transaction.type=='Transfer'" data="transaction"></transfer-detail>
          </div>
        </td>
      </tr>

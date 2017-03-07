@@ -2,7 +2,7 @@
 <table class="table table-condensed table-bordered smalltable">
   <thead>
     <tr>
-      <th class="centered">Date</th>
+      <th class="centered">Title</th>
       <th class="centered">Type</th>
       <th class="centered">From</th>
       <th class="centered">To</th>
@@ -13,22 +13,22 @@
   </thead>
   <tbody>
   	<tr>
-  	  <td>{{$ctrl.data.date}}</td>
+  	  <td>{{$ctrl.data.title}}</td>
       <td>
-        {{$ctrl.data.internal | internalTransfer }}
-        {{$ctrl.data.direction | lowercase }}
+        {{$ctrl.data.details.internal | internalTransfer }}
+        {{$ctrl.data.details.direction | lowercase }}
       </td>
   	  <td >
         <div uib-popover-template="$ctrl.srcPopoverTemplateUrl" popover-trigger="'mouseenter'">
-          {{$ctrl.data.srcAccount.name}}
+          {{$ctrl.data.details.srcAccount.name}}
         </div>
       </td>
       <td>
         <div uib-popover-template="$ctrl.dstPopoverTemplateUrl" popover-trigger="'mouseenter'">
-          {{$ctrl.data.dstAccount.name}}
+          {{$ctrl.data.details.dstAccount.name}}
         </div>
       </td>
-  	  <td>{{$ctrl.data.description}}</td>
+  	  <td>{{$ctrl.data.details.description}}</td>
   	  <td>{{$ctrl.data.amount | number : 2}}</td>
       <td>{{$ctrl.data.currency}}</td>
   	</tr>
