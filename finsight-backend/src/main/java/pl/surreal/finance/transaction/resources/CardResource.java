@@ -14,6 +14,7 @@
 
 package pl.surreal.finance.transaction.resources;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.ws.rs.BadRequestException;
@@ -36,6 +37,7 @@ import com.codahale.metrics.annotation.Timed;
 import io.dropwizard.hibernate.UnitOfWork;
 import io.dropwizard.jersey.params.LongParam;
 import io.swagger.annotations.Api;
+import pl.surreal.finance.transaction.api.CardApi;
 import pl.surreal.finance.transaction.core.Card;
 import pl.surreal.finance.transaction.db.CardDAO;
 
@@ -50,41 +52,66 @@ public class CardResource
 		this.cardDAO = cardDAO;
 	}
 	
+	private CardApi mapDomainToApi(Card card) {
+		CardApi cardApi = new CardApi();
+		cardApi.setId(card.getId());
+		cardApi.setName(card.getName());
+		cardApi.setNumber(card.getNumber());
+		return cardApi;
+	}
+	
+	private Card mapApiToDomain(CardApi cardApi, Card card) throws NotFoundException {
+		if(card==null) {
+			card = new Card();
+		}
+		card.setName(cardApi.getName());
+		card.setNumber(cardApi.getNumber());
+		return card;
+	}
+	
 	@GET
 	@UnitOfWork
 	@Timed
-	public List<Card> getCards() {
-		return cardDAO.findAll();
+	public List<CardApi> getCards() {
+		List<CardApi> cardApis = new ArrayList<>();
+		for(Card card : cardDAO.findAll()) {
+			CardApi cardApi = mapDomainToApi(card);
+			cardApis.add(cardApi);
+		}
+		return cardApis;
 	}
 	
 	@GET
 	@Path("/{id}")
 	@UnitOfWork
-	public Card getCardOperation(@PathParam("id") LongParam cardId) {
+	public CardApi getCardOperation(@PathParam("id") LongParam cardId) {
 		Card card = cardDAO.findById(cardId.get()).orElseThrow(() -> new NotFoundException("Not found."));
-		return card;
+		CardApi cardApi = mapDomainToApi(card);
+		return cardApi;
 	}
 	
     @POST
     @UnitOfWork
-    public Card createCard(Card card) {
-    	Card dbcard;
+    public CardApi createCard(CardApi cardApi) {
+    	Card cardToCreate = mapApiToDomain(cardApi,null);
+    	Card card;
     	try {
-    		dbcard = cardDAO.create(card);
+    		card = cardDAO.create(cardToCreate);
     	} catch(ConstraintViolationException ex) {
     		throw new BadRequestException("Constraint violation on "+ex.getConstraintName());
     	}
-        return dbcard;
+    	cardApi.setId(card.getId());
+        return cardApi;
     }
     
     @PUT
     @Path("/{id}")
     @UnitOfWork
-    public Card replace(@PathParam("id") LongParam cardId, Card card) {
-    	Card dbCard = cardDAO.findById(cardId.get()).orElseThrow(() -> new NotFoundException("Not found."));
-    	dbCard.setName(card.getName());
-    	dbCard.setNumber(card.getNumber());
-    	return cardDAO.create(dbCard);
+    public CardApi replace(@PathParam("id") LongParam cardId, CardApi cardApi) {
+    	Card card = cardDAO.findById(cardId.get()).orElseThrow(() -> new NotFoundException("Card not found."));
+    	mapApiToDomain(cardApi, card);
+    	cardDAO.create(card);;
+    	return cardApi;
     }
     
     @DELETE
