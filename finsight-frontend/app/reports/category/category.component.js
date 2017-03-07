@@ -53,6 +53,14 @@ angular.
         self.dateToPopupOpened = true;
       }
 
+      self.getFormattedDate = function(date) {
+        var dd = date.getDate();
+        if (dd<10) dd= '0'+dd;
+        var mm = date.getMonth() + 1;
+        if (mm<10) mm= '0'+mm;
+        return date.getFullYear()+"-"+mm+"-"+dd;
+      }
+
       self.updateTypesChart = function(typesCountData) {
         var rows=[];
         for(var type in typesCountData) {
@@ -68,7 +76,7 @@ angular.
 
       self.queryReportData = function(dateFrom,dateTo,labelId) {
         Backend.getApi().then(function(api) {
-          api.transactions.get({},{params:{label:labelId}}).then(function(response) {
+          api.transactions.get({},{params:{label:labelId,dateFrom:self.getFormattedDate(dateFrom),dateTo:self.getFormattedDate(dateTo)}}).then(function(response) {
             var typeCount={};
             for(var id in response.data) {
               if(typeof typeCount[response.data[id].type] === 'undefined') {
