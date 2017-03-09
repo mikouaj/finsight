@@ -81,7 +81,7 @@ public class LabelResource
 		UriBuilder uriBuilder=uriInfo.getAbsolutePathBuilder();
 		List<URI> transactionURIs = new ArrayList<>();
 		for(Transaction transaction : label.getTransactions()) {
-			uriBuilder = uriInfo.getBaseUriBuilder().path(Transaction.class);
+			uriBuilder = uriInfo.getBaseUriBuilder().path(TransactionResource.class);
 			transactionURIs.add(uriBuilder.path("/{id}").resolveTemplate("id",transaction.getId()).build());
 		}
 		labelApi.setTransactionURIs(transactionURIs);
