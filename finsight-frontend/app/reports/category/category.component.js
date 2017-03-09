@@ -9,12 +9,15 @@ angular.
 
       self.typesChart={};
       self.typesChart.type = "PieChart";
-      self.typesChart.options = {
-        'title': 'Transaction types'
-      };
       self.typesChart.data={"cols": [
         {id: "t", label: "Type", type: "string"},
-        {id: "s", label: "Transactions", type: "number"}
+        {id: "c", label: "Count", type: "number"}
+      ], "rows": []};
+      self.destChart={};
+      self.destChart.type = "BarChart";
+      self.destChart.data={"cols": [
+        {id: "t", label: "Type", type: "string"},
+        {id: "c", label: "Transactions", type: "number"}
       ], "rows": []};
 
       var transactionCache={};
@@ -65,7 +68,6 @@ angular.
         var rows=[];
         for(var type in typesCountData) {
           if (typesCountData.hasOwnProperty(type)) {
-            console.log(type);
             rows.push(
               {c:[{v: type},{v: typesCountData[type]},]}
             );
@@ -74,18 +76,47 @@ angular.
         self.typesChart.data.rows = rows;
       }
 
+      self.updateDestChart = function(destCountData) {
+
+        var rows=[];
+        for(var dest in destCountData) {
+          if (destCountData.hasOwnProperty(dest)) {
+            rows.push(
+              {c:[{v: dest},{v: destCountData[dest]},]}
+            );
+          }
+        }
+        self.destChart.data.rows = rows;
+      }
+
       self.queryReportData = function(dateFrom,dateTo,labelId) {
         Backend.getApi().then(function(api) {
           api.transactions.get({},{params:{label:labelId,dateFrom:self.getFormattedDate(dateFrom),dateTo:self.getFormattedDate(dateTo)}}).then(function(response) {
             var typeCount={};
+            var destCount={};
             for(var id in response.data) {
-              if(typeof typeCount[response.data[id].type] === 'undefined') {
-                typeCount[response.data[id].type]=1;
+              var transaction = response.data[id];
+              if(typeof typeCount[transaction.type] === 'undefined') {
+                typeCount[transaction.type]=1;
               } else {
-                typeCount[response.data[id].type]++;
+                typeCount[transaction.type]++;
               }
+              self.updateTypesChart(typeCount);
+
+              var dest='N/A';
+              if(transaction.type == 'CardOperation') {
+                dest = transaction.details.destination;
+              }
+              if(transaction.type== 'Transfer') {
+                dest = transaction.details.dstAccount.name;
+              }
+              if(typeof destCount[dest] === 'undefined') {
+                destCount[dest]=1;
+              } else {
+                destCount[dest]++;
+              }
+              self.updateDestChart(destCount);
             }
-            self.updateTypesChart(typeCount);
           });
         });
       }
