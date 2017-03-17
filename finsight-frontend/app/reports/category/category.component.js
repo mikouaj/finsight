@@ -65,12 +65,7 @@ angular.
         }
       };
 
-      self.inteliData={};
-      self.inteliData.sum=0;
-      self.inteliData.cnt=0;
-      self.inteliData.typesCount={};
-      self.inteliData.monthCount={};
-      self.inteliData.destData={};
+      //Functions
 
       Backend.getApi().then(function(api) {
         api.labels.get().then(function(response) {
@@ -78,8 +73,18 @@ angular.
         });
       });
 
-      self.dateFormat = 'yyyy-MM-dd';
+      self.initIntelData = function() {
+        self.inteliData={};
+        self.inteliData.sum=0;
+        self.inteliData.cnt=0;
+        self.inteliData.typesCount={};
+        self.inteliData.monthCount={};
+        self.inteliData.destData={};
+      }
 
+      self.initIntelData();
+
+      self.dateFormat = 'yyyy-MM-dd';
       self.dateFrom = new Date(2000,1,1);
       self.dateFromPopupOpened = false;
       self.dateFromOptions = {
@@ -196,6 +201,7 @@ angular.
       }
 
       self.queryReportData = function(dateFrom,dateTo,labelId) {
+        self.initIntelData();
         Backend.getApi().then(function(api) {
           api.transactions.get({},{params:{label:labelId,dateFrom:self.getFormattedDate(dateFrom),dateTo:self.getFormattedDate(dateTo)}}).then(function(response) {
             for(var id in response.data) {

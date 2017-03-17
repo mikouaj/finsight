@@ -36,20 +36,28 @@
 	  </p>
    </div>
   </div>
-  <div class="row" style="margin-top: 40px;">
-    <div class="col-sm-6 centered">
-      <p style="text-decoration:underline">Transaction sources</p>
-      <div google-chart chart="$ctrl.typesChart"></div>
-    </div>
-    <div class="col-sm-6 centered">
-      <p style="text-decoration:underline">Top destinations</p>
-      <div google-chart chart="$ctrl.destChart"></div>
+  <div class="row" style="margin-top: 10px;">
+    <div class="col-sm-12">
+      <p>Transactions found : <span style="font-weight:bold;">{{$ctrl.inteliData.cnt}}</span>, total amount : <span style="font-weight:bold;">{{$ctrl.inteliData.sum}}</span> PLN</p>
     </div>
   </div>
-  <div class="row" style="margin-top: 40px;">
-    <div class="col-sm-12 centered">
-      <p style="text-decoration:underline">Transactions in time</p>
-      <div google-chart chart="$ctrl.monthChart"></div>
+  <div class="container-fluid" ng-if="$ctrl.inteliData.sum>0">
+    <div class="row" style="margin-top: 20px;">
+      <div class="col-sm-6 centered">
+        <p style="text-decoration:underline">Transaction sources</p>
+        <div google-chart chart="$ctrl.typesChart"></div>
+      </div>
+      <div class="col-sm-6 centered">
+        <p style="text-decoration:underline">Top destinations</p>
+        <div google-chart chart="$ctrl.destChart"></div>
+      </div>
     </div>
+    <div class="row" style="margin-top: 40px;">
+      <div class="col-sm-12 centered">
+        <p style="text-decoration:underline">Transactions in time</p>
+        <div google-chart chart="$ctrl.monthChart" style="width:70%;margin: auto;"></div>
+      </div>
+    </div>
+   </div>
   </div>
 </div>
