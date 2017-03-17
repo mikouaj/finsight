@@ -20,16 +20,16 @@
    </div>
    <div class="col-sm-8">
    	<p class="input-group">
-	    <span class="input-group-addon">Label</span>
-	    <ui-select ng-model="$ctrl.selectedLabel"
+	    <span class="input-group-addon">Labels</span>
+	    <ui-select multiple ng-model="$ctrl.selectedLabels"
 	               theme="bootstrap"
 	               reset-search-input="false"
-	               style="width: 300px; max-width: : 300px"
+	               style="width: 300px; max-width: : 300px; z-index: 99;"
 	               title="Select label"
 	               append-to-body="true"
-                 on-select="$ctrl.reloadReport()">
-	      <ui-select-match placeholder="Select label">{{$select.selected.text}}</ui-select-match>
-	      <ui-select-choices repeat="label in $ctrl.labels | filter: $select.search track by $index">
+                 ng-change="$ctrl.reloadReport()">
+	      <ui-select-match placeholder="Select label">{{$item.text}}</ui-select-match>
+	      <ui-select-choices repeat="label.id as label in $ctrl.labels | filter: $select.search track by $index">
 	        {{label.text}}
 	      </ui-select-choices>
 	    </ui-select>

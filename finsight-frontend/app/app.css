@@ -29,3 +29,8 @@ body {
 	padding-top: 30px;
 	z-index: 5;
 }
+
+/* workaroud for ui-select issue https://github.com/angular-ui/ui-select/issues/533 */
+.ui-select-multiple input.ui-select-search:not(.ng-touched) {
+  width: 100% !important;
+}

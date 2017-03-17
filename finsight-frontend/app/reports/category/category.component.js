@@ -118,8 +118,11 @@ angular.
       }
 
       self.reloadReport = function() {
-        if(self.dateFrom && self.dateTo && self.selectedLabel) {
-          self.queryReportData(self.dateFrom,self.dateTo,self.selectedLabel.id);
+        if(self.dateFrom && self.dateTo && self.selectedLabels) {
+          self.initIntelData();
+          if(self.selectedLabels.length>0) {
+            self.queryReportData(self.dateFrom,self.dateTo,self.selectedLabels);
+          }
         }
       }
 
@@ -203,10 +206,9 @@ angular.
         return dest;
       }
 
-      self.queryReportData = function(dateFrom,dateTo,labelId) {
-        self.initIntelData();
+      self.queryReportData = function(dateFrom,dateTo,labelIds) {
         Backend.getApi().then(function(api) {
-          api.transactions.get({},{params:{label:labelId,dateFrom:self.getFormattedDate(dateFrom),dateTo:self.getFormattedDate(dateTo)}}).then(function(response) {
+          api.transactions.get({},{params:{label:labelIds,dateFrom:self.getFormattedDate(dateFrom),dateTo:self.getFormattedDate(dateTo)}}).then(function(response) {
             for(var id in response.data) {
               var transaction = response.data[id];
               if(transaction.accountingAmount>0) {
