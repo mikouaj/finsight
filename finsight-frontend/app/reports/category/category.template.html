@@ -36,22 +36,20 @@
 	  </p>
    </div>
   </div>
-  <div class="row" style="margin-top: 20px; border:1px solid;">
+  <div class="row" style="margin-top: 40px;">
     <div class="col-sm-6 centered">
-      <p style="text-decoration:underline">Transaction types</p>
+      <p style="text-decoration:underline">Transaction sources</p>
       <div google-chart chart="$ctrl.typesChart"></div>
     </div>
     <div class="col-sm-6 centered">
       <p style="text-decoration:underline">Top destinations</p>
-        <div google-chart chart="$ctrl.destChart"></div>
+      <div google-chart chart="$ctrl.destChart"></div>
     </div>
   </div>
-  <div class="row">
-    <div class="col-sm-6">
-      <p>Chart3</p>
-    </div>
-    <div class="col-sm-6">
-      <p>Chart4</p>
+  <div class="row" style="margin-top: 40px;">
+    <div class="col-sm-12 centered">
+      <p style="text-decoration:underline">Transactions in time</p>
+      <div google-chart chart="$ctrl.monthChart"></div>
     </div>
   </div>
 </div>

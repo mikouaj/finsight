@@ -10,7 +10,7 @@ angular.
       self.typesChart={};
       self.typesChart.type = "PieChart";
       self.typesChart.data={"cols": [
-        {id: "t", label: "Type", type: "string"},
+        {id: "s", label: "Source", type: "string"},
         {id: "c", label: "Count", type: "number"}
       ], "rows": []};
       self.destChart={};
@@ -48,7 +48,26 @@ angular.
         }
       }
 
+      self.monthChart={};
+      self.monthChart.type = "ColumnChart";
+      self.monthChart.data={"cols": [
+        {id: "m", label: "Month", type: "string"},
+        {id: "t", label: "Total", type: "number"},
+        {id: "c", label: "Cnt", type: "string","p":{"role":"annotation"}}
+      ], "rows": []};
+      self.monthChart.options = {
+        hAxis: {
+          title: 'Month'
+        },
+        vAxis: {
+          title: 'Total amount',
+          minValue: 0
+        }
+      };
+
       self.inteliData={};
+      self.inteliData.sum=0;
+      self.inteliData.cnt=0;
       self.inteliData.typesCount={};
       self.inteliData.monthCount={};
       self.inteliData.destData={};
@@ -78,6 +97,11 @@ angular.
         minDate: self.dateFrom,
         startingDay: 1
       };
+
+      self.monthStrings = {
+        "01":"Jan", "02":"Feb","03":"Mar","04":"Apr","05":"May","06":"Jun",
+        "07":"Jul","08":"Aug","09":"Sep","10":"Oct","11":"Nov","12":"Dec"
+      }
 
       self.dateFromPopupOpen = function() {
         self.dateFromPopupOpened = true;
@@ -128,6 +152,21 @@ angular.
         self.destChart.data.rows = rows.slice(0,5);
       }
 
+      self.updateMonthChart = function(monthCountData) {
+        var rows=[];
+        for(var month in monthCountData) {
+          if (monthCountData.hasOwnProperty(month)) {
+            rows.push(
+              {c:[{v: month,f:self.monthStrings[month]},{v: monthCountData[month].sum},{v: "Count: "+monthCountData[month].cnt}]}
+            );
+          }
+        }
+        rows.sort(function(a,b) {
+          return a.c[0].v - b.c[0].v;
+        });
+        self.monthChart.data.rows = rows;
+      }
+
       self.updateSum = function(map,key,amount) {
         if(typeof map[key] === 'undefined') {
           map[key]={sum:amount,cnt:1};
@@ -161,13 +200,21 @@ angular.
           api.transactions.get({},{params:{label:labelId,dateFrom:self.getFormattedDate(dateFrom),dateTo:self.getFormattedDate(dateTo)}}).then(function(response) {
             for(var id in response.data) {
               var transaction = response.data[id];
+              self.inteliData.sum+=transaction.accountingAmount;
+              self.inteliData.cnt+=1;
 
               self.updateSum(self.inteliData.monthCount,self.getTransactionMonth(transaction),transaction.accountingAmount);
-              self.updateSum(self.inteliData.typesCount,transaction.type,transaction.accountingAmount);
               self.updateSum(self.inteliData.destData,self.getDestForTrans(transaction),transaction.accountingAmount);
+              //              self.updateSum(self.inteliData.typesCount,transaction.type,transaction.accountingAmount);
+              var source=transaction.type;
+              if(transaction.type=='CardOperation') {
+                source = transaction.details.card.name; 
+              }
+              self.updateSum(self.inteliData.typesCount,source,transaction.accountingAmount);
             }
             self.updateTypesChart(self.inteliData.typesCount);
             self.updateDestChart(self.inteliData.destData);
+            self.updateMonthChart(self.inteliData.monthCount);
           });
         });
       }
