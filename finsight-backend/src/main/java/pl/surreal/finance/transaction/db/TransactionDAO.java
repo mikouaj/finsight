@@ -34,6 +34,8 @@ public class TransactionDAO extends AbstractDAO<Transaction>
 	private static final String findByLabelFromQuery = "pl.surreal.finance.transaction.core.Transaction.findByLabelFrom";
 	private static final String findByLabelToQuery = "pl.surreal.finance.transaction.core.Transaction.findByLabelTo";
 	private static final String findByLabelFromToQuery = "pl.surreal.finance.transaction.core.Transaction.findByLabelFromTo";
+	
+	private static final int queryMaxLabels = 10;
 
 	public TransactionDAO(SessionFactory sessionFactory) {
 		super(sessionFactory);
@@ -56,7 +58,11 @@ public class TransactionDAO extends AbstractDAO<Transaction>
 		if(params.size()>0) {
 			queryBuilder.append(" WHERE 1=1");
 			if(params.containsKey("label")) {
-				queryBuilder.append(" AND :label member of t.labels");
+				@SuppressWarnings("unchecked")
+				List<Label> labels = (List<Label>)params.get("label");
+				for(int cnt=0;cnt<labels.size() && cnt<queryMaxLabels;cnt++) {
+					queryBuilder.append(" AND :label").append(cnt).append(" member of t.labels");
+				}
 			}
 			if(params.containsKey("dateFrom")) {
 				queryBuilder.append(" AND  t.date > :dateFrom");
@@ -69,7 +75,11 @@ public class TransactionDAO extends AbstractDAO<Transaction>
 		Query query = currentSession().createQuery(queryBuilder.toString());
 		if(params.size()>0) {
 			if(params.containsKey("label")) {
-				query.setParameter("label", params.get("label"));
+				@SuppressWarnings("unchecked")
+				List<Label> labels = (List<Label>)params.get("label");
+				for(int cnt=0;cnt<labels.size() && cnt<queryMaxLabels;cnt++) {
+					query.setParameter("label"+cnt, labels.get(cnt));
+				}
 			}
 			if(params.containsKey("dateFrom")) {
 				query.setParameter("dateFrom", params.get("dateFrom"));

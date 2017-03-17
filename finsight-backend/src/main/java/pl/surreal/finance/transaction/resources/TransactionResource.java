@@ -168,8 +168,13 @@ public class TransactionResource
 				}
 			}
 			if(queryParam.equals("label")) {
-				Label label = labelDAO.findById(Long.parseLong((String)attrToAdd)).orElseThrow(() -> new NotFoundException("Label "+labelId+" not found."));
-				attrToAdd = label;
+				List<String> labelIDs = queryParams.get("label");
+				List<Label> labels = new ArrayList<>();
+				for(String id : labelIDs) {
+					Label label = labelDAO.findById(Long.parseLong(id)).orElseThrow(() -> new NotFoundException("Label "+id+" not found."));
+					labels.add(label);
+				}
+				attrToAdd = labels;
 			}
 			queryAttributes.put(queryParam,attrToAdd);
 		}
