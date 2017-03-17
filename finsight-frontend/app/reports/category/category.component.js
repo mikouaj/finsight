@@ -21,6 +21,7 @@ angular.
         {id: "c", label: "Cnt", type: "string","p":{"role":"annotation"}}
       ], "rows": []};
       self.destChart.options = {
+        chartArea: {width: '60%'},
         hAxis: {
           title: 'Total amount',
           minValue: 0,
@@ -116,8 +117,10 @@ angular.
         self.dateToPopupOpened = true;
       }
 
-      self.labelSelected = function labelSelected(item,model) {
-        self.queryReportData(self.dateFrom,self.dateTo,model.id);
+      self.reloadReport = function() {
+        if(self.dateFrom && self.dateTo && self.selectedLabel) {
+          self.queryReportData(self.dateFrom,self.dateTo,self.selectedLabel.id);
+        }
       }
 
       // Intel related functions
@@ -206,15 +209,19 @@ angular.
           api.transactions.get({},{params:{label:labelId,dateFrom:self.getFormattedDate(dateFrom),dateTo:self.getFormattedDate(dateTo)}}).then(function(response) {
             for(var id in response.data) {
               var transaction = response.data[id];
+              if(transaction.accountingAmount>0) {
+                // skip as it is not an expense
+                continue;
+              }
+              transaction.accountingAmount=Math.abs(transaction.accountingAmount);
               self.inteliData.sum+=transaction.accountingAmount;
               self.inteliData.cnt+=1;
 
               self.updateSum(self.inteliData.monthCount,self.getTransactionMonth(transaction),transaction.accountingAmount);
               self.updateSum(self.inteliData.destData,self.getDestForTrans(transaction),transaction.accountingAmount);
-              //              self.updateSum(self.inteliData.typesCount,transaction.type,transaction.accountingAmount);
               var source=transaction.type;
-              if(transaction.type=='CardOperation') {
-                source = transaction.details.card.name; 
+              if(transaction.type=='CardOperation' && transaction.details.card) {
+                  source = transaction.details.card.name;
               }
               self.updateSum(self.inteliData.typesCount,source,transaction.accountingAmount);
             }
