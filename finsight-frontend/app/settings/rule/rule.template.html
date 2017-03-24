@@ -68,7 +68,7 @@
           <button type="button" ng-disabled="rowform.$waiting" ng-click="rowform.$cancel()" class="btn btn-default">
             <i class="glyphicon glyphicon-remove-sign"></i>
           </button>
-        </form>      
+        </form>
         <div class="buttons">
           <button type="button" class="btn btn-default" ng-click="rowform.$show()" ng-show="!rowform.$visible">
             <i class="glyphicon glyphicon-pencil"></i>
@@ -76,7 +76,7 @@
           <button type="button" class="btn btn-default" ng-click="$ctrl.openConfirmModal($index)" ng-show="!rowform.$visible">
             <i class="glyphicon glyphicon-remove"></i>
           </button>
-          <button type="button" class="btn btn-default" ng-click="$ctrl.labelTransactions($index)" ng-show="!rowform.$visible" title="Run selected rule if active" ng-disabled="!$ctrl.rules[$index].active">
+          <button type="button" class="btn btn-default" ng-click="$ctrl.labelTransactions($index)" ng-show="!rowform.$visible" title="Run selected rule if active" ng-disabled="!rule.active">
             <i class="glyphicon glyphicon-flash"></i>
           </button>
         </div>
