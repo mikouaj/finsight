@@ -196,7 +196,7 @@ angular.
         for(var month in monthCountData) {
           if (monthCountData.hasOwnProperty(month)) {
             rows.push(
-              {c:[{v: month,f:self.monthStrings[month]},{v: monthCountData[month].sum},{v: "Count: "+monthCountData[month].cnt}]}
+              {c:[{v: month,f:self.formatReportMonth(month)},{v: monthCountData[month].sum},{v: "Count: "+monthCountData[month].cnt}]}
             );
           }
         }
@@ -230,11 +230,17 @@ angular.
         }
       }
 
+      self.formatReportMonth = function(month) {
+        var year = month.substring(0,4);
+        var monthTxt = self.monthStrings[month.substring(4,6)];
+        return monthTxt+" "+year;
+      }
+
       self.getTransactionMonth = function(transaction) {
         var date = new Date(transaction.date);
         var month = date.getMonth() +1;
         if (month<10) month= '0'+month;
-        return month;
+        return date.getFullYear()+""+month;
       }
 
       self.getDestForTrans = function(transaction) {
