@@ -24,7 +24,8 @@ angular.
         self.displayCurrency = 'PLN';
         self.dateFormat = 'yyyy-MM-dd';
 
-        self.dateFrom = new Date(2000,1,1);
+        self.dateFrom = new Date();
+        self.dateFrom.setMonth(self.dateFrom.getMonth()-1);
         self.dateFromPopupOpened = false;
         self.dateFromOptions = {
           formatYear: 'yy',
