@@ -6,6 +6,7 @@ angular.
     templateUrl: 'reports/general/general.template.html',
     controller: ['Backend','$scope','$uibModal',function GeneralReportController(Backend,$scope,$uibModal) {
       var self = this;
+      self.labelsHash={};
 
       self.typesChart={};
       self.typesChart.type = "PieChart";
@@ -103,17 +104,6 @@ angular.
         }
       }
 
-      //Functions
-      self.labelsHash={};
-      Backend.getApi().then(function(api) {
-        api.labels.get().then(function(response) {
-          self.labels = response.data;
-          for(var id in response.data) {
-            self.labelsHash[response.data[id].id] = response.data[id];
-          }
-        });
-      });
-
       self.initIntelData = function() {
         self.inteliData={};
         self.inteliData.sum=0;
@@ -123,8 +113,6 @@ angular.
         self.inteliData.destData={};
         self.inteliData.labelData={};
       }
-
-      self.initIntelData();
 
       self.dateFormat = 'yyyy-MM-dd';
       self.dateFrom = new Date();
@@ -295,6 +283,17 @@ angular.
         });
       }
 
-      self.reloadReport();
+      //Execution
+      self.labelsHash={};
+      Backend.getApi().then(function(api) {
+        api.labels.get().then(function(response) {
+          self.labels = response.data;
+          for(var id in response.data) {
+            self.labelsHash[response.data[id].id] = response.data[id];
+          }
+          self.initIntelData();
+          self.reloadReport();
+        });
+      });
     }]
   });
