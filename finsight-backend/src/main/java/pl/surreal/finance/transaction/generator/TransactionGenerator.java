@@ -65,7 +65,7 @@ public class TransactionGenerator implements Iterator<Transaction>
 		t.setAccountingDate(t.getDate());
 		t.setCurrency(currency);
 		t.setAccountingCurrency(currency);
-		t.setAmount(new BigDecimal(ThreadLocalRandom.current().nextInt(5,3000)));
+		t.setAmount(new BigDecimal(ThreadLocalRandom.current().nextInt(5,3000)).negate());
 		t.setAccountingAmount(t.getAmount());
 		t.setBalanceAfter((new BigDecimal(ThreadLocalRandom.current().nextInt(3000,10000))));
 		return t;
