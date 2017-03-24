@@ -1,6 +1,6 @@
 <div class="container-fluid" style="margin-top: 20px;">
   <div class="row">
-   <div class="col-sm-2">
+   <div class="col-sm-3">
    	<p class="input-group">
       <span class="input-group-addon">From</span>
       <input type="text" class="form-control" uib-datepicker-popup="{{$ctrl.dateFormat}}" ng-model="$ctrl.dateFrom" is-open="$ctrl.dateFromPopupOpened" datepicker-options="$ctrl.dateFromOptions" ng-required="true" close-text="Close" placeholder="Select date" ng-change="$ctrl.reloadReport()"/>
@@ -9,7 +9,7 @@
       </span>
       </p>
    </div>
-   <div class="col-sm-2">
+   <div class="col-sm-3">
 	  <p class="input-group">
 	  	<span class="input-group-addon">To</span>
 	      <input type="text" class="form-control" uib-datepicker-popup="{{$ctrl.dateFormat}}" ng-model="$ctrl.dateTo" is-open="$ctrl.dateToPopupOpened" datepicker-options="$ctrl.dateToOptions" ng-required="true" close-text="Close" placeholder="Select date" ng-change="$ctrl.reloadReport()"/>
@@ -18,12 +18,12 @@
 	      </span>
 	   </p>
    </div>
-   <div class="col-sm-8">
+   <div class="col-sm-6">
    	<p class="input-group">
 	    <span class="input-group-addon">Labels</span>
 	    <ui-select multiple ng-model="$ctrl.selectedLabels"
 	               theme="bootstrap"
-	               style="width: 500px; max-width: 500px; z-index: 99;"
+	               style="width: 400px; max-width: 400px; z-index: 99;"
 	               title="Select label"
 	               append-to-body="true"
                  ng-change="$ctrl.reloadReport()">
@@ -43,18 +43,22 @@
   <div class="container-fluid" ng-if="$ctrl.inteliData.sum!=0">
     <div class="row" style="margin-top: 20px;">
       <div class="col-sm-6 centered">
-        <p style="text-decoration:underline">Transaction sources</p>
-        <div google-chart chart="$ctrl.typesChart"></div>
+        <p style="text-decoration:underline">Top labels</p>
+        <div google-chart chart="$ctrl.labelChart" style="width:70%;margin: auto;"></div>
       </div>
+      <div class="col-sm-6 centered">
+        <p style="text-decoration:underline">Transactions in time</p>
+        <div google-chart chart="$ctrl.monthChart" style="width:70%;margin: auto;"></div>
+      </div>
+    </div>
+    <div class="row" style="margin-top: 40px;">
       <div class="col-sm-6 centered">
         <p style="text-decoration:underline">Top destinations</p>
         <div google-chart chart="$ctrl.destChart"></div>
       </div>
-    </div>
-    <div class="row" style="margin-top: 40px;">
-      <div class="col-sm-12 centered">
-        <p style="text-decoration:underline">Transactions in time</p>
-        <div google-chart chart="$ctrl.monthChart" style="width:70%;margin: auto;"></div>
+      <div class="col-sm-6 centered">
+        <p style="text-decoration:underline">Transaction sources</p>
+        <div google-chart chart="$ctrl.typesChart"></div>
       </div>
     </div>
    </div>

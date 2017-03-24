@@ -2,9 +2,9 @@
 
 angular.
   module('reports').
-  component('categoryreport', {
-    templateUrl: 'reports/category/category.template.html',
-    controller: ['Backend','$scope','$uibModal',function CategoryReportController(Backend,$scope,$uibModal) {
+  component('generalreport', {
+    templateUrl: 'reports/general/general.template.html',
+    controller: ['Backend','$scope','$uibModal',function GeneralReportController(Backend,$scope,$uibModal) {
       var self = this;
 
       self.typesChart={};
@@ -13,6 +13,7 @@ angular.
         {id: "s", label: "Source", type: "string"},
         {id: "c", label: "Count", type: "number"}
       ], "rows": []};
+
       self.destChart={};
       self.destChart.type = "BarChart";
       self.destChart.data={"cols": [
@@ -66,11 +67,50 @@ angular.
         }
       };
 
-      //Functions
+      self.labelChart={};
+      self.labelChart.type = "BarChart";
+      self.labelChart.data={"cols": [
+        {id: "t", label: "Type", type: "string"},
+        {id: "s", label: "Total", type: "number"},
+        {id: "c", label: "Cnt", type: "string","p":{"role":"annotation"}}
+      ], "rows": []};
+      self.labelChart.options = {
+        chartArea: {width: '60%'},
+        hAxis: {
+          title: 'Total amount',
+          minValue: 0,
+        },
+        vAxis: {
+          title: 'Label'
+        },
+        annotations: {
+          alwaysOutside: true,
+          textStyle: {
+            fontSize: 12,
+            auraColor: 'none',
+            color: '#555'
+          },
+          boxStyle: {
+            stroke: '#ccc',
+            strokeWidth: 1,
+            gradient: {
+              color1: '#f3e5f5',
+              color2: '#f3e5f5',
+              x1: '0%', y1: '0%',
+              x2: '100%', y2: '100%'
+            }
+          }
+        }
+      }
 
+      //Functions
+      self.labelsHash={};
       Backend.getApi().then(function(api) {
         api.labels.get().then(function(response) {
           self.labels = response.data;
+          for(var id in response.data) {
+            self.labelsHash[response.data[id].id] = response.data[id];
+          }
         });
       });
 
@@ -81,12 +121,14 @@ angular.
         self.inteliData.typesCount={};
         self.inteliData.monthCount={};
         self.inteliData.destData={};
+        self.inteliData.labelData={};
       }
 
       self.initIntelData();
 
       self.dateFormat = 'yyyy-MM-dd';
-      self.dateFrom = new Date(2000,1,1);
+      self.dateFrom = new Date();
+      self.dateFrom.setMonth(self.dateFrom.getMonth()-1);
       self.dateFromPopupOpened = false;
       self.dateFromOptions = {
         formatYear: 'yy',
@@ -118,11 +160,9 @@ angular.
       }
 
       self.reloadReport = function() {
-        if(self.dateFrom && self.dateTo && self.selectedLabels) {
+        if(self.dateFrom && self.dateTo) {
           self.initIntelData();
-          if(self.selectedLabels.length>0) {
-            self.queryReportData(self.dateFrom,self.dateTo,self.selectedLabels);
-          }
+          self.queryReportData(self.dateFrom,self.dateTo,self.selectedLabels);
         }
       }
 
@@ -178,6 +218,21 @@ angular.
         self.monthChart.data.rows = rows;
       }
 
+      self.updateLabelChart = function(labelData) {
+        var rows=[];
+        for(var label in labelData) {
+          if (labelData.hasOwnProperty(label)) {
+            rows.push(
+              {c:[{v: label},{v: labelData[label].sum},{v: "Count: "+labelData[label].cnt}]}
+            );
+          }
+        }
+        rows.sort(function(a,b) {
+          return b.c[1].v - a.c[1].v;
+        });
+        self.labelChart.data.rows = rows.slice(0,10);
+      }
+
       self.updateSum = function(map,key,amount) {
         if(typeof map[key] === 'undefined') {
           map[key]={sum:amount,cnt:1};
@@ -226,12 +281,20 @@ angular.
                   source = transaction.details.card.name;
               }
               self.updateSum(self.inteliData.typesCount,source,transaction.accountingAmount);
+
+              for(var l in transaction.labels) {
+                var labelId = transaction.labels[l];
+                self.updateSum(self.inteliData.labelData,self.labelsHash[labelId].text,transaction.accountingAmount);
+              }
             }
             self.updateTypesChart(self.inteliData.typesCount);
             self.updateDestChart(self.inteliData.destData);
             self.updateMonthChart(self.inteliData.monthCount);
+            self.updateLabelChart(self.inteliData.labelData);
           });
         });
       }
+
+      self.reloadReport();
     }]
   });
