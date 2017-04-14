@@ -1,14 +1,14 @@
-<uib-tabset active="active">
+<uib-tabset active=$ctrl.activetab>
   <uib-tab index="0" heading="Cards" ng-click="$ctrl.selectedTab='Cards'">
-    <card></card>
+    <card ng-if="$ctrl.activetab==0"></card>
   </uib-tab>
   <uib-tab index="1" heading="Accounts" ng-click="$ctrl.selectedTab='Accounts'">
-    <account ng-if="$ctrl.selectedTab=='Accounts'"></account>
+    <account ng-if="$ctrl.activetab==1"></account>
   </uib-tab>
   <uib-tab index="2" heading="Labels" ng-click="$ctrl.selectedTab='Labels'">
-  	<labeltag ng-if="$ctrl.selectedTab=='Labels'"></labeltag>
+  	<labeltag ng-if="$ctrl.activetab==2"></labeltag>
   </uib-tab>
   <uib-tab index="3" heading="Rules" ng-click="$ctrl.selectedTab='Rules'">
-  	<rule ng-if="$ctrl.selectedTab=='Rules'"></rule>
+  	<rule ng-if="$ctrl.activetab==3"></rule>
   </uib-tab>
 </uib-tabset>

@@ -4,23 +4,13 @@ angular.
   module('settings').
   component('rule', {
     templateUrl: 'settings/rule/rule.template.html',
-    controller: ['Backend','$scope','$uibModal',function RuleController(Backend,$scope,$uibModal) {
+    controller: ['Backend','$scope','$uibModal','$routeParams',
+    function RuleController(Backend,$scope,$uibModal,$routeParams) {
       var self = this;
       self.labels=[];
       self.labelsHash={};
-      
-      Backend.getApi().then(function(api) {
-      	api.labelRules.get().then(function(response) {
-      		self.rules = response.data;
-          api.labels.get().then(function(response) {
-            self.labels=response.data;
-            for(var id in response.data) {
-              self.labelsHash[response.data[id].id] = response.data[id];
-            }
-          });
-      	});
-      });
 
+      // functions
       self.remove = function(index) {
         Backend.getApi().then(function(api) {
           //using force delete (will worh even with labels assigned to the rule)
@@ -99,9 +89,9 @@ angular.
         }
       }
 
-      self.add = function() {
+      self.add = function(regexp) {
         self.inserted = {
-          regexp: '',
+          regexp: regexp,
           active: false,
           labels: []
         }
@@ -131,5 +121,23 @@ angular.
           });
         });
       }
+
+      // exec
+      Backend.getApi().then(function(api) {
+        api.labelRules.get().then(function(response) {
+          self.rules = response.data;
+          api.labels.get().then(function(response) {
+            self.labels=response.data;
+            for(var id in response.data) {
+              self.labelsHash[response.data[id].id] = response.data[id];
+            }
+          });
+
+          if($routeParams.hasOwnProperty("newRule")) {
+            var ruleStr = decodeURIComponent($routeParams["newRule"]);
+            self.add(ruleStr);
+          }
+        });
+      });
     }]
   });

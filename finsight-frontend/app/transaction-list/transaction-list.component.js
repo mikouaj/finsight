@@ -4,8 +4,8 @@ angular.
   module('transactionList').
   component('transactionList', {
     templateUrl: 'transaction-list/transaction-list.template.html',
-    controller: ['Backend','$http','$q',
-    function TransactionListController(Backend,$http,$q) {
+    controller: ['Backend','$http','$q','$location',
+    function TransactionListController(Backend,$http,$q,$location) {
         var self = this;
 
         self.labelsHash={};
@@ -73,6 +73,16 @@ angular.
               return response.statusText;
             });
           });
+        }
+
+        self.newRule = function(transaction) {
+          var ruleStr = transaction.title;
+          if(transaction.type=='CardOperation') {
+            ruleStr = transaction.details.destination;
+          } else if(transaction.type=='Transfer') {
+            ruleStr = transaction.details.description;
+          }
+          $location.path( '/settings' ).search({newRule: encodeURIComponent(ruleStr)});
         }
       }
     ]
