@@ -40,6 +40,9 @@ import pl.surreal.finance.transaction.core.Label;
 import pl.surreal.finance.transaction.core.LabelRule;
 import pl.surreal.finance.transaction.core.Transaction;
 import pl.surreal.finance.transaction.core.Transfer;
+import pl.surreal.finance.transaction.core.security.AuthToken;
+import pl.surreal.finance.transaction.core.security.Role;
+import pl.surreal.finance.transaction.core.security.User;
 import pl.surreal.finance.transaction.db.AccountDAO;
 import pl.surreal.finance.transaction.db.CardDAO;
 import pl.surreal.finance.transaction.db.LabelDAO;
@@ -56,7 +59,7 @@ import pl.surreal.finance.transaction.resources.TransactionResource;
 public class TransactionApplication extends Application<TransactionConfiguration>
 {
     private final HibernateBundle<TransactionConfiguration> hibernateBundle =
-            new HibernateBundle<TransactionConfiguration>(Transaction.class,Commission.class,CardOperation.class,Transfer.class,Card.class,Account.class,Label.class,LabelRule.class) {
+            new HibernateBundle<TransactionConfiguration>(Transaction.class,Commission.class,CardOperation.class,Transfer.class,Card.class,Account.class,Label.class,LabelRule.class,User.class,Role.class,AuthToken.class) {
                 @Override
                 public DataSourceFactory getDataSourceFactory(TransactionConfiguration configuration) {
                     return configuration.getDataSourceFactory();

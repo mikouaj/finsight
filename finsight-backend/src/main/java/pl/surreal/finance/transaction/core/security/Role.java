@@ -21,6 +21,12 @@ import java.util.Objects;
 
 @Entity
 @Table(name="role")
+@NamedQueries({
+        @NamedQuery(
+                name = "pl.surreal.finance.transaction.core.security.Role.findAll",
+                query = "SELECT r FROM Role r"
+        )
+})
 public class Role {
     @Id
     @Column(name = "name", nullable = false)

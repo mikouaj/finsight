@@ -21,6 +21,12 @@ import java.util.Set;
 
 @Entity
 @Table(name="user")
+@NamedQueries({
+        @NamedQuery(
+                name = "pl.surreal.finance.transaction.core.security.User.findAll",
+                query = "SELECT u FROM User u"
+        )
+})
 public class User implements Principal {
     @Id
     @Column(name = "name", nullable = false)

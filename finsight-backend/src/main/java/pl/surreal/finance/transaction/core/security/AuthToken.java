@@ -17,6 +17,12 @@ import javax.persistence.*;
 
 @Entity
 @Table(name="token")
+@NamedQueries({
+        @NamedQuery(
+                name = "pl.surreal.finance.transaction.core.security.AuthToken.findAll",
+                query = "SELECT t FROM AuthToken t"
+        )
+})
 public class AuthToken {
     @Id
     @Column(name = "token", nullable = false)
