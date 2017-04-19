@@ -54,3 +54,6 @@ local.properties
 
 dependency-reduced-pom.xml
 mybackend-conf.yml
+
+.idea
+*.iml
