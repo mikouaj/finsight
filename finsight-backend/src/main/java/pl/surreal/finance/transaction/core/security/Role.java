@@ -14,10 +14,10 @@
 
 package pl.surreal.finance.transaction.core.security;
 
+import org.hibernate.annotations.NaturalId;
+
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 @Entity
 @Table(name="role")
@@ -29,6 +29,10 @@ import java.util.Objects;
 })
 public class Role {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private long id;
+
+    @NaturalId(mutable = true)
     @Column(name = "name", nullable = false)
     private String name;
 
@@ -38,8 +42,18 @@ public class Role {
     @ManyToMany(fetch = FetchType.EAGER, mappedBy = "roles")
     private List<User> users = new ArrayList<>();
 
+    public Role() {}
+
     public Role(String name) {
         this.name = name;
+    }
+
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
     }
 
     public String getName() {

@@ -31,7 +31,7 @@ public class UserDAO extends AbstractDAO<User>
         return list(namedQuery("pl.surreal.finance.transaction.core.security.User.findAll"));
     }
 
-    public Optional<User> findById(String id) {
+    public Optional<User> findById(Long id) {
         return Optional.ofNullable(get(id));
     }
 

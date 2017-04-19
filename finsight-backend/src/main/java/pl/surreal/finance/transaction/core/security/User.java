@@ -14,10 +14,11 @@
 
 package pl.surreal.finance.transaction.core.security;
 
+import org.hibernate.annotations.NaturalId;
+
 import javax.persistence.*;
 import java.security.Principal;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 @Entity
 @Table(name="user")
@@ -29,6 +30,10 @@ import java.util.Set;
 })
 public class User implements Principal {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private long id;
+
+    @NaturalId(mutable = true)
     @Column(name = "name", nullable = false)
     private String name;
 
@@ -45,14 +50,24 @@ public class User implements Principal {
     private boolean active = true;
 
     @ManyToMany(fetch = FetchType.EAGER,cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-    private Set<Role> roles = new HashSet<>();
+    private List<Role> roles = new ArrayList<>();
 
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<AuthToken> tokens = new HashSet<>();
+    private List<AuthToken> tokens = new ArrayList<>();
+
+    public User() { }
 
     public User(String name, String secret) {
         this.name = name;
         this.secret = secret;
+    }
+
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
     }
 
     @Override
@@ -96,12 +111,28 @@ public class User implements Principal {
         this.active = active;
     }
 
-    public Set<Role> getRoles() {
+    public List<Role> getRoles() {
         return roles;
     }
 
-    public Set<AuthToken> getTokens() {
+    public void setRoles(List<Role> roles) {
+        Iterator<Role> roleI = this.roles.iterator();
+        while(roleI.hasNext()) {
+            Role role = roleI.next();
+            role.getUsers().remove(this);
+            roleI.remove();
+        }
+        for(Role newRole : roles) {
+            addRole(newRole);
+        }
+    }
+
+    public List<AuthToken> getTokens() {
         return tokens;
+    }
+
+    public void setTokens(List<AuthToken> tokens) {
+        this.tokens = tokens;
     }
 
     public void addRole(Role role) {
@@ -130,5 +161,22 @@ public class User implements Principal {
             tokens.remove(token);
             token.setUser(null);
         }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if ( this == o ) {
+            return true;
+        }
+        if ( o == null || getClass() != o.getClass() ) {
+            return false;
+        }
+        User user = (User) o;
+        return Objects.equals( name, user.name );
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name);
     }
 }

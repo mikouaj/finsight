@@ -31,7 +31,7 @@ public class RoleDAO extends AbstractDAO<Role>
         return list(namedQuery("pl.surreal.finance.transaction.core.security.Role.findAll"));
     }
 
-    public Optional<Role> findById(String id) {
+    public Optional<Role> findById(Long id) {
         return Optional.ofNullable(get(id));
     }
 
