@@ -43,18 +43,10 @@ import pl.surreal.finance.transaction.core.Transfer;
 import pl.surreal.finance.transaction.core.security.AuthToken;
 import pl.surreal.finance.transaction.core.security.Role;
 import pl.surreal.finance.transaction.core.security.User;
-import pl.surreal.finance.transaction.db.AccountDAO;
-import pl.surreal.finance.transaction.db.CardDAO;
-import pl.surreal.finance.transaction.db.LabelDAO;
-import pl.surreal.finance.transaction.db.LabelRuleDAO;
-import pl.surreal.finance.transaction.db.TransactionDAO;
+import pl.surreal.finance.transaction.db.*;
 import pl.surreal.finance.transaction.labeler.TransactionLabeler;
 import pl.surreal.finance.transaction.parser.ParserFactory;
-import pl.surreal.finance.transaction.resources.AccountResource;
-import pl.surreal.finance.transaction.resources.CardResource;
-import pl.surreal.finance.transaction.resources.LabelResource;
-import pl.surreal.finance.transaction.resources.LabelRuleResource;
-import pl.surreal.finance.transaction.resources.TransactionResource;
+import pl.surreal.finance.transaction.resources.*;
 
 public class TransactionApplication extends Application<TransactionConfiguration>
 {
@@ -92,6 +84,8 @@ public class TransactionApplication extends Application<TransactionConfiguration
 		final AccountDAO accountDAO = new AccountDAO(hibernateBundle.getSessionFactory());
 		final LabelDAO labelDAO = new LabelDAO(hibernateBundle.getSessionFactory());
 		final LabelRuleDAO labelRuleDAO = new LabelRuleDAO(hibernateBundle.getSessionFactory());
+		final UserDAO userDAO = new UserDAO(hibernateBundle.getSessionFactory());
+		final RoleDAO roleDAO = new RoleDAO(hibernateBundle.getSessionFactory());
 		
 		final ParserFactory parserFactory = new ParserFactory();
 		parserFactory.addResourceLookup(Account.class,accountDAO);
@@ -104,6 +98,8 @@ public class TransactionApplication extends Application<TransactionConfiguration
 		environment.jersey().register(new AccountResource(accountDAO));
 		environment.jersey().register(new LabelResource(labelDAO));
 		environment.jersey().register(new LabelRuleResource(labelRuleDAO,labelDAO));
+		environment.jersey().register(new UserResource(userDAO,roleDAO));
+		environment.jersey().register(new RoleResource(roleDAO));
 		
 		environment.jersey().register(io.swagger.jaxrs.listing.ApiListingResource.class);
 		environment.jersey().register(io.swagger.jaxrs.listing.SwaggerSerializers.class);

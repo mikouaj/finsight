@@ -15,24 +15,44 @@
 package pl.surreal.finance.transaction.api;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.hibernate.validator.constraints.NotEmpty;
+import pl.surreal.finance.transaction.api.validation.UserPostChecks;
+
+import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
 public class UserApi {
     @JsonProperty
+    private Long id;
+    @JsonProperty
+    @NotNull
+    @NotEmpty
     private String name;
     @JsonProperty
+    @NotEmpty
     private String firstName;
     @JsonProperty
+    @NotEmpty
     private String lastName;
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    @NotEmpty(groups = UserPostChecks.class)
+    @NotNull(groups = UserPostChecks.class)
     private String secret;
     @JsonProperty
     private boolean active = true;
     @JsonProperty("roles")
-    private List<String> roleIds = new ArrayList<>();
+    private List<Long> roleIds = new ArrayList<>();
 
     public UserApi() {}
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
 
     public String getName() {
         return name;
@@ -74,11 +94,11 @@ public class UserApi {
         this.active = active;
     }
 
-    public List<String> getRoleIds() {
+    public List<Long> getRoleIds() {
         return roleIds;
     }
 
-    public void setRoleIds(List<String> roleIds) {
+    public void setRoleIds(List<Long> roleIds) {
         this.roleIds = roleIds;
     }
 }
