@@ -30,6 +30,7 @@ import io.dropwizard.forms.MultiPartBundle;
 import io.dropwizard.hibernate.HibernateBundle;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
+import pl.surreal.finance.transaction.auth.UserDBAuthenticator;
 import pl.surreal.finance.transaction.cli.GenerateCommand;
 import pl.surreal.finance.transaction.cli.MigrateCommand;
 import pl.surreal.finance.transaction.core.Account;
@@ -92,7 +93,9 @@ public class TransactionApplication extends Application<TransactionConfiguration
 		parserFactory.addResourceLookup(Card.class,cardDAO);
 		
 		final TransactionLabeler transactionLabeler = new TransactionLabeler(labelRuleDAO);
-		
+
+		final UserDBAuthenticator userDBAuthenticator = new UserDBAuthenticator(userDAO);
+
 		environment.jersey().register(new TransactionResource(dao,labelDAO,parserFactory,transactionLabeler));
 		environment.jersey().register(new CardResource(cardDAO));
 		environment.jersey().register(new AccountResource(accountDAO));
@@ -100,7 +103,8 @@ public class TransactionApplication extends Application<TransactionConfiguration
 		environment.jersey().register(new LabelRuleResource(labelRuleDAO,labelDAO));
 		environment.jersey().register(new UserResource(userDAO,roleDAO));
 		environment.jersey().register(new RoleResource(roleDAO));
-		
+		environment.jersey().register(new AuthTokenResource(userDBAuthenticator));
+
 		environment.jersey().register(io.swagger.jaxrs.listing.ApiListingResource.class);
 		environment.jersey().register(io.swagger.jaxrs.listing.SwaggerSerializers.class);
 		configuration.getSwaggerConfiguration().createBeanConfig();
