@@ -12,7 +12,7 @@
  * limitations under the License.
 */
 
-package pl.surreal.finance.transaction;
+package pl.surreal.finance.transaction.conf;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 

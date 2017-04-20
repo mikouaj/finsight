@@ -12,55 +12,18 @@
  * limitations under the License.
 */
 
-package pl.surreal.finance.transaction.api;
+package pl.surreal.finance.transaction.auth;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import org.hibernate.validator.constraints.NotEmpty;
+import io.dropwizard.auth.basic.BasicCredentials;
 
-import javax.validation.constraints.NotNull;
-
-public class AuthDetailsApi {
-    @JsonProperty
-    @NotNull
-    @NotEmpty
-    private String userName;
-    @JsonProperty
-    @NotNull
-    @NotEmpty
-    private String userSecret;
-    @JsonProperty
-    @NotNull
-    @NotEmpty
+public class AuthDetails extends BasicCredentials {
     private String appName;
-    @JsonProperty
-    @NotNull
-    @NotEmpty
     private String appSecret;
 
-    public AuthDetailsApi() {
-    }
-
-    public AuthDetailsApi(String userName, String userSecret, String appName, String appSecret) {
-        this.userName = userName;
-        this.userSecret = userSecret;
+    public AuthDetails(String username, String password,String appName,String appSecret) {
+        super(username, password);
         this.appName = appName;
         this.appSecret = appSecret;
-    }
-
-    public String getUserName() {
-        return userName;
-    }
-
-    public void setUserName(String userName) {
-        this.userName = userName;
-    }
-
-    public String getUserSecret() {
-        return userSecret;
-    }
-
-    public void setUserSecret(String userSecret) {
-        this.userSecret = userSecret;
     }
 
     public String getAppName() {

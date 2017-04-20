@@ -14,19 +14,15 @@
 
 package pl.surreal.finance.transaction.resources;
 
-import com.google.common.base.Optional;
-import io.dropwizard.auth.AuthenticationException;
-import io.dropwizard.auth.basic.BasicCredentials;
 import io.dropwizard.hibernate.UnitOfWork;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import pl.surreal.finance.transaction.api.AuthDetailsApi;
 import pl.surreal.finance.transaction.api.AuthTokenApi;
-import pl.surreal.finance.transaction.auth.UserDBAuthenticator;
-import pl.surreal.finance.transaction.core.security.User;
+import pl.surreal.finance.transaction.auth.AuthDetails;
+import pl.surreal.finance.transaction.auth.IAuthTokenGenerator;
+import pl.surreal.finance.transaction.core.security.AuthToken;
 
 import javax.validation.Valid;
 import javax.ws.rs.ForbiddenException;
@@ -39,28 +35,24 @@ import javax.ws.rs.core.MediaType;
 @Api(value = "authtoken")
 @Produces(MediaType.APPLICATION_JSON)
 public class AuthTokenResource {
-    private static final Logger LOGGER = LoggerFactory.getLogger(AuthTokenResource.class);
-    private UserDBAuthenticator userDBAuthenticator;
+    private IAuthTokenGenerator<AuthDetails> authTokenGenerator;
 
-    public AuthTokenResource(UserDBAuthenticator userDBAuthenticator) {
-        this.userDBAuthenticator = userDBAuthenticator;
+    private AuthTokenApi mapDomainToApi(AuthToken token) {
+        AuthTokenApi tokenApi = new AuthTokenApi();
+        tokenApi.setAuthToken(token.getToken());
+        return tokenApi;
+    }
+
+    public AuthTokenResource(IAuthTokenGenerator<AuthDetails> authTokenGenerator) {
+        this.authTokenGenerator = authTokenGenerator;
     }
 
     @POST
     @UnitOfWork
     @ApiOperation(value = "Create new authentication token")
     public AuthTokenApi login(@ApiParam(value = "Authentication details data", required = true) @Valid AuthDetailsApi authDetailsApi) throws ForbiddenException {
-        BasicCredentials basicCredentials = new BasicCredentials(authDetailsApi.getUserName(),authDetailsApi.getUserSecret());
-        try {
-            Optional<User> user = userDBAuthenticator.authenticate(basicCredentials);
-            if(user.isPresent()) {
-                AuthTokenApi authTokenApi = new AuthTokenApi();
-                authTokenApi.setAuthToken("aaaaaabbbbbbccccc");
-                return authTokenApi;
-            }
-        } catch (AuthenticationException e) {
-            LOGGER.warn("login AuthenticationException due to {}",e.getMessage());
-        }
-        throw new ForbiddenException("Forbidden");
+        AuthDetails authDetails = new AuthDetails(authDetailsApi.getUserName(),authDetailsApi.getUserSecret(),authDetailsApi.getAppName(),authDetailsApi.getAppSecret());
+        AuthToken token = authTokenGenerator.generateToken(authDetails).orElseThrow(() -> new ForbiddenException("Forbidden"));
+        return mapDomainToApi(token);
     }
 }

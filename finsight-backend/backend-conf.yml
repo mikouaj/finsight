@@ -42,6 +42,12 @@ swagger:
   scan: true
   basePath: /api
 
+apiSecurity:
+  tokenLife: 900000
+  tokenAllowedApps:
+    - name: frontend
+      secret: frontend123
+
 metrics:
   type: graphite
   frequency: 10s      

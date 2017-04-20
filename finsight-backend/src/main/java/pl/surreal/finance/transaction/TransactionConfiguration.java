@@ -14,14 +14,15 @@
 
 package pl.surreal.finance.transaction;
 
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import io.dropwizard.Configuration;
 import io.dropwizard.db.DataSourceFactory;
 import io.dropwizard.metrics.graphite.GraphiteReporterFactory;
+import pl.surreal.finance.transaction.conf.ApiSecurityConfiguration;
+import pl.surreal.finance.transaction.conf.SwaggerConfiguration;
+
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 
 public class TransactionConfiguration extends Configuration
 {
@@ -34,6 +35,9 @@ public class TransactionConfiguration extends Configuration
 
     @Valid
     private SwaggerConfiguration swaggerConfiguration = new SwaggerConfiguration();
+
+    @Valid
+    private ApiSecurityConfiguration apiSecurityConfiguration = new ApiSecurityConfiguration();
     
     @JsonProperty("database")
     public DataSourceFactory getDataSourceFactory() {
@@ -63,5 +67,15 @@ public class TransactionConfiguration extends Configuration
     @JsonProperty("swagger")
     public void setSwaggerConfiguration(SwaggerConfiguration swaggerConfiguration) {
     	this.swaggerConfiguration = swaggerConfiguration;
+    }
+
+    @JsonProperty("apiSecurity")
+    public ApiSecurityConfiguration getApiSecurityConfiguration() {
+        return apiSecurityConfiguration;
+    }
+
+    @JsonProperty("apiSecurity")
+    public void setApiSecurityConfiguration(ApiSecurityConfiguration apiSecurityConfiguration) {
+        this.apiSecurityConfiguration = apiSecurityConfiguration;
     }
 }

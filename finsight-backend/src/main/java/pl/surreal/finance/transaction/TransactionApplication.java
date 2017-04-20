@@ -14,14 +14,6 @@
 
 package pl.surreal.finance.transaction;
 
-import java.util.EnumSet;
-
-import javax.servlet.DispatcherType;
-import javax.servlet.FilterRegistration;
-
-import org.eclipse.jetty.servlets.CrossOriginFilter;
-import org.glassfish.jersey.linking.DeclarativeLinkingFeature;
-
 import io.dropwizard.Application;
 import io.dropwizard.configuration.EnvironmentVariableSubstitutor;
 import io.dropwizard.configuration.SubstitutingSourceProvider;
@@ -30,17 +22,14 @@ import io.dropwizard.forms.MultiPartBundle;
 import io.dropwizard.hibernate.HibernateBundle;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
+import org.eclipse.jetty.servlets.CrossOriginFilter;
+import org.glassfish.jersey.linking.DeclarativeLinkingFeature;
+import pl.surreal.finance.transaction.auth.AuthTokenGenerator;
 import pl.surreal.finance.transaction.auth.UserDBAuthenticator;
 import pl.surreal.finance.transaction.cli.GenerateCommand;
 import pl.surreal.finance.transaction.cli.MigrateCommand;
-import pl.surreal.finance.transaction.core.Account;
-import pl.surreal.finance.transaction.core.Card;
-import pl.surreal.finance.transaction.core.CardOperation;
-import pl.surreal.finance.transaction.core.Commission;
-import pl.surreal.finance.transaction.core.Label;
-import pl.surreal.finance.transaction.core.LabelRule;
-import pl.surreal.finance.transaction.core.Transaction;
-import pl.surreal.finance.transaction.core.Transfer;
+import pl.surreal.finance.transaction.conf.ApiSecurityConfiguration;
+import pl.surreal.finance.transaction.core.*;
 import pl.surreal.finance.transaction.core.security.AuthToken;
 import pl.surreal.finance.transaction.core.security.Role;
 import pl.surreal.finance.transaction.core.security.User;
@@ -48,6 +37,10 @@ import pl.surreal.finance.transaction.db.*;
 import pl.surreal.finance.transaction.labeler.TransactionLabeler;
 import pl.surreal.finance.transaction.parser.ParserFactory;
 import pl.surreal.finance.transaction.resources.*;
+
+import javax.servlet.DispatcherType;
+import javax.servlet.FilterRegistration;
+import java.util.EnumSet;
 
 public class TransactionApplication extends Application<TransactionConfiguration>
 {
@@ -95,6 +88,11 @@ public class TransactionApplication extends Application<TransactionConfiguration
 		final TransactionLabeler transactionLabeler = new TransactionLabeler(labelRuleDAO);
 
 		final UserDBAuthenticator userDBAuthenticator = new UserDBAuthenticator(userDAO);
+		final AuthTokenGenerator authTokenGenerator = new AuthTokenGenerator(userDBAuthenticator);
+		ApiSecurityConfiguration apiSecurityConfiguration = configuration.getApiSecurityConfiguration();
+		authTokenGenerator.setIssuer(getName());
+		authTokenGenerator.setTokenLifeMilis(apiSecurityConfiguration.getTokenLife());
+		authTokenGenerator.setAllowedApps(apiSecurityConfiguration.getTokenAllowedAppsMap());
 
 		environment.jersey().register(new TransactionResource(dao,labelDAO,parserFactory,transactionLabeler));
 		environment.jersey().register(new CardResource(cardDAO));
@@ -103,7 +101,7 @@ public class TransactionApplication extends Application<TransactionConfiguration
 		environment.jersey().register(new LabelRuleResource(labelRuleDAO,labelDAO));
 		environment.jersey().register(new UserResource(userDAO,roleDAO));
 		environment.jersey().register(new RoleResource(roleDAO));
-		environment.jersey().register(new AuthTokenResource(userDBAuthenticator));
+		environment.jersey().register(new AuthTokenResource(authTokenGenerator));
 
 		environment.jersey().register(io.swagger.jaxrs.listing.ApiListingResource.class);
 		environment.jersey().register(io.swagger.jaxrs.listing.SwaggerSerializers.class);
