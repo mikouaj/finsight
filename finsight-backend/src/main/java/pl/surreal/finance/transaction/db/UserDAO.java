@@ -15,6 +15,7 @@
 package pl.surreal.finance.transaction.db;
 
 import io.dropwizard.hibernate.AbstractDAO;
+import org.hibernate.Query;
 import org.hibernate.SessionFactory;
 import pl.surreal.finance.transaction.core.security.User;
 
@@ -33,6 +34,12 @@ public class UserDAO extends AbstractDAO<User>
 
     public Optional<User> findById(Long id) {
         return Optional.ofNullable(get(id));
+    }
+
+    public Optional<User> findById(String name) {
+        Query userQuery = namedQuery("pl.surreal.finance.transaction.core.security.User.findByName");
+        userQuery.setString("name",name);
+        return Optional.ofNullable(uniqueResult(userQuery));
     }
 
     public User create(User user) {

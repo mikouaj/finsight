@@ -26,6 +26,10 @@ import java.util.*;
         @NamedQuery(
                 name = "pl.surreal.finance.transaction.core.security.User.findAll",
                 query = "SELECT u FROM User u"
+        ),
+        @NamedQuery(
+                name = "pl.surreal.finance.transaction.core.security.User.findByName",
+                query = "SELECT u FROM User u WHERE u.name = :name"
         )
 })
 public class User implements Principal {
