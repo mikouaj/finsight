@@ -20,43 +20,64 @@ import io.dropwizard.auth.Authenticator;
 import io.dropwizard.auth.basic.BasicCredentials;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import pl.surreal.finance.transaction.conf.TokenGeneratorAllowedAudienceConfiguration;
 import pl.surreal.finance.transaction.core.security.AuthToken;
 import pl.surreal.finance.transaction.core.security.User;
 
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Optional;
+import java.io.UnsupportedEncodingException;
+import java.util.*;
 
 public class AuthTokenGenerator implements IAuthTokenGenerator<AuthDetails> {
     private static final Logger LOGGER = LoggerFactory.getLogger(AuthTokenGenerator.class);
+    private Authenticator<BasicCredentials,User> authenticator;
+
     private String issuer = "transaction-backend";
     private long tokenLifeMilis = 900000L;
-    private Authenticator<BasicCredentials,User> authenticator;
-    private HashMap<String,String> allowedApps = new HashMap<>();
+    private HashMap<String,TokenGeneratorAllowedAudienceConfiguration> allowedAudiences = new HashMap<>();
 
     public AuthTokenGenerator(Authenticator<BasicCredentials,User> authenticator) {
         this.authenticator = authenticator;
+    }
+
+    private Optional<Algorithm> getAlgorithm(String algCode,String secret) {
+        Algorithm algorithm = null;
+        try {
+            switch (algCode) {
+                case "HMAC256":
+                    algorithm = Algorithm.HMAC256(secret);
+                    break;
+                case "HMAC512":
+                    algorithm = Algorithm.HMAC512(secret);
+                    break;
+            }
+        } catch(UnsupportedEncodingException e) {
+            LOGGER.warn("getAlgorithm exception due to '{}'",e.getMessage());
+            e.printStackTrace();
+        }
+        return Optional.ofNullable(algorithm);
     }
 
     @Override
     public Optional<AuthToken> generateToken(AuthDetails authDetails) {
         AuthToken authToken=null;
         try {
-            if(!allowedApps.containsKey(authDetails.getAppName()) || allowedApps.get(authDetails.getAppName()).compareTo(authDetails.getAppSecret())!=0) {
-                throw new Exception("Application verification failed");
+            if(!allowedAudiences.containsKey(authDetails.getAppName())) {
+                throw new Exception("Application "+authDetails.getAppName()+" not present on allowed audiences list");
+            }
+            TokenGeneratorAllowedAudienceConfiguration audienceConfig = allowedAudiences.get(authDetails.getAppName());
+            if(audienceConfig.getSecret().compareTo(authDetails.getAppSecret())!=0) {
+                throw new Exception("Application "+authDetails.getAppName()+" bad secret");
             }
 
+            Algorithm algorithm = getAlgorithm(audienceConfig.getSignAlgorithm(),authDetails.getAppSecret()).orElseThrow(()->new Exception("Cant obtain algorithm "+audienceConfig.getSignAlgorithm()+" for audience"));
             com.google.common.base.Optional<User> user = authenticator.authenticate(authDetails);
             if(user.isPresent()) {
-                Algorithm algorithm = Algorithm.HMAC256(authDetails.getAppSecret());
                 String tokenString = JWT.create()
                         .withIssuer(issuer)
                         .withAudience(authDetails.getAppName())
                         .withSubject(user.get().getName())
                         .withExpiresAt(new Date(Calendar.getInstance().getTime().getTime()+tokenLifeMilis))
                         .sign(algorithm);
-
                 authToken = new AuthToken(tokenString);
             }
         } catch (Exception e) {
@@ -64,6 +85,14 @@ public class AuthTokenGenerator implements IAuthTokenGenerator<AuthDetails> {
             e.printStackTrace();
         }
         return Optional.ofNullable(authToken);
+    }
+
+    public String getIssuer() {
+        return issuer;
+    }
+
+    public void setIssuer(String issuer) {
+        this.issuer = issuer;
     }
 
     public long getTokenLifeMilis() {
@@ -74,19 +103,14 @@ public class AuthTokenGenerator implements IAuthTokenGenerator<AuthDetails> {
         this.tokenLifeMilis = tokenLifeMilis;
     }
 
-    public HashMap<String, String> getAllowedApps() {
-        return allowedApps;
+    public List<TokenGeneratorAllowedAudienceConfiguration> getAllowedAudiences() {
+        return new ArrayList<>(allowedAudiences.values());
     }
 
-    public void setAllowedApps(HashMap<String, String> allowedApps) {
-        this.allowedApps = allowedApps;
-    }
-
-    public String getIssuer() {
-        return issuer;
-    }
-
-    public void setIssuer(String issuer) {
-        this.issuer = issuer;
+    public void setAllowedAudiences(TokenGeneratorAllowedAudienceConfiguration[] audiences) {
+        allowedAudiences.clear();
+        for(TokenGeneratorAllowedAudienceConfiguration audience : audiences) {
+            allowedAudiences.put(audience.getName(),audience);
+        }
     }
 }

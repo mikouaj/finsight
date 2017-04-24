@@ -18,30 +18,19 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import javax.validation.constraints.NotNull;
 
-public class TokenGeneratorAppsConfiguration {
+public class TokenVerifierConfiguration {
     @JsonProperty
     @NotNull
-    private String name;
-    @JsonProperty
-    @NotNull
-    private String secret;
+    private TokenVerifierAllowedAudienceConfiguration[] allowedAudiences;
 
-    public TokenGeneratorAppsConfiguration() {
+    public TokenVerifierConfiguration() {
     }
 
-    public String getName() {
-        return name;
+    public TokenVerifierAllowedAudienceConfiguration[] getAllowedAudiences() {
+        return allowedAudiences;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getSecret() {
-        return secret;
-    }
-
-    public void setSecret(String secret) {
-        this.secret = secret;
+    public void setAllowedAudiences(TokenVerifierAllowedAudienceConfiguration[] allowedAudiences) {
+        this.allowedAudiences = allowedAudiences;
     }
 }

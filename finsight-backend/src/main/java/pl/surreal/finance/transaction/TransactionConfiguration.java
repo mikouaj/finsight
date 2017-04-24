@@ -18,8 +18,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import io.dropwizard.Configuration;
 import io.dropwizard.db.DataSourceFactory;
 import io.dropwizard.metrics.graphite.GraphiteReporterFactory;
-import pl.surreal.finance.transaction.conf.ApiSecurityConfiguration;
+import pl.surreal.finance.transaction.conf.TokenGeneratorConfiguration;
 import pl.surreal.finance.transaction.conf.SwaggerConfiguration;
+import pl.surreal.finance.transaction.conf.TokenVerifierConfiguration;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -37,7 +38,10 @@ public class TransactionConfiguration extends Configuration
     private SwaggerConfiguration swaggerConfiguration = new SwaggerConfiguration();
 
     @Valid
-    private ApiSecurityConfiguration apiSecurityConfiguration = new ApiSecurityConfiguration();
+    private TokenGeneratorConfiguration tokenGeneratorConfiguration = new TokenGeneratorConfiguration();
+
+    @Valid
+    private TokenVerifierConfiguration tokenVerifierConfiguration = new TokenVerifierConfiguration();
     
     @JsonProperty("database")
     public DataSourceFactory getDataSourceFactory() {
@@ -69,13 +73,23 @@ public class TransactionConfiguration extends Configuration
     	this.swaggerConfiguration = swaggerConfiguration;
     }
 
-    @JsonProperty("apiSecurity")
-    public ApiSecurityConfiguration getApiSecurityConfiguration() {
-        return apiSecurityConfiguration;
+    @JsonProperty("authTokenGenerator")
+    public TokenGeneratorConfiguration getTokenGeneratorConfiguration() {
+        return tokenGeneratorConfiguration;
     }
 
-    @JsonProperty("apiSecurity")
-    public void setApiSecurityConfiguration(ApiSecurityConfiguration apiSecurityConfiguration) {
-        this.apiSecurityConfiguration = apiSecurityConfiguration;
+    @JsonProperty("authTokenGenerator")
+    public void setTokenGeneratorConfiguration(TokenGeneratorConfiguration tokenGeneratorConfiguration) {
+        this.tokenGeneratorConfiguration = tokenGeneratorConfiguration;
+    }
+
+    @JsonProperty("authTokenVerifier")
+    public TokenVerifierConfiguration getTokenVerifierConfiguration() {
+        return tokenVerifierConfiguration;
+    }
+
+    @JsonProperty("authTokenVerifier")
+    public void setTokenVerifierConfiguration(TokenVerifierConfiguration tokenVerifierConfiguration) {
+        this.tokenVerifierConfiguration = tokenVerifierConfiguration;
     }
 }

@@ -28,7 +28,7 @@ import pl.surreal.finance.transaction.auth.AuthTokenGenerator;
 import pl.surreal.finance.transaction.auth.UserDBAuthenticator;
 import pl.surreal.finance.transaction.cli.GenerateCommand;
 import pl.surreal.finance.transaction.cli.MigrateCommand;
-import pl.surreal.finance.transaction.conf.ApiSecurityConfiguration;
+import pl.surreal.finance.transaction.conf.TokenGeneratorConfiguration;
 import pl.surreal.finance.transaction.core.*;
 import pl.surreal.finance.transaction.core.security.AuthToken;
 import pl.surreal.finance.transaction.core.security.Role;
@@ -89,10 +89,10 @@ public class TransactionApplication extends Application<TransactionConfiguration
 
 		final UserDBAuthenticator userDBAuthenticator = new UserDBAuthenticator(userDAO);
 		final AuthTokenGenerator authTokenGenerator = new AuthTokenGenerator(userDBAuthenticator);
-		ApiSecurityConfiguration apiSecurityConfiguration = configuration.getApiSecurityConfiguration();
-		authTokenGenerator.setIssuer(getName());
-		authTokenGenerator.setTokenLifeMilis(apiSecurityConfiguration.getTokenLife());
-		authTokenGenerator.setAllowedApps(apiSecurityConfiguration.getTokenAllowedAppsMap());
+		TokenGeneratorConfiguration tokenGeneratorConfiguration = configuration.getTokenGeneratorConfiguration();
+		authTokenGenerator.setIssuer(tokenGeneratorConfiguration.getIssuerName());
+		authTokenGenerator.setTokenLifeMilis(tokenGeneratorConfiguration.getTokenLife());
+		authTokenGenerator.setAllowedAudiences(tokenGeneratorConfiguration.getAllowedAudiences());
 
 		environment.jersey().register(new TransactionResource(dao,labelDAO,parserFactory,transactionLabeler));
 		environment.jersey().register(new CardResource(cardDAO));

@@ -42,12 +42,23 @@ swagger:
   scan: true
   basePath: /api
 
-apiSecurity:
-  tokenLife: 900000
-  tokenAllowedApps:
-    - name: frontend
-      secret: frontend123
-
 metrics:
   type: graphite
   frequency: 10s      
+
+authTokenGenerator:
+  issuerName: finsight-backend.apps.dev.surreal.pl
+  tokenLife: 900000
+  allowedAudiences:
+    - name: finsight-frontend.apps.dev.surreal.pl
+      signAlgorithm: HMAC256
+      secret: finsight-frontend1234
+
+authTokenVerifier:
+  allowedAudiences:
+    - name: finsight-frontend.apps.dev.surreal.pl
+      authTokens:
+        issuer: finsight-backend.apps.dev.surreal.pl
+        type: JWT
+        signAlgorithm: HMAC256
+        signSecret: finsight-frontend1234

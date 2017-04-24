@@ -19,15 +19,26 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import javax.validation.constraints.NotNull;
 import java.util.HashMap;
 
-public class ApiSecurityConfiguration {
+public class TokenGeneratorConfiguration {
+    @JsonProperty
+    @NotNull
+    private String issuerName;
     @JsonProperty
     @NotNull
     private Long tokenLife;
     @JsonProperty
     @NotNull
-    private TokenGeneratorAppsConfiguration[] tokenAllowedApps;
+    private TokenGeneratorAllowedAudienceConfiguration[] allowedAudiences;
 
-    public ApiSecurityConfiguration() {
+    public TokenGeneratorConfiguration() {
+    }
+
+    public String getIssuerName() {
+        return issuerName;
+    }
+
+    public void setIssuerName(String issuerName) {
+        this.issuerName = issuerName;
     }
 
     public Long getTokenLife() {
@@ -38,17 +49,17 @@ public class ApiSecurityConfiguration {
         this.tokenLife = tokenLife;
     }
 
-    public TokenGeneratorAppsConfiguration[] getTokenAllowedApps() {
-        return tokenAllowedApps;
+    public TokenGeneratorAllowedAudienceConfiguration[] getAllowedAudiences() {
+        return allowedAudiences;
     }
 
-    public void setTokenAllowedApps(TokenGeneratorAppsConfiguration[] tokenAllowedApps) {
-        this.tokenAllowedApps = tokenAllowedApps;
+    public void setAllowedAudiences(TokenGeneratorAllowedAudienceConfiguration[] allowedAudiences) {
+        this.allowedAudiences = allowedAudiences;
     }
 
     public HashMap<String,String> getTokenAllowedAppsMap() {
         HashMap<String,String> hashMap = new HashMap<>();
-        for(TokenGeneratorAppsConfiguration appConfig : tokenAllowedApps) {
+        for(TokenGeneratorAllowedAudienceConfiguration appConfig : allowedAudiences) {
             hashMap.put(appConfig.getName(), appConfig.getSecret());
         }
         return hashMap;
