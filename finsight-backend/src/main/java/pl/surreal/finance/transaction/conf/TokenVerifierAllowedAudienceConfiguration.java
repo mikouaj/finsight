@@ -23,7 +23,7 @@ public class TokenVerifierAllowedAudienceConfiguration {
     private String name;
     @JsonProperty
     @NotNull
-    private TokenConfiguration authTokens;
+    private TokenConfiguration[] authTokens;
 
     public TokenVerifierAllowedAudienceConfiguration() {
     }
@@ -36,11 +36,11 @@ public class TokenVerifierAllowedAudienceConfiguration {
         this.name = name;
     }
 
-    public TokenConfiguration getAuthTokens() {
+    public TokenConfiguration[] getAuthTokens() {
         return authTokens;
     }
 
-    public void setAuthTokens(TokenConfiguration authTokens) {
+    public void setAuthTokens(TokenConfiguration[] authTokens) {
         this.authTokens = authTokens;
     }
 }

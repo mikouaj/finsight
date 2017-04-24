@@ -24,7 +24,6 @@ import pl.surreal.finance.transaction.conf.TokenGeneratorAllowedAudienceConfigur
 import pl.surreal.finance.transaction.core.security.AuthToken;
 import pl.surreal.finance.transaction.core.security.User;
 
-import java.io.UnsupportedEncodingException;
 import java.util.*;
 
 public class AuthTokenGenerator implements IAuthTokenGenerator<AuthDetails> {
@@ -39,24 +38,6 @@ public class AuthTokenGenerator implements IAuthTokenGenerator<AuthDetails> {
         this.authenticator = authenticator;
     }
 
-    private Optional<Algorithm> getAlgorithm(String algCode,String secret) {
-        Algorithm algorithm = null;
-        try {
-            switch (algCode) {
-                case "HMAC256":
-                    algorithm = Algorithm.HMAC256(secret);
-                    break;
-                case "HMAC512":
-                    algorithm = Algorithm.HMAC512(secret);
-                    break;
-            }
-        } catch(UnsupportedEncodingException e) {
-            LOGGER.warn("getAlgorithm exception due to '{}'",e.getMessage());
-            e.printStackTrace();
-        }
-        return Optional.ofNullable(algorithm);
-    }
-
     @Override
     public Optional<AuthToken> generateToken(AuthDetails authDetails) {
         AuthToken authToken=null;
@@ -69,7 +50,7 @@ public class AuthTokenGenerator implements IAuthTokenGenerator<AuthDetails> {
                 throw new Exception("Application "+authDetails.getAppName()+" bad secret");
             }
 
-            Algorithm algorithm = getAlgorithm(audienceConfig.getSignAlgorithm(),authDetails.getAppSecret()).orElseThrow(()->new Exception("Cant obtain algorithm "+audienceConfig.getSignAlgorithm()+" for audience"));
+            Algorithm algorithm = AuthUtils.getAlgorithm(audienceConfig.getSignAlgorithm(),authDetails.getAppSecret()).orElseThrow(()->new Exception("Cant obtain algorithm "+audienceConfig.getSignAlgorithm()+" for audience"));
             com.google.common.base.Optional<User> user = authenticator.authenticate(authDetails);
             if(user.isPresent()) {
                 String tokenString = JWT.create()

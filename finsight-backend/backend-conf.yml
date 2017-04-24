@@ -58,7 +58,7 @@ authTokenVerifier:
   allowedAudiences:
     - name: finsight-frontend.apps.dev.surreal.pl
       authTokens:
-        issuer: finsight-backend.apps.dev.surreal.pl
-        type: JWT
-        signAlgorithm: HMAC256
-        signSecret: finsight-frontend1234
+        - issuer: finsight-backend.apps.dev.surreal.pl
+          type: JWT
+          signAlgorithm: HMAC256
+          signSecret: finsight-frontend1234
