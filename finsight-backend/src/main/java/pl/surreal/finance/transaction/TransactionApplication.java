@@ -15,15 +15,19 @@
 package pl.surreal.finance.transaction;
 
 import io.dropwizard.Application;
+import io.dropwizard.auth.AuthDynamicFeature;
+import io.dropwizard.auth.oauth.OAuthCredentialAuthFilter;
 import io.dropwizard.configuration.EnvironmentVariableSubstitutor;
 import io.dropwizard.configuration.SubstitutingSourceProvider;
 import io.dropwizard.db.DataSourceFactory;
 import io.dropwizard.forms.MultiPartBundle;
 import io.dropwizard.hibernate.HibernateBundle;
+import io.dropwizard.hibernate.UnitOfWorkAwareProxyFactory;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import org.eclipse.jetty.servlets.CrossOriginFilter;
 import org.glassfish.jersey.linking.DeclarativeLinkingFeature;
+import pl.surreal.finance.transaction.auth.AuthTokenAuthenticator;
 import pl.surreal.finance.transaction.auth.AuthTokenGenerator;
 import pl.surreal.finance.transaction.auth.UserDBAuthenticator;
 import pl.surreal.finance.transaction.cli.GenerateCommand;
@@ -94,6 +98,11 @@ public class TransactionApplication extends Application<TransactionConfiguration
 		authTokenGenerator.setTokenLifeMilis(tokenGeneratorConfiguration.getTokenLife());
 		authTokenGenerator.setAllowedAudiences(tokenGeneratorConfiguration.getAllowedAudiences());
 
+		final AuthTokenAuthenticator authTokenAuthenticator =
+				new UnitOfWorkAwareProxyFactory(hibernateBundle)
+						.create(AuthTokenAuthenticator.class,UserDAO.class,userDAO);
+		authTokenAuthenticator.setAllowedAudiences(configuration.getTokenVerifierConfiguration().getAllowedAudiences());
+
 		environment.jersey().register(new TransactionResource(dao,labelDAO,parserFactory,transactionLabeler));
 		environment.jersey().register(new CardResource(cardDAO));
 		environment.jersey().register(new AccountResource(accountDAO));
@@ -108,7 +117,13 @@ public class TransactionApplication extends Application<TransactionConfiguration
 		configuration.getSwaggerConfiguration().createBeanConfig();
 		
 		environment.jersey().getResourceConfig().packages(getClass().getPackage().getName()).register(DeclarativeLinkingFeature.class);
-		
+
+		environment.jersey().register(new AuthDynamicFeature(
+				new OAuthCredentialAuthFilter.Builder<User>()
+						.setAuthenticator(authTokenAuthenticator)
+						.setPrefix("Bearer")
+						.buildAuthFilter()));
+
 		FilterRegistration.Dynamic corsfilter = environment.servlets().addFilter("CORSFilter", CrossOriginFilter.class);
 		corsfilter.setInitParameter("allowedOrigins", "*");
 		corsfilter.setInitParameter("allowedHeaders", "X-Requested-With,Content-Type,Accept,Origin");

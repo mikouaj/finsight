@@ -60,7 +60,7 @@ public class TokenGeneratorConfiguration {
     public HashMap<String,String> getTokenAllowedAppsMap() {
         HashMap<String,String> hashMap = new HashMap<>();
         for(TokenGeneratorAllowedAudienceConfiguration appConfig : allowedAudiences) {
-            hashMap.put(appConfig.getName(), appConfig.getSecret());
+            hashMap.put(appConfig.getName(), appConfig.getSignSecret());
         }
         return hashMap;
     }

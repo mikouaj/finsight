@@ -52,7 +52,7 @@ authTokenGenerator:
   allowedAudiences:
     - name: finsight-frontend.apps.dev.surreal.pl
       signAlgorithm: HMAC256
-      secret: finsight-frontend1234
+      signSecret: finsight-frontend1234
 
 authTokenVerifier:
   allowedAudiences:

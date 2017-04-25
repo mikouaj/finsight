@@ -46,11 +46,11 @@ public class AuthTokenGenerator implements IAuthTokenGenerator<AuthDetails> {
                 throw new Exception("Application "+authDetails.getAppName()+" not present on allowed audiences list");
             }
             TokenGeneratorAllowedAudienceConfiguration audienceConfig = allowedAudiences.get(authDetails.getAppName());
-            if(audienceConfig.getSecret().compareTo(authDetails.getAppSecret())!=0) {
+            if(audienceConfig.getSignSecret().compareTo(authDetails.getAppSecret())!=0) {
                 throw new Exception("Application "+authDetails.getAppName()+" bad secret");
             }
 
-            Algorithm algorithm = AuthUtils.getAlgorithm(audienceConfig.getSignAlgorithm(),authDetails.getAppSecret()).orElseThrow(()->new Exception("Cant obtain algorithm "+audienceConfig.getSignAlgorithm()+" for audience"));
+            Algorithm algorithm = SignAlgorithm.getAlgorithm(audienceConfig.getSignAlgorithm(),authDetails.getAppSecret()).orElseThrow(()->new Exception("Cant obtain algorithm "+audienceConfig.getSignAlgorithm()+" for audience"));
             com.google.common.base.Optional<User> user = authenticator.authenticate(authDetails);
             if(user.isPresent()) {
                 String tokenString = JWT.create()

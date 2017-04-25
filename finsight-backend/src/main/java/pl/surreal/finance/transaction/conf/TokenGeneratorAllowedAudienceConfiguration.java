@@ -27,7 +27,7 @@ public class TokenGeneratorAllowedAudienceConfiguration {
     private String signAlgorithm;
     @JsonProperty
     @NotNull
-    private String secret;
+    private String signSecret;
 
     public TokenGeneratorAllowedAudienceConfiguration() {
     }
@@ -48,11 +48,11 @@ public class TokenGeneratorAllowedAudienceConfiguration {
         this.signAlgorithm = signAlgorithm;
     }
 
-    public String getSecret() {
-        return secret;
+    public String getSignSecret() {
+        return signSecret;
     }
 
-    public void setSecret(String secret) {
-        this.secret = secret;
+    public void setSignSecret(String signSecret) {
+        this.signSecret = signSecret;
     }
 }
