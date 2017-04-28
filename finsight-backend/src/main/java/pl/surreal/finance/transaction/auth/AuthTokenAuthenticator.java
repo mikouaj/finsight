@@ -63,7 +63,7 @@ public class AuthTokenAuthenticator implements Authenticator<String, User> {
     private boolean verifyRSAToken(String token, String algorithmCode, String[] pemKeys) {
         for(String pemKey : pemKeys) {
             try {
-                Algorithm algorithm = SignAlgorithm.getAlgorithm(algorithmCode,pemKeys).orElseThrow(()->new Exception("can't obtain algorithm"));
+                Algorithm algorithm = SignAlgorithm.getAlgorithm(algorithmCode,pemKey,null).orElseThrow(()->new Exception("can't obtain algorithm"));
                 JWT.require(algorithm).build().verify(token);
                 return true;
             } catch(Exception e) {

@@ -75,7 +75,6 @@ public enum SignAlgorithm {
             }
         } catch(Exception e) {
             LOGGER.warn("getAlgorithm exception due to '{}'",e.getMessage());
-            e.printStackTrace();
         }
         return Optional.ofNullable(algorithm);
     }
