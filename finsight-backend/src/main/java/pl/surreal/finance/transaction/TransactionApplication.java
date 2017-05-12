@@ -14,6 +14,14 @@
 
 package pl.surreal.finance.transaction;
 
+import java.util.EnumSet;
+
+import javax.servlet.DispatcherType;
+import javax.servlet.FilterRegistration;
+
+import org.eclipse.jetty.servlets.CrossOriginFilter;
+import org.glassfish.jersey.linking.DeclarativeLinkingFeature;
+
 import io.dropwizard.Application;
 import io.dropwizard.auth.AuthDynamicFeature;
 import io.dropwizard.auth.oauth.OAuthCredentialAuthFilter;
@@ -25,26 +33,41 @@ import io.dropwizard.hibernate.HibernateBundle;
 import io.dropwizard.hibernate.UnitOfWorkAwareProxyFactory;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
-import org.eclipse.jetty.servlets.CrossOriginFilter;
-import org.glassfish.jersey.linking.DeclarativeLinkingFeature;
 import pl.surreal.finance.transaction.auth.AuthTokenAuthenticator;
 import pl.surreal.finance.transaction.auth.AuthTokenGenerator;
+import pl.surreal.finance.transaction.auth.JWTTokenDecoder;
 import pl.surreal.finance.transaction.auth.UserDBAuthenticator;
 import pl.surreal.finance.transaction.cli.GenerateCommand;
 import pl.surreal.finance.transaction.cli.MigrateCommand;
 import pl.surreal.finance.transaction.conf.TokenGeneratorConfiguration;
-import pl.surreal.finance.transaction.core.*;
+import pl.surreal.finance.transaction.core.Account;
+import pl.surreal.finance.transaction.core.Card;
+import pl.surreal.finance.transaction.core.CardOperation;
+import pl.surreal.finance.transaction.core.Commission;
+import pl.surreal.finance.transaction.core.Label;
+import pl.surreal.finance.transaction.core.LabelRule;
+import pl.surreal.finance.transaction.core.Transaction;
+import pl.surreal.finance.transaction.core.Transfer;
 import pl.surreal.finance.transaction.core.security.AuthToken;
 import pl.surreal.finance.transaction.core.security.Role;
 import pl.surreal.finance.transaction.core.security.User;
-import pl.surreal.finance.transaction.db.*;
+import pl.surreal.finance.transaction.db.AccountDAO;
+import pl.surreal.finance.transaction.db.CardDAO;
+import pl.surreal.finance.transaction.db.LabelDAO;
+import pl.surreal.finance.transaction.db.LabelRuleDAO;
+import pl.surreal.finance.transaction.db.RoleDAO;
+import pl.surreal.finance.transaction.db.TransactionDAO;
+import pl.surreal.finance.transaction.db.UserDAO;
 import pl.surreal.finance.transaction.labeler.TransactionLabeler;
 import pl.surreal.finance.transaction.parser.ParserFactory;
-import pl.surreal.finance.transaction.resources.*;
-
-import javax.servlet.DispatcherType;
-import javax.servlet.FilterRegistration;
-import java.util.EnumSet;
+import pl.surreal.finance.transaction.resources.AccountResource;
+import pl.surreal.finance.transaction.resources.AuthTokenResource;
+import pl.surreal.finance.transaction.resources.CardResource;
+import pl.surreal.finance.transaction.resources.LabelResource;
+import pl.surreal.finance.transaction.resources.LabelRuleResource;
+import pl.surreal.finance.transaction.resources.RoleResource;
+import pl.surreal.finance.transaction.resources.TransactionResource;
+import pl.surreal.finance.transaction.resources.UserResource;
 
 public class TransactionApplication extends Application<TransactionConfiguration>
 {
@@ -101,7 +124,7 @@ public class TransactionApplication extends Application<TransactionConfiguration
 		final AuthTokenAuthenticator authTokenAuthenticator =
 				new UnitOfWorkAwareProxyFactory(hibernateBundle)
 						.create(AuthTokenAuthenticator.class,UserDAO.class,userDAO);
-		authTokenAuthenticator.setAllowedAudiences(configuration.getTokenVerifierConfiguration().getAllowedAudiences());
+		authTokenAuthenticator.addDecoder(new JWTTokenDecoder(configuration.getTokenVerifierConfiguration()));
 
 		environment.jersey().register(new TransactionResource(dao,labelDAO,parserFactory,transactionLabeler));
 		environment.jersey().register(new CardResource(cardDAO));

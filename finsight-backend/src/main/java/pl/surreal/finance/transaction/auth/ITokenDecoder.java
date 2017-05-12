@@ -1,4 +1,5 @@
 /* Copyright 2017 Mikolaj Stefaniak
+
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -11,10 +12,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
 */
+
 package pl.surreal.finance.transaction.auth;
 
-public class AuthTokenAuthenticatorException extends Exception {
-    public AuthTokenAuthenticatorException(String message) {
-        super(message);
-    }
+public interface ITokenDecoder<C> {
+    public boolean isValid(C token);
+    public String getIssuer(C token) throws TokenDecoderException;
+    public String getSubject(C token) throws TokenDecoderException;
 }

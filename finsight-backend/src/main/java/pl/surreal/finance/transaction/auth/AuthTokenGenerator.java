@@ -50,7 +50,8 @@ public class AuthTokenGenerator implements IAuthTokenGenerator<AuthDetails> {
                 throw new Exception("Application "+authDetails.getAppName()+" bad secret");
             }
 
-            Algorithm algorithm = SignAlgorithm.getAlgorithm(audienceConfig.getSignAlgorithm(),authDetails.getAppSecret()).orElseThrow(()->new Exception("Cant obtain algorithm "+audienceConfig.getSignAlgorithm()+" for audience"));
+            JWTSignAlgorithm algorithmCode = Enum.valueOf(JWTSignAlgorithm.class,audienceConfig.getSignAlgorithm());
+            Algorithm algorithm = Optional.ofNullable(JWTSignAlgorithm.getSecretAlgorithm(algorithmCode,authDetails.getAppSecret())).orElseThrow(()->new Exception("Cant obtain algorithm "+audienceConfig.getSignAlgorithm()+" for audience"));
             com.google.common.base.Optional<User> user = authenticator.authenticate(authDetails);
             if(user.isPresent()) {
                 String tokenString = JWT.create()

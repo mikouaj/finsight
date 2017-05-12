@@ -26,6 +26,7 @@ import pl.surreal.finance.transaction.core.security.User;
 import pl.surreal.finance.transaction.db.RoleDAO;
 import pl.surreal.finance.transaction.db.UserDAO;
 
+import javax.annotation.security.PermitAll;
 import javax.validation.Valid;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -120,6 +121,7 @@ public class UserResource
 
     @POST
     @UnitOfWork
+    @PermitAll
     @ApiOperation(value = "Create new user")
     public UserApi create(@ApiParam(value = "new user data", required = true) @Validated(UserPostChecks.class) UserApi userApi) {
         User userToCreate = mapApiToDomain(userApi,null);
