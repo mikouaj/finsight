@@ -1,4 +1,4 @@
-package pl.surreal.finance.transaction.auth;
+package pl.surreal.finance.transaction.auth.token;
 
 public class TokenDecoderException extends Exception {
 	private static final long serialVersionUID = -6949482744676203323L;

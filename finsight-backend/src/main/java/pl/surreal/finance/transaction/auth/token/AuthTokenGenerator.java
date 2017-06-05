@@ -12,7 +12,7 @@
  * limitations under the License.
 */
 
-package pl.surreal.finance.transaction.auth;
+package pl.surreal.finance.transaction.auth.token;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
@@ -20,6 +20,8 @@ import io.dropwizard.auth.Authenticator;
 import io.dropwizard.auth.basic.BasicCredentials;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import pl.surreal.finance.transaction.auth.AuthDetails;
 import pl.surreal.finance.transaction.conf.TokenGeneratorAllowedAudienceConfiguration;
 import pl.surreal.finance.transaction.core.security.AuthToken;
 import pl.surreal.finance.transaction.core.security.User;

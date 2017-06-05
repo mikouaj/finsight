@@ -12,7 +12,7 @@
  * limitations under the License.
 */
 
-package pl.surreal.finance.transaction.auth;
+package pl.surreal.finance.transaction.auth.token;
 
 import java.io.UnsupportedEncodingException;
 

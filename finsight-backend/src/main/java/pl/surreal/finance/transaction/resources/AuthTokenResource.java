@@ -21,7 +21,7 @@ import io.swagger.annotations.ApiParam;
 import pl.surreal.finance.transaction.api.AuthDetailsApi;
 import pl.surreal.finance.transaction.api.AuthTokenApi;
 import pl.surreal.finance.transaction.auth.AuthDetails;
-import pl.surreal.finance.transaction.auth.IAuthTokenGenerator;
+import pl.surreal.finance.transaction.auth.token.IAuthTokenGenerator;
 import pl.surreal.finance.transaction.core.security.AuthToken;
 
 import javax.validation.Valid;

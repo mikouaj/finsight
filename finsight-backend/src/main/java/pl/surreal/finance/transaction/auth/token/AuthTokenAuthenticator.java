@@ -12,7 +12,7 @@
  * limitations under the License.
 */
 
-package pl.surreal.finance.transaction.auth;
+package pl.surreal.finance.transaction.auth.token;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,11 +24,16 @@ import org.slf4j.LoggerFactory;
 import io.dropwizard.auth.AuthenticationException;
 import io.dropwizard.auth.Authenticator;
 import io.dropwizard.hibernate.UnitOfWork;
+import pl.surreal.finance.transaction.auth.BackendUserVerifier;
+import pl.surreal.finance.transaction.auth.IUserVerifier;
 import pl.surreal.finance.transaction.core.security.User;
 import pl.surreal.finance.transaction.db.UserDAO;
 
 public class AuthTokenAuthenticator implements Authenticator<String, User> {
     private static final Logger LOGGER = LoggerFactory.getLogger(AuthTokenAuthenticator.class);
+    private static final String issuerBackend = "finsight-backend.apps.dev.surreal.pl";
+    private static final String issuerGoogle = "https://accounts.google.com";
+    
     private final UserDAO userDAO;
     private final List<ITokenDecoder<String>> decoders;
 
@@ -40,26 +45,34 @@ public class AuthTokenAuthenticator implements Authenticator<String, User> {
     @Override
     @UnitOfWork
     public com.google.common.base.Optional<User> authenticate(String token) throws AuthenticationException {
-    	ITokenDecoder<String> decoder = null;
-    	for(int i=0;i<decoders.size();i++) {
-    		if(decoders.get(i).isValid(token)) {
-    			decoder = decoders.get(i);
-    			break;
+    	User user = null;
+    	try {
+    		ITokenDecoder<String> decoder = null;
+    		IUserVerifier<User> verifier = null;
+		   	for(int i=0;i<decoders.size();i++) {
+	    		if(decoders.get(i).isValid(token)) {
+	    			decoder = decoders.get(i);
+	    			break;
+	    		}
+	    	}
+		   	if(decoder==null) throw new Exception("no suitable decoders found for a token");
+		   	String tokenIssuer = decoder.getIssuer(token);
+		   	switch(tokenIssuer) {
+		   		case issuerBackend:
+		   			verifier = new BackendUserVerifier(userDAO);
+		   			break;
+		   		default:
+		   			throw new Exception("no verifier for token issuer '"+tokenIssuer+"'");
+		   	}
+		   	Optional<User> userOpt = verifier.verify(decoder.getSubject(token));
+    		if(userOpt.isPresent()) {
+    			user = userOpt.get();
     		}
+    	} catch(Exception e) {
+    		LOGGER.debug("authenticate() exception : '{}'",e.getMessage()); 
+    		return com.google.common.base.Optional.absent();
     	}
-    	if(decoder==null) {
-    		LOGGER.info("authenticate() no suitable decoders found for a token"); 
-    	} else {
-    		try {
-				Optional<User> userOpt = userDAO.findById(decoder.getSubject(token));
-				if(userOpt.isPresent()) {
-					return com.google.common.base.Optional.of(userOpt.get());
-				}
-			} catch (TokenDecoderException e) {
-				LOGGER.debug("authenticate() got TokenDecoderException due to '{}'",e.getMessage()); 
-			}
-    	}
-    	return com.google.common.base.Optional.absent();
+    	return com.google.common.base.Optional.fromNullable(user);
     }
     
     public void addDecoder(ITokenDecoder<String> decoder) {

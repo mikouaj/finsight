@@ -12,7 +12,7 @@
  * limitations under the License.
 */
 
-package pl.surreal.finance.transaction.auth;
+package pl.surreal.finance.transaction.auth.token;
 
 import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
@@ -91,6 +91,7 @@ public class JWTTokenDecoder implements ITokenDecoder<String> {
 			DecodedJWT jwt = JWT.decode(token);
             TokenVerifierAllowedAudienceConfiguration audienceConfig = getAudienceConfig(jwt.getAudience()).orElseThrow(()->new TokenDecoderException("Audience not allowed"));
             TokenConfiguration tokenConfig = getTokenConfig(audienceConfig,jwt.getIssuer()).orElseThrow(()->new TokenDecoderException("Issuer not allowed"));
+            if(tokenConfig.getType().compareTo("JWT")!=0) throw new TokenDecoderException("Configured token type is not JWT");
             return verifyToken(tokenConfig,token);
 		} catch(JWTDecodeException | TokenDecoderException e) {
 			LOGGER.info("isValid() failed to validate token due to exception '{}'",e.getMessage());

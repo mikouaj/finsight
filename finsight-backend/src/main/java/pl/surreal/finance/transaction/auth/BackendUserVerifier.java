@@ -11,12 +11,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
 */
-package pl.surreal.finance.transaction.auth;
 
-import pl.surreal.finance.transaction.core.security.AuthToken;
+package pl.surreal.finance.transaction.auth;
 
 import java.util.Optional;
 
-public interface IAuthTokenGenerator<C> {
-    public Optional<AuthToken> generateToken(C credentials);
+import pl.surreal.finance.transaction.core.security.User;
+import pl.surreal.finance.transaction.db.UserDAO;
+
+public class BackendUserVerifier implements IUserVerifier<User> {
+	private final UserDAO userDAO;
+	
+	public BackendUserVerifier(UserDAO userDAO) {
+		this.userDAO = userDAO;
+	}
+	
+	@Override
+	public Optional<User> verify(String userString) {
+		return userDAO.findById(userString);
+	}
 }
