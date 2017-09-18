@@ -7,8 +7,14 @@ package { 'docker':
   ensure => installed
 }
 
+service { 'docker':
+  require => Package['docker'],
+  ensure => running,
+  enable => true
+}
+
 exec { 'composedownload':
-  command => "curl -L https://github.com/docker/compose/releases/download/1.16.1/docker-compose-`uname -s`-`uname -m` -o /tmp/docker-compose"
+  command => '/usr/bin/curl -L https://github.com/docker/compose/releases/download/1.16.1/docker-compose-Linux-x86_64 -o /tmp/docker-compose'
 }
 
 file { 'composebin':
@@ -18,7 +24,7 @@ file { 'composebin':
   owner => 'root',
   group => 'root',
   mode => '755',
-  source => '/tmp/docker-compose
+  source => '/tmp/docker-compose'
 }
   
 user { 'finsight':
@@ -51,16 +57,16 @@ file { 'composefile':
 }
 
 exec { 'imageimport':
-  require => Package['docker'],
-  command => 'docker load -i /tmp/finsight.tar'
+  require => Service['docker'],
+  command => '/usr/bin/docker load -i /tmp/finsight.tar.bz2'
 }
 
-exec {
+exec { 'containerstart':
   require => [
     File['composefile'],
     File['composebin'],
     Exec['imageimport']
   ],
-  cwd => "/home/finsight", 
-  command => "docker-compose up -d"
+  cwd => '/home/finsight', 
+  command => '/usr/local/bin/docker-compose up -d'
 }

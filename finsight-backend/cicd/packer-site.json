@@ -2,19 +2,17 @@
   "builders": [
    {
      "type" : "amazon-ebs",
-     "region": "us-west-1",
+     "region": "eu-central-1",
      "source_ami": "ami-d74be5b8",
-     
+     "instance_type" : "t2.micro",
+     "ssh_username": "ec2-user",
+     "ami_name": "finsight-ami {{timestamp}}"
    }],
    "provisioners" : [
      {
-       "type" : "shell-local",
-       "command" : "bzip2 -9 finsight.tar"
-     },
-     {
        "type" : "file",
        "source" : "finsight.tar.bz2",
-       "destination" : "/tmp/finsight.tar"
+       "destination" : "/tmp/finsight.tar.bz2"
      },
      {
        "type" : "file",
@@ -24,9 +22,16 @@
      {
        "type" : "shell",
        "inline" : [
-         "rpm -iva https://yum.puppet.com/puppetlabs-release-el-7.noarch.rpm",
-         "yum update -y",
-         "yum install -y puppet"
+         "sudo rpm -iva https://yum.puppet.com/puppetlabs-release-el-7.noarch.rpm",
+         "sudo yum update -y",
+         "sudo yum install -y puppet"
+       ]
+     },
+     {
+       "type" : "shell",
+       "inline" : [
+         "mkdir -p /tmp/packer-puppet-masterless/manifests",
+         "chmod -R 777 /tmp/packer-puppet-masterless"
        ]
      },
      {
