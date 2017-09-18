@@ -1,0 +1,19 @@
+version: '2'
+services:
+  finsight:
+    image: surreal/finsight:latest
+    container_name: finsight
+    restart : unless-stopped
+    # init : true
+    ports:
+      - "8090:8090"
+      - "8091:8091"
+    environment:
+      #- DB_DRIVER=org.postgresql.Driver
+      #- DB_USER=user
+      #- DB_PASS=pass
+      #- DB_URL=jdbc:postgresql://127.0.0.1/finsight
+      - DB_DRIVER=org.h2.Driver
+      - DB_USER=sa
+      - DB_PASS=sa
+      - DB_URL=jdbc:h2:./target/example.db

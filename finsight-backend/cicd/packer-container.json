@@ -1,0 +1,53 @@
+{
+  "builders": [
+   {
+     "type" : "docker",
+     "image" : "centos",
+     "author" : "Surreal Networks",
+     "commit" : true,
+     "changes" : [
+       "USER finsight",  
+       "WORKDIR /home/finsight",
+       "CMD java -jar /home/finsight/finsight-backend.jar server /home/finsight/finsight-backend.yml;",
+       "EXPOSE 8090 8091"
+     ]
+   }],
+   "provisioners" : [
+     {
+       "type" : "file",
+       "source" : "finsight-backend-0.0.1-SNAPSHOT.jar",
+       "destination" : "/tmp/finsight-backend.jar"
+     },
+     {
+       "type" : "file",
+       "source" : "backend-conf.yml",
+       "destination" : "/tmp/finsight-backend.yml"
+     },
+     {
+       "type" : "shell",
+       "inline" : [
+         "rpm -iva https://yum.puppet.com/puppetlabs-release-el-7.noarch.rpm",
+         "yum update -y",
+         "yum install -y puppet"
+       ]
+     },
+     {
+       "type" : "puppet-masterless",
+       "manifest_file": "docker.pp",
+       "prevent_sudo" : true
+     }
+   ],
+   "post-processors": [
+     [
+       {
+         "type": "docker-tag",
+         "repository": "surreal/finsight",
+         "tag": "latest"
+       },
+       {
+         "type" : "docker-save",
+         "path" : "finsight.tar"
+       } 
+     ]
+   ]
+}

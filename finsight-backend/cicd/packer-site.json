@@ -1,0 +1,37 @@
+{
+  "builders": [
+   {
+     "type" : "amazon-ebs",
+     "region": "us-west-1",
+     "source_ami": "ami-d74be5b8",
+     
+   }],
+   "provisioners" : [
+     {
+       "type" : "shell-local",
+       "command" : "bzip2 -9 finsight.tar"
+     },
+     {
+       "type" : "file",
+       "source" : "finsight.tar.bz2",
+       "destination" : "/tmp/finsight.tar"
+     },
+     {
+       "type" : "file",
+       "source" : "docker-compose.yml",
+       "destination" : "/tmp/docker-compose.yml"
+     },
+     {
+       "type" : "shell",
+       "inline" : [
+         "rpm -iva https://yum.puppet.com/puppetlabs-release-el-7.noarch.rpm",
+         "yum update -y",
+         "yum install -y puppet"
+       ]
+     },
+     {
+       "type" : "puppet-masterless",
+       "manifest_file": "site.pp"
+     }
+   ]
+}
