@@ -3,9 +3,9 @@
    {
      "type" : "amazon-ebs",
      "region": "eu-central-1",
-     "source_ami": "ami-d74be5b8",
+     "source_ami": "ami-fa2df395",
      "instance_type" : "t2.micro",
-     "ssh_username": "ec2-user",
+     "ssh_username": "centos",
      "ami_name": "finsight-ami {{timestamp}}"
    }],
    "provisioners" : [

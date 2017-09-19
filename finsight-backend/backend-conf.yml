@@ -8,10 +8,10 @@ server:
       port: 8091
 
 database:
-  driverClass: org.h2.Driver
-  user: sa
-  password: sa
-  url: jdbc:h2:./target/example.db
+  driverClass: ${DB_DRIVER:-org.h2.Driver}
+  user: ${DB_USER:-sa}
+  password: ${DB_PASS:-sa}
+  url: ${DB_URL:-jdbc:h2:./target/example.db}
   properties:
     hibernate.hbm2ddl.auto: update
       

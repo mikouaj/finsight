@@ -29,15 +29,13 @@ file { 'composebin':
   
 user { 'finsight':
   ensure => present,
-  uid => '1000',
-  gid => '1000',
+  gid => 'finsight',
   shell => '/bin/bash',
   home => '/home/finsight'
 }
 
 group { 'finsight':
-  ensure => present,
-  gid => '1000'
+  ensure => present
 }
 
 file { '/home/finsight':
